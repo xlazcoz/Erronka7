@@ -16,6 +16,10 @@ main {
 nav{
     border-bottom: white solid 1px;
 }
+footer{
+    border-top: white solid 1px;
+}
+
 .lista ul {
     list-style: none;
     padding: 0;
