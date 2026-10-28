@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from database import get_session
 from models import Kargagunea
-from schemas import KargaguneaCreate, KargaguneaResponse
+from schemas import KargaguneaCreate, KargaguneaResponse, KargaguneaUpdate
 
 router = APIRouter(prefix="/kargaguneak", tags=["Kargaguneak"])
 
@@ -31,14 +31,22 @@ def sortu_kargagunea(session: SessionDep, data: KargaguneaCreate):
 
     return kargagunea
 
-@router.put("/{id}", response_model=KargaguneaResponse)
-def aldatu_kargagunea():
-    pass
 
 @router.patch("/{id}", response_model=KargaguneaResponse)
-def partzialki_aldatu_kargagunea():
-    pass
+def aldatu_kargagunea(session: SessionDep, data: KargaguneaUpdate, id: int):
+    kargagunea = session.get(Kargagunea, id)
+    changes = data.model_dump(exclude_unset=True)
+    for field, value in changes.items():
+        setattr(kargagunea, field, value)
+
+    session.commit()
+    session.refresh(kargagunea)
+
+    return kargagunea
 
 @router.delete("{id}", response_model=KargaguneaResponse)
-def ezabatu_kargagunea():
-    pass
+def ezabatu_kargagunea(session: SessionDep, id: int):
+    kargagunea = session.get(Kargagunea, id)
+
+    session.delete(kargagunea)
+    session.commit()

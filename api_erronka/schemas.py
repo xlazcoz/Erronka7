@@ -22,7 +22,12 @@ class ErabiltzaileaCreate(BaseModel):
     erreserben_historikoa: str
 
 class ErabiltzaileaUpdate(BaseModel):
-    pass
+    izena: str
+    abizena: str
+    login_erabiltzailea: str
+    login_pasahitza: str
+    rola: str
+    erreserben_historikoa: str
 
 class KargaguneaResponse(BaseModel):
     id: int
@@ -40,13 +45,29 @@ class KargaguneaCreate(BaseModel):
     egoera: str
 
 class KargaguneaUpdate(BaseModel):
-    pass
+    izena: str
+    helbidea: str
+    irudia: str
+    egoera: str
+
+class KargaPostuaResponse(BaseModel):
+    id: int
+    egoera: str
+    tamaina: str
+    kargagunea_id: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+class KargaPostuaCreate(BaseModel):
+    egoera: str
+    tamaina: str
+    kargagunea_id: int
 
 class PowerbankResponse(BaseModel):
     id: int
     karga_maila: float
     potentzia: float
-    tamaina: int
+    tamaina: str
     karga_postua_id: int
 
     model_config = ConfigDict(from_attributes=True)
@@ -54,8 +75,11 @@ class PowerbankResponse(BaseModel):
 class PowerbankCreate(BaseModel):
     karga_maila: float
     potentzia: float
-    tamaina: int
-    #karga_postua_id: int
+    tamaina: str
+    karga_postua_id: int
+
+class PowerbankUpdate(BaseModel):
+    karga_postua_id: int
 
 class ErreserbakResponse(BaseModel):
     erabiltzailea_id: int

@@ -13,7 +13,7 @@ SessionDep = Annotated[Session, Depends(get_session)]
 
 @router.get("", response_model=list[ErabiltzaileaResponse])
 def get_erabiltzaileak(session: SessionDep):
-    stmt = select(Erabiltzailea)
+    stmt = select(Erabiltzailea).order_by(Erabiltzailea.id)
     return session.scalars(stmt).all()
 
 @router.get("/{id}", response_model=ErabiltzaileaResponse)
@@ -34,5 +34,13 @@ def sortu_erabiltzailea(session: SessionDep, data: ErabiltzaileaCreate):
     return erabiltzailea
 
 @router.patch("/{id}", response_model=ErabiltzaileaResponse)
-def partzialki_aldatu_erabiltzailea(session: SessionDep, data: ErabiltzaileaUpdate):
-    pass
+def partzialki_aldatu_erabiltzailea(session: SessionDep, data: ErabiltzaileaUpdate, id: int):
+    erabiltzailea = session.get(Erabiltzailea, id)
+    changes = data.model_dump(exclude_unset=True)
+    for field, value in changes.items():
+        setattr(erabiltzailea, field, value)
+
+    session.commit()
+    session.refresh(erabiltzailea)
+
+    return erabiltzailea

@@ -40,7 +40,7 @@ class Powerbank(Base):
     karga_maila: Mapped[float]
     potentzia: Mapped[float]
     tamaina: Mapped[String] = mapped_column(String(100))
-    karga_postua: Mapped[int] = mapped_column(ForeignKey(KargaPostua.id))
+    karga_postua_id: Mapped[int] = mapped_column(ForeignKey(KargaPostua.id))
 
 class Erreserba(Base):
     __tablename__ = "erreserbak"
