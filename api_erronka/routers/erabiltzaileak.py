@@ -66,9 +66,9 @@ def aldatu_rolak(session: SessionDep, data: ErabiltzaileaRolaUpdate, id: int):
 def ezabatu_erabiltzailea(session: SessionDep, id: int):
     erabiltzailea = session.get(Erabiltzailea, id)
 
-    # if erabiltzailea is None:
-    #     raise HTTPException(status_code=404, detail="Erabiltzailea ez da aurkitzen")
-    # else:
+    if not erabiltzailea:
+        raise HTTPException(status_code=404, detail="Erabiltzailea ez da aurkitzen")
+    
     session.delete(erabiltzailea)
     session.commit()    
-    
+    return erabiltzailea

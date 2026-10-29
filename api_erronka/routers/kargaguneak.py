@@ -57,5 +57,9 @@ def aldatu_irudia(session: SessionDep, data: KargaguneaIrudiaUpdate, id: int):
 def ezabatu_kargagunea(session: SessionDep, id: int):
     kargagunea = session.get(Kargagunea, id)
 
+    if not kargagunea:
+        raise HTTPException(status_code=404, detail="Kargagunea ez da aurkitzen")
+
     session.delete(kargagunea)
     session.commit()
+    return kargagunea

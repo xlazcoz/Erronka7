@@ -67,3 +67,12 @@ class Erreserba(Base):
 
     # erabiltzaileak: Mapped[list["Erabiltzailea"]] = relationship(back_populates="erreserbak")
     # powerbanks: Mapped[list["Powerbank"]] = relationship(back_populates="erreserba")
+
+class AuthSession(Base):
+    __tablename__ = "auth_sessions"
+
+    id: Mapped[str] = mapped_column(String(100), primary_key=True)
+
+    erabiltzailea_id: Mapped[int] = mapped_column(ForeignKey(Erabiltzailea.id))
+
+    #erabiltzailea: Mapped["Erabiltzailea"] = relationship(back_populates="auth_sessions")

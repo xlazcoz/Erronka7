@@ -57,7 +57,7 @@ class KargaguneaCreate(BaseModel):
     def egoera_balidatu(cls, value: str) -> str:
         kargagunea_egoera = {"erabilgarri", "mantentze-lanetan", "zerbitzutik kanpo"}
         if value not in kargagunea_egoera:
-            raise ValueError("Egoera horrela izan behar da: erabilgarri, mantentze-lanetan, zerbitzutik kanpo")
+            raise ValueError("Egoera hauetako bat izan behar da: erabilgarri, mantentze-lanetan, zerbitzutik kanpo")
         return value
 
 class KargaguneaUpdate(BaseModel):
@@ -71,7 +71,7 @@ class KargaguneaUpdate(BaseModel):
     def egoera_balidatu(cls, value: str) -> str:
         kargagunea_egoera = {"erabilgarri", "mantentze-lanetan", "zerbitzutik kanpo"}
         if value not in kargagunea_egoera:
-            raise ValueError("Egoera horrela izan behar da: erabilgarri, mantentze-lanetan, zerbitzutik kanpo")
+            raise ValueError("Egoera hauetako bat izan behar da: erabilgarri, mantentze-lanetan, zerbitzutik kanpo")
         return value
 
 class KargaguneaIrudiaUpdate(BaseModel):
@@ -95,7 +95,7 @@ class KargaPostuaCreate(BaseModel):
     def egoera_balidatu(cls, value: str) -> str:
         kargagunea_egoera = {"hutsa", "kargatuta", "kargatzen"}
         if value not in kargagunea_egoera:
-            raise ValueError("Egoera horrela izan behar da: hutsa, kargatuta, kargatzen")
+            raise ValueError("Egoera hauetako bat izan behar da: hutsa, kargatuta, kargatzen")
         return value
 
     @field_validator("tamaina")
@@ -103,7 +103,7 @@ class KargaPostuaCreate(BaseModel):
     def tamaina_balidatu(cls, value: str) -> str:
         powerbank_tamaina = {"txikia", "ertaina", "handia"}
         if value not in powerbank_tamaina:
-            raise ValueError("Tamaina horrela izan behar da: txikia, ertaina, handia")
+            raise ValueError("Tamaina hauetako bat izan behar da: txikia, ertaina, handia")
         return value
 
 class PowerbankResponse(BaseModel):
@@ -126,7 +126,7 @@ class PowerbankCreate(BaseModel):
     def tamaina_balidatu(cls, value: str) -> str:
         powerbank_tamaina = {"txikia", "ertaina", "handia"}
         if value not in powerbank_tamaina:
-            raise ValueError("Tamaina horrela izan behar da: txikia, ertaina, handia")
+            raise ValueError("Tamaina hauetako bat izan behar da: txikia, ertaina, handia")
         return value
 
 class PowerbankUpdate(BaseModel):
@@ -159,7 +159,7 @@ class ErreserbakCreate(BaseModel):
     def egoera_balidatu(cls, value: str) -> str:
         kargagunea_egoera = {"aktiboa", "ezeztatua", "amaitua"}
         if value not in kargagunea_egoera:
-            raise ValueError("Egoera horrela izan behar da: aktiboa, ezeztatua, amaitua")
+            raise ValueError("Egoera hauetako bat izan behar da: aktiboa, ezeztatua, amaitua")
         return value
 
 class ErreserbakUpdate(BaseModel):
@@ -176,7 +176,7 @@ class ErreserbakUpdate(BaseModel):
     def egoera_balidatu(cls, value: str) -> str:
         kargagunea_egoera = {"aktiboa", "ezeztatua", "amaitua"}
         if value not in kargagunea_egoera:
-            raise ValueError("Egoera horrela izan behar da: aktiboa, ezeztatua, amaitua")
+            raise ValueError("Egoera hauetako bat izan behar da: aktiboa, ezeztatua, amaitua")
         return value
 
 class ErreserbakEgoeraUpdate(BaseModel):
@@ -187,5 +187,14 @@ class ErreserbakEgoeraUpdate(BaseModel):
     def egoera_balidatu(cls, value: str) -> str:
         kargagunea_egoera = {"aktiboa", "ezeztatua", "amaitua"}
         if value not in kargagunea_egoera:
-            raise ValueError("Egoera horrela izan behar da: aktiboa, ezeztatua, amaitua")
+            raise ValueError("Egoera hauetako bat izan behar da: aktiboa, ezeztatua, amaitua")
         return value
+
+class RegisterRequest(BaseModel):
+    izena: str = Field(min_length=2, max_length=100)
+    login_email: str = Field(min_length=2, max_length=100)
+    login_pasahitza: str = Field(min_length=2, max_length=100)
+
+class LoginRequest(BaseModel):
+    login_email: str = Field(min_length=2, max_length=100)
+    login_pasahitza: str = Field(min_length=2, max_length=100)

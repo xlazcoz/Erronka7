@@ -28,5 +28,9 @@ def sortu_karga_postua(session: SessionDep, data: KargaPostuaCreate):
 def ezabatu_karga_postua(session: SessionDep, id: int):
     karga_postua = session.get(KargaPostua, id)
 
+    if not karga_postua:
+        raise HTTPException(status_code=404, detail="Karga postua ez da aurkitzen")
+    
     session.delete(karga_postua)
     session.commit()
+    return karga_postua
