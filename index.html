@@ -4,102 +4,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kargagune</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/kargagunea.css">
+    <link rel="stylesheet" href="css/lista.css">
+    <title>Document</title>
 </head>
 
 <body>
     <header>
+        <nav class="navbar navbar-expand-lg navbar-dark navbar-modern">
+            <div class="container">
+                <a class="navbar-brand logo" href="#">
+                    <i class="fas fa-code text-primary"></i>
+                    <img src="https://assets.footylogos.com/logos/rayo-vallecano-white-logo-footylogos.png" alt="">
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav4">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav4">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">Lista</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="puesto-Carga.html">Botones</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Otros</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-outline-primary ms-2" href="Login.html">Cuenta</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
     </header>
 
-    <main class="container my-4">
-        <div class="titulo">
-            <h1>KARGAGUNEA_ZUBIETA</h1>
+    <main>
+        <h1>ESTACIONES DE CARGA</h1>
+        <div class="lista">
+            <ul>
+                <li class="elemento">
+                    <a href="puesto-Carga.html">estacion 1</a>
+                </li>
+                <li class="elemento">
+                    <a href="puesto-Carga.html?nombre=Xabi">estacion 2</a>
+                </li>
+                <li class="elemento">
+                    estacion 3
+                </li>
+                <li class="elemento">
+                    estacion 4
+                </li>
+                <li class="elemento">
+                    estacion 5
+                </li>
+                <li class="elemento">
+                    estacion 6
+                </li>
+            </ul>
         </div>
-
-        <div class="info">
-            <div id="carouselExampleIndicators" class="carousel slide mb-4" data-bs-ride="carousel">
-                <div class="carousel-indicators">
-                    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0"
-                        class="active" aria-current="true" aria-label="Slide 1"></button>
-                    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1"
-                        aria-label="Slide 2"></button>
-                    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2"
-                        aria-label="Slide 3"></button>
-                </div>
-                <div class="carousel-inner">
-                    <div class="carousel-item active">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/d/de/El_Peine_del_Viento_en_Donostia-San_Sebasti%C3%A1n.jpg"
-                            class="d-block w-100" alt="Peine del Viento">
-                    </div>
-                    <div class="carousel-item">
-                        <img src="https://i.pinimg.com/736x/81/67/1b/81671be0a66a32abe4442b902d5b2455.jpg"
-                            class="d-block w-100" alt="Puente de Zurriola">
-                    </div>
-                    <div class="carousel-item">
-                        <img src="https://i.pinimg.com/736x/70/59/c9/7059c9b99717f630694c4f8a4320d003.jpg"
-                            class="d-block w-100" alt="La Concha">
-                    </div>
-                </div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators"
-                    data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators"
-                    data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
-            </div>
-
-
-            <div class="texto d-flex flex-column" style="min-height: 300px;">
-                <div class="numero">
-                    <ul>
-                        <li>Taquillas libres: 4</li>
-                    </ul>
-                </div>
-
-                <div class="estado d-flex align-items-center gap-2 mb-3">
-                    <div id="mi-circulo" class="bg-success rounded-circle" style="width: 25px; height: 25px;"></div>
-                    <div class="estadotxt m-0">
-                        <p class="m-0">estado: 8 libres</p>
-                    </div>
-                </div>
-                <div class="direccion">
-                    <ul>
-                        <li><a href="https://www.google.es/maps">direccion</a></li>
-                    </ul>
-                </div>
-                <div class="boton mt-auto">
-                    <button type="button" class="btn btn-success">Reservar</button>
-                </div>
-            </div>
-        </div>
-
     </main>
-    <script>
 
-        const parametros = new URLSearchParams(window.location.search);
-        
-        const nombreRecibido = parametros.get('nombre');
-        console.log(nombreRecibido);
-
-        const circulo = document.getElementById('mi-circulo');
-
-        circulo.addEventListener('click', () => {
-            circulo.classList.toggle('bg-danger');
-            circulo.classList.toggle('bg-success');
-
-        });
-    </script>
-
-    <footer>
-    </footer>
-
+    
+        <footer class="bg-transparent text-light mt-auto py-5" data-bs-theme="dark">
+            <div class="container text-center">
+                <h5 class="mb-3">POWERBANK</h5>
+                <ul class="list-inline small mb-3">
+                    <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="#">Features</a>
+                    </li>
+                    <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none"
+                            href="#">Pricing</a></li>
+                    <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="#">Docs</a></li>
+                    <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none"
+                            href="#">Contact</a></li>
+                </ul>
+                <span class="text-body-secondary small">&copy; 2026 POWERBANK Inc.</span>
+            </div>
+        </footer>
 </body>
 
 </html>

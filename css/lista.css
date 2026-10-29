@@ -16,6 +16,11 @@ main {
 nav{
     border-bottom: white solid 1px;
 }
+
+.navbar-brand img{
+    width: 50px;
+}
+
 footer{
     border-top: white solid 1px;
 }
@@ -74,6 +79,3 @@ h1 {
    align-items: end;
 }
 
-.navbar-brand img{
-    width: 50px;
-}

@@ -7,6 +7,19 @@ body {
   color: #f1f5f9;
 }
 
+nav{
+    border-bottom: white solid 1px;
+}
+
+.navbar-brand img{
+    width: 50px;
+}
+
+
+footer{
+    border-top: white solid 1px;
+}
+
 .titulo{
     padding: 20px;
     align-items: center;
@@ -71,4 +84,28 @@ body {
 
 .boton {
     margin-top: auto;
+}
+
+
+
+.popover-personalizado {
+  background: transparent;
+  max-width: 500px;
+  width: 90%;
+  border: none;
+}
+
+.popover-personalizado::backdrop {
+  background-color: rgba(11, 15, 25, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+
+.form-control, .form-select {
+  background-color: #272b32 !important;
+  color: #fff;
+}
+
+.fw-bold-1{
+    margin-left: 75px;
 }

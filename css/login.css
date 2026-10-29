@@ -7,48 +7,39 @@ body {
   color: #f1f5f9;
 }
 
-.estado{
-    display: flex;
-    margin-left: 8px;
+
+nav{
+    border-bottom: white solid 1px;
 }
 
-.estadotxt{
-    margin-top: 10px;
-    margin-left: 20px;
+.navbar-brand img{
+    width: 50px;
 }
 
-main {
-  display: flex;
-  justify-content: center; 
-  align-items: center;    
-  min-height: 100vh;   
-  margin: 0;
+
+footer{
+    border-top: white solid 1px;
 }
 
-.texto{
-    padding: 2em 9em 3em 9em; 
-    border: rgba(255, 255, 255, 0.4) 2px solid; 
-    box-shadow: 6px 6px 20px rgba(245, 222, 179, 0.25); 
-    border-radius: 2em; 
-    display: flex;
+
+main{
+    margin: 5%;
 }
 
-.direccion{
-    text-align: left;
-}
 
-.numero{
-    text-align: left;
-}
 
-.boton {
-    margin-top: auto;
-}
-
-.input input{
-    background-color: #111727;
-    border: rgba(255, 255, 255, 0.4) 2px solid; 
-    border-radius: 5px;
+.card{
+    background-color: #0e1321;
     color: white;
-    
+     box-shadow: 6px 6px 20px rgba(245, 222, 179, 0.25);
+}
+
+.form-control{
+    color: white;
+}
+
+
+.form-control, .form-select {
+  background-color: #1b2331 !important;
+  color: #fff;
 }
