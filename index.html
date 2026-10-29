@@ -10,12 +10,13 @@
     <title>Document</title>
 </head>
 
-<body>
+<body >
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-transparent">
             <div class="container">
                 <a class="navbar-brand logo" href="#">
-                    <img src="https://assets.footylogos.com/logos/rayo-vallecano-white-logo-footylogos.png" alt="Logo">
+                    <img src="https://assets.footylogos.com/logos/rayo-vallecano-white-logo-footylogos.png" alt="Logo"
+                        style="height: 40px;">
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav4">
@@ -23,7 +24,7 @@
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarNav4">
-                    <ul class="navbar-nav ms-auto">
+                    <ul class="navbar-nav ms-auto align-items-center">
                         <li class="nav-item">
                             <a class="nav-link" href="index.html">Home</a>
                         </li>
@@ -37,7 +38,7 @@
                             <a class="nav-link" href="Erabiltzailea.html">Otros</a>
                         </li>
                         <li class="nav-item">
-                            <a class="btn btn-outline-primary ms-md-2 mt-2 mt-md-0" href="Login.html">Cuenta</a>
+                            <a class="btn btn-outline-primary ms-lg-2 mt-2 mt-lg-0" href="Login.html">Cuenta</a>
                         </li>
                     </ul>
                 </div>
@@ -45,42 +46,51 @@
         </nav>
     </header>
 
-    <main>
-        <h1>ESTACIONES DE CARGA</h1>
-        <div class="lista">
-            <ul>
-                <li class="elemento">
-                    <a href="puesto-Carga.html">estacion 1 </a>
-                    <div id="mi-circulo" class="bg-success rounded-circle shadow-sm"
-                        style="width: 25px; height: 25px; cursor: pointer;"></div>
+    <main class="container my-5 flex-grow-1">
+        <h1 class="text-center text-uppercase mb-4 fw-bold tracking-wide">Estaciones de Carga</h1>
 
-                </li>
-                <li class="elemento">
-                    <a href="puesto-Carga.html?nombre=Xabi">estacion 2</a>
-                    <div id="mi-circulo" class="bg-success rounded-circle shadow-sm"
-                        style="width: 25px; height: 25px; cursor: pointer;"></div>
+        <div class="list-group gap-3">
 
-                </li>
-                <li class="elemento">
-                    estacion 3
-                </li>
-                <li class="elemento">
-                    estacion 4
-                </li>
-                <li class="elemento">
-                    estacion 5
-                </li>
-                <li class="elemento">
-                    estacion 6
-                </li>
-            </ul>
+            <a href="puesto-Carga.html"
+                class="list-group-item list-group-item-action estacion-item text-white rounded-pill d-flex justify-content-between align-items-center py-3 px-4 shadow-sm">
+                <span class="text-lowercase fw-medium">estacion 1</span>
+                <div class="bg-success rounded-circle shadow-sm" style="width: 25px; height: 25px;"></div>
+            </a>
+
+            <a href="puesto-Carga.html?nombre=Xabi"
+                class="list-group-item list-group-item-action estacion-item text-white rounded-pill d-flex justify-content-between align-items-center py-3 px-4 shadow-sm">
+                <span class="text-lowercase fw-medium">estacion 2</span>
+                <div class="bg-success rounded-circle shadow-sm" style="width: 25px; height: 25px;"></div>
+            </a>
+
+            <div
+                class="list-group-item estacion-item text-white rounded-pill d-flex justify-content-between align-items-center py-3 px-4 shadow-sm">
+                <span class="text-lowercase fw-medium">estacion 3</span>
+                <div class="bg-danger rounded-circle shadow-sm" style="width: 25px; height: 25px;"></div>
+
+            </div>
+
+            <div
+                class="list-group-item estacion-item text-white rounded-pill d-flex justify-content-between align-items-center py-3 px-4 shadow-sm">
+                <span class="text-lowercase fw-medium">estacion 4</span>
+            </div>
+
+            <div
+                class="list-group-item estacion-item text-white rounded-pill d-flex justify-content-between align-items-center py-3 px-4 shadow-sm">
+                <span class="text-lowercase fw-medium">estacion 5</span>
+            </div>
+
+            <div
+                class="list-group-item estacion-item text-white rounded-pill d-flex justify-content-between align-items-center py-3 px-4 shadow-sm">
+                <span class="text-lowercase fw-medium">estacion 6</span>
+            </div>
+
         </div>
     </main>
 
-
-    <footer class=" text-light mt-auto py-5" data-bs-theme="dark">
+    <footer class="text-light mt-auto py-5" data-bs-theme="dark">
         <div class="container text-center">
-            <h5 class="mb-3">POWERBANK</h5>
+            <h5 class="mb-3 fw-bold">POWERBANK</h5>
             <ul class="list-inline small mb-3">
                 <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="#">Features</a></li>
                 <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none" href="#">Pricing</a>
@@ -89,7 +99,7 @@
                 <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none" href="#">Contact</a>
                 </li>
             </ul>
-            <span class="text-body-secondary small">&copy; 2026 POWERBANK Inc.</span>
+            <span class="text-body-secondary small">&copy; 2026 Powerbank Inc.</span>
         </div>
     </footer>
 </body>

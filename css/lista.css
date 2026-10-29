@@ -25,57 +25,15 @@ footer   {
   border-top: rgba(255, 255, 255, 0.2) solid 1px;
     background-color: rgba(11, 15, 25);
 }
-.lista ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    gap: 30px;
-    flex-direction: column;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0;
-}
 
-h1 {
-    text-align: center;
-    justify-content: center;
-    margin: 1em;
-}
+ .estacion-item {
+            background-color: rgba(15, 23, 42, 0.8) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            transition: all 0.2s ease-in-out;
+        }
 
-.elemento {
-    background-color: #121924;
-    border-radius: 2em;
-    text-align: center;
-    justify-content: center;
-    align-items: center;
-    padding: 0;
-    margin: 0;
-    width: 280px;
-    height: 50px;
-    display: flex;
-    border: #f1f5f9 solid 1px;
-    box-shadow: 3px 3px 5px rgba(245, 222, 179, 0.25);
-}
-
-.elemento a{
-    text-decoration: none;
-    color: white;
-}
-
-.elemento:hover {
-    background-color: #1e293b;
-    transform: translateY(-5px);
-    transition: 0.5s;
-}
-
-
-
-.cuenta{
-   background-color: aqua;
-   justify-content: end;
-   display: flex;
-   text-align:end;
-   align-items: end;
-}
-
+        .estacion-item:hover {
+            background-color: rgba(30, 41, 59, 0.8) !important;
+            border-color: rgba(255, 255, 255, 0.3) !important;
+            transform: translateY(-2px);
+        }
