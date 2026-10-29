@@ -12,38 +12,38 @@
 
 <body>
   <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-transparent">
-            <div class="container">
-                <a class="navbar-brand logo" href="#">
-                    <img src="https://assets.footylogos.com/logos/rayo-vallecano-white-logo-footylogos.png" alt="Logo">
-                </a>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent">
+      <div class="container">
+        <a class="navbar-brand logo" href="#">
+          <img src="https://assets.footylogos.com/logos/rayo-vallecano-white-logo-footylogos.png" alt="Logo">
+        </a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav4">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav4">
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-                <div class="collapse navbar-collapse" id="navbarNav4">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="index.html">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="index.html">Lista</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="puesto-Carga.html">Botones</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="Erabiltzailea.html">Otros</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-outline-primary ms-md-2 mt-2 mt-md-0" href="Login.html">Cuenta</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
+        <div class="collapse navbar-collapse" id="navbarNav4">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Lista</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="puesto-Carga.html">Botones</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="Erabiltzailea.html">Otros</a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-outline-primary ms-md-2 mt-2 mt-md-0" href="Login.html">Cuenta</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
   <main>
     <div id="Login">
       <section class=" bg-image">
@@ -158,19 +158,19 @@
     </div>
   </main>
   <footer class=" text-light mt-auto py-5" data-bs-theme="dark">
-        <div class="container text-center">
-            <h5 class="mb-3">POWERBANK</h5>
-            <ul class="list-inline small mb-3">
-                <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="#">Features</a></li>
-                <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none" href="#">Pricing</a>
-                </li>
-                <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="#">Docs</a></li>
-                <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none" href="#">Contact</a>
-                </li>
-            </ul>
-            <span class="text-body-secondary small">&copy; 2026 POWERBANK Inc.</span>
-        </div>
-    </footer>
+    <div class="container text-center">
+      <h5 class="mb-3">POWERBANK</h5>
+      <ul class="list-inline small mb-3">
+        <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="#">Features</a></li>
+        <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none" href="#">Pricing</a>
+        </li>
+        <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="#">Docs</a></li>
+        <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none" href="#">Contact</a>
+        </li>
+      </ul>
+      <span class="text-body-secondary small">&copy; 2026 Powerbank Inc.</span>
+    </div>
+  </footer>
 
   <script>
     const loginContainer = document.getElementById("Login");
@@ -193,9 +193,23 @@
     const pass = document.getElementById("Contraseña")
     // pillar datos de la api
 
-    if (usuario == api.user || pass == api.pass) {
 
+
+    //ejemplo de lo que hay que hacer con la api
+    async function getData() {
+      const url = "";
+      try {
+        const response = await fetch(url);
+        if (!responsive.ok) {
+          throw new Error(`Response status: ${response.status}`);
+        }
+        
+      } catch (error) {
+        console.error(error.message);
+        
+      }
     }
+
 
   </script>
 </body>
