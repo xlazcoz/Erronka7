@@ -10,12 +10,12 @@ router = APIRouter(prefix="/kargapostuak", tags=["Karga postuak"])
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
-@router.get("", response_model=list[KargaPostuaResponse])
+@router.get("", response_model=list[KargaPostuaResponse], status_code=200)
 def get_karga_postuak(session: SessionDep):
     stmt = select(KargaPostua).order_by(KargaPostua.id)
     return session.scalars(stmt).all()
 
-@router.post("", response_model=KargaPostuaResponse)
+@router.post("", response_model=KargaPostuaResponse, status_code=201)
 def sortu_karga_postua(session: SessionDep, data: KargaPostuaCreate):
     karga_postua = KargaPostua(egoera=data.egoera, tamaina=data.tamaina, kargagunea_id=data.kargagunea_id)
     session.add(karga_postua)
@@ -23,3 +23,10 @@ def sortu_karga_postua(session: SessionDep, data: KargaPostuaCreate):
     session.refresh(karga_postua)
 
     return karga_postua
+
+@router.delete("/{id}", response_model=KargaPostuaResponse, status_code=200)
+def ezabatu_karga_postua(session: SessionDep, id: int):
+    karga_postua = session.get(KargaPostua, id)
+
+    session.delete(karga_postua)
+    session.commit()

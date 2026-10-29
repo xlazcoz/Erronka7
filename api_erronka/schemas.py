@@ -1,33 +1,41 @@
 from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from pydantic import BaseModel, ConfigDict, Field
+
 
 class ErabiltzaileaResponse(BaseModel):
     id: int
     izena: str
     abizena:str
-    login_erabiltzailea: str
-    login_pasahitza: str
+    login_email: str
+    #login_pasahitza: str
     rola: str
     erreserben_historikoa: str
 
     model_config = ConfigDict(from_attributes=True)
 
-class ErabiltzaileaCreate(BaseModel):
-    izena: str
-    abizena: str
-    login_erabiltzailea: str
-    login_pasahitza: str
-    rola: str
+class ErabiltzaileaErreserbakResponse(BaseModel):
     erreserben_historikoa: str
 
+class ErabiltzaileaCreate(BaseModel):
+    izena: str = Field(min_length=1, max_length=100)
+    abizena: str = Field(min_length=1, max_length=100)
+    login_email: str = Field(min_length=1, max_length=100)
+    login_pasahitza: str = Field(min_length=1, max_length=100)
+    rola: str = Field(min_length=1, max_length=100)
+    erreserben_historikoa: str = Field(min_length=1, max_length=100)
+
+    
 class ErabiltzaileaUpdate(BaseModel):
-    izena: str
-    abizena: str
-    login_erabiltzailea: str
-    login_pasahitza: str
-    rola: str
-    erreserben_historikoa: str
+    izena: str = Field(min_length=1)
+    abizena: str = Field(min_length=1)
+    login_email: str = Field(min_length=1, max_length=100)
+    login_pasahitza: str = Field(min_length=1, max_length=100)
+    rola: str = Field(min_length=1, max_length=100)
+    erreserben_historikoa: str = Field(min_length=1, max_length=100)
+
+class ErabiltzaileaRolaUpdate(BaseModel):
+    rola: str = Field(min_length=1, max_length=100)
 
 class KargaguneaResponse(BaseModel):
     id: int
@@ -39,16 +47,35 @@ class KargaguneaResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class KargaguneaCreate(BaseModel):
-    izena: str
-    helbidea: str
-    irudia: str
-    egoera: str
+    izena: str = Field(min_length=1, max_length=100)
+    helbidea: str = Field(min_length=1, max_length=100)
+    irudia: str = Field(min_length=1, max_length=100)
+    egoera: str = Field(min_length=1, max_length=100)
+
+    @field_validator("egoera")
+    @classmethod
+    def egoera_balidatu(cls, value: str) -> str:
+        kargagunea_egoera = {"erabilgarri", "mantentze-lanetan", "zerbitzutik kanpo"}
+        if value not in kargagunea_egoera:
+            raise ValueError("Egoera horrela izan behar da: erabilgarri, mantentze-lanetan, zerbitzutik kanpo")
+        return value
 
 class KargaguneaUpdate(BaseModel):
-    izena: str
-    helbidea: str
-    irudia: str
-    egoera: str
+    izena: str = Field(min_length=1, max_length=100)
+    helbidea: str = Field(min_length=1, max_length=100)
+    irudia: str | None = Field(default=None, min_length=1, max_length=100)
+    egoera: str = Field(min_length=1, max_length=100)
+
+    @field_validator("egoera")
+    @classmethod
+    def egoera_balidatu(cls, value: str) -> str:
+        kargagunea_egoera = {"erabilgarri", "mantentze-lanetan", "zerbitzutik kanpo"}
+        if value not in kargagunea_egoera:
+            raise ValueError("Egoera horrela izan behar da: erabilgarri, mantentze-lanetan, zerbitzutik kanpo")
+        return value
+
+class KargaguneaIrudiaUpdate(BaseModel):
+    irudia: str | None = Field(default=None, min_length=1, max_length=100)
 
 class KargaPostuaResponse(BaseModel):
     id: int
@@ -59,9 +86,25 @@ class KargaPostuaResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class KargaPostuaCreate(BaseModel):
-    egoera: str
-    tamaina: str
-    kargagunea_id: int
+    egoera: str = Field(min_length=1, max_length=100)
+    tamaina: str = Field(min_length=1, max_length=100)
+    kargagunea_id: int = Field(gt=0)
+
+    @field_validator("egoera")
+    @classmethod
+    def egoera_balidatu(cls, value: str) -> str:
+        kargagunea_egoera = {"hutsa", "kargatuta", "kargatzen"}
+        if value not in kargagunea_egoera:
+            raise ValueError("Egoera horrela izan behar da: hutsa, kargatuta, kargatzen")
+        return value
+
+    @field_validator("tamaina")
+    @classmethod
+    def tamaina_balidatu(cls, value: str) -> str:
+        powerbank_tamaina = {"txikia", "ertaina", "handia"}
+        if value not in powerbank_tamaina:
+            raise ValueError("Tamaina horrela izan behar da: txikia, ertaina, handia")
+        return value
 
 class PowerbankResponse(BaseModel):
     id: int
@@ -73,13 +116,21 @@ class PowerbankResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class PowerbankCreate(BaseModel):
-    karga_maila: float
-    potentzia: float
-    tamaina: str
-    karga_postua_id: int
+    karga_maila: float = Field(le=100)
+    potentzia: float = Field(ge=1)
+    tamaina: str = Field(min_length=1, max_length=100)
+    karga_postua_id: int = Field(ge=1)
+
+    @field_validator("tamaina")
+    @classmethod
+    def tamaina_balidatu(cls, value: str) -> str:
+        powerbank_tamaina = {"txikia", "ertaina", "handia"}
+        if value not in powerbank_tamaina:
+            raise ValueError("Tamaina horrela izan behar da: txikia, ertaina, handia")
+        return value
 
 class PowerbankUpdate(BaseModel):
-    karga_postua_id: int
+    karga_postua_id: int = Field(ge=1)
 
 class ErreserbakResponse(BaseModel):
     erabiltzailea_id: int
@@ -101,5 +152,40 @@ class ErreserbakCreate(BaseModel):
     amaitze_data_ordua: datetime
     hasierako_karga_postua: datetime
     bukaerako_karga_postua: datetime
-    egoera: str
-    
+    egoera: str = Field(min_length=1)
+
+    @field_validator("egoera")
+    @classmethod
+    def egoera_balidatu(cls, value: str) -> str:
+        kargagunea_egoera = {"aktiboa", "ezeztatua", "amaitua"}
+        if value not in kargagunea_egoera:
+            raise ValueError("Egoera horrela izan behar da: aktiboa, ezeztatua, amaitua")
+        return value
+
+class ErreserbakUpdate(BaseModel):
+    hasiera_data_ordua: datetime
+    amaiera_data_ordua: datetime
+    egikaritze_data_ordua: datetime
+    amaitze_data_ordua: datetime
+    hasierako_karga_postua: datetime
+    bukaerako_karga_postua: datetime
+    egoera: str = Field(min_length=1)
+
+    @field_validator("egoera")
+    @classmethod
+    def egoera_balidatu(cls, value: str) -> str:
+        kargagunea_egoera = {"aktiboa", "ezeztatua", "amaitua"}
+        if value not in kargagunea_egoera:
+            raise ValueError("Egoera horrela izan behar da: aktiboa, ezeztatua, amaitua")
+        return value
+
+class ErreserbakEgoeraUpdate(BaseModel):
+    egoera: str = Field(min_length=1)
+
+    @field_validator("egoera")
+    @classmethod
+    def egoera_balidatu(cls, value: str) -> str:
+        kargagunea_egoera = {"aktiboa", "ezeztatua", "amaitua"}
+        if value not in kargagunea_egoera:
+            raise ValueError("Egoera horrela izan behar da: aktiboa, ezeztatua, amaitua")
+        return value
