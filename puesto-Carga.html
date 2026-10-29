@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
@@ -11,12 +11,12 @@
 </head>
 
 <body>
+
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark navbar-modern">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-transparent">
             <div class="container">
                 <a class="navbar-brand logo" href="#">
-                    <i class="fas fa-code text-primary"></i>
-                    <img src="https://assets.footylogos.com/logos/rayo-vallecano-white-logo-footylogos.png" alt="">
+                    <img src="https://assets.footylogos.com/logos/rayo-vallecano-white-logo-footylogos.png" alt="Logo">
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav4">
@@ -35,10 +35,10 @@
                             <a class="nav-link" href="puesto-Carga.html">Botones</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Otros</a>
+                            <a class="nav-link" href="Erabiltzailea.html">Otros</a>
                         </li>
                         <li class="nav-item">
-                            <a class="btn btn-outline-primary ms-2" href="Login.html">Cuenta</a>
+                            <a class="btn btn-outline-primary ms-md-2 mt-2 mt-md-0" href="Login.html">Cuenta</a>
                         </li>
                     </ul>
                 </div>
@@ -47,10 +47,10 @@
     </header>
 
     <main class="container my-4">
-        
-        <div class="info row align-items-center">
-            
-            <div class="col-md-6 mb-4 mb-md-0">
+
+        <div class="info row align-items-center g-4">
+
+            <div class="col-12 col-lg-6 d-flex justify-content-center">
                 <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
                     <div class="carousel-indicators">
                         <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0"
@@ -60,7 +60,7 @@
                         <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2"
                             aria-label="Slide 3"></button>
                     </div>
-                    <div class="carousel-inner rounded shadow-sm">
+                    <div class="carousel-inner shadow-sm">
                         <div class="carousel-item active">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/d/de/El_Peine_del_Viento_en_Donostia-San_Sebasti%C3%A1n.jpg"
                                 class="d-block w-100" alt="Peine del Viento">
@@ -87,44 +87,46 @@
                 </div>
             </div>
 
-            <div class="col-md-6 d-flex flex-column justify-content-center px-md-4">
-                
-                <div class="titulo mb-4">
-                    <h1 class="fw-bold-1">KARGAGUNEA_ZUBIETA</h1>
+            <div class="col-12 col-lg-6 d-flex flex-column align-items-center">
+
+                <div class="titulo">
+                    <h1>KARGAGUNEA_ZUBIETA</h1>
                 </div>
 
-                <div class="texto d-flex flex-column" style="min-height: 250px;">
-                    <div class="numero">
-                        <ul class="list-unstyled fs-5">
-                            <li><strong>Taquillas libres:</strong> 4</li>
+                <div class="texto">
+                    
+                    <div class="numero mb-3">
+                        <ul class="list-unstyled m-0 fs-5">
+                            <li>Taquillas libres: 4</li>
                         </ul>
                     </div>
 
-                    <div class="estado d-flex align-items-center gap-3 mb-4">
-                        <div id="mi-circulo" class="bg-success rounded-circle shadow-sm" style="width: 25px; height: 25px; cursor: pointer;"></div>
+                    <div class="estado align-items-center gap-2 mb-3">
+                        <div id="mi-circulo" class="bg-success rounded-circle" style="width: 25px; height: 25px; cursor: pointer;"></div>
                         <div class="estadotxt m-0">
-                            <p class="m-0 fs-5">Estado: 8 libres</p>
+                            <p class="m-0 fs-5">estado: 8 libres</p>
                         </div>
                     </div>
 
                     <div class="direccion mb-4">
-                        <ul class="list-unstyled">
-                            <li><a href="https://www.google.es/maps" target="_blank" class="text-decoration-none fs-5">📍 Ver dirección</a></li>
+                        <ul class="list-unstyled m-0">
+                            <li><a href="https://www.google.es/maps" target="_blank" class="fs-5 text-decoration-none">📍 Dirección</a></li>
                         </ul>
                     </div>
 
                     <div class="boton mt-auto">
-                        <button type="button" popovertarget="Reserva" class="btn btn-outline-primary btn-lg w-100">Reservar Ahora</button>
+                        <button type="button" popovertarget="Reserva" class="btn btn-outline-primary btn-lg w-100">Reservar</button>
                     </div>
                 </div>
             </div>
+
         </div>
 
         <div id="Reserva" popover class="popover-personalizado">
             <div class="card bg-dark text-light border-secondary shadow-lg style-container">
                 <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-registration/img3.webp"
                     class="card-img-top w-100" alt="Sample photo">
-                
+
                 <div class="card-body p-4 p-md-5">
                     <h3 class="mb-4 text-center fw-bold">RESERVAR</h3>
 
@@ -135,12 +137,12 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6 mb-4">
+                            <div class="col-12 col-md-6 mb-4">
                                 <label for="FechaReserva" class="form-label text-secondary small fw-semibold">Fecha de reserva</label>
                                 <input type="date" class="form-control bg-secondary-subtle text-white border-secondary" id="FechaReserva" />
                             </div>
-                            
-                            <div class="col-md-6 mb-4">
+
+                            <div class="col-12 col-md-6 mb-4">
                                 <label for="horaReserva" class="form-label text-secondary small fw-semibold">Hora de reserva</label>
                                 <input type="time" class="form-control bg-secondary-subtle text-white border-secondary" id="horaReserva" />
                             </div>
@@ -148,11 +150,11 @@
 
                         <div class="mb-4">
                             <label class="form-label text-secondary small fw-semibold" for="HoraDevolucion">Hora de devolucion</label>
-                            <input type="time" id="HoraDevolucion" class="form-control bg-secondary-subtle text-white border-secondary"/>
+                            <input type="time" id="HoraDevolucion" class="form-control bg-secondary-subtle text-white border-secondary" />
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg mt-2">Confirmar Reserva</button>
+                            <button type="submit" class="btn btn-outline-primary btn-lg mt-2">Submit</button>
                         </div>
                     </form>
                 </div>
@@ -160,36 +162,32 @@
         </div>
 
     </main>
-    
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const parametros = new URLSearchParams(window.location.search);
-        const nombreRecibido = parametros.get('nombre');
-        console.log(nombreRecibido);
-
         const circulo = document.getElementById('mi-circulo');
-
         circulo.addEventListener('click', () => {
             circulo.classList.toggle('bg-danger');
             circulo.classList.toggle('bg-success');
         });
     </script>
 
-   <footer class="bg-transparent text-light mt-auto py-5" data-bs-theme="dark">
-            <div class="container text-center">
-                <h5 class="mb-3">POWERBANK</h5>
-                <ul class="list-inline small mb-3">
-                    <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="#">Features</a>
-                    </li>
-                    <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none"
-                            href="#">Pricing</a></li>
-                    <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="#">Docs</a></li>
-                    <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none"
-                            href="#">Contact</a></li>
-                </ul>
-                <span class="text-body-secondary small">&copy; 2026 POWERBANK Inc.</span>
-            </div>
-        </footer>
+     <footer class=" text-light mt-auto py-5" data-bs-theme="dark">
+        <div class="container text-center">
+            <h5 class="mb-3">POWERBANK</h5>
+            <ul class="list-inline small mb-3">
+                <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="#">Features</a></li>
+                <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none" href="#">Pricing</a>
+                </li>
+                <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="#">Docs</a></li>
+                <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none" href="#">Contact</a>
+                </li>
+            </ul>
+            <span class="text-body-secondary small">&copy; 2026 POWERBANK Inc.</span>
+        </div>
+    </footer>
+
+
 </body>
+
 </html>

@@ -1,27 +1,195 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-
-    <title>Document</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/erabiltzailea.css">
+    <title>Perfil de Usuario</title>
 </head>
 
-<body>
-    <header>
+<body class="d-flex flex-column min-vh-100">
 
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-transparent">
+            <div class="container">
+                <a class="navbar-brand logo" href="#">
+                    <img src="https://assets.footylogos.com/logos/rayo-vallecano-white-logo-footylogos.png" alt="Logo">
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav4">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav4">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">Lista</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="puesto-Carga.html">Botones</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="Erabiltzailea.html">Otros</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-outline-primary ms-md-2 mt-2 mt-md-0" href="Login.html">Cuenta</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
     </header>
 
-    <main>
+    <main class="flex-grow-1 py-5">
+        <div class="container">
+            <div class="row justify-content-center">
 
+                <div class="col-12 text-center mb-4">
+                    <div class="profile-avatar mb-3 shadow">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">Alex Johnson</h3>
+                    <p class="text-secondary small">Usuario Registrado</p>
+                </div>
+
+                <div class="col-12 col-xl-10">
+                    <div class="card-main-panel p-2 p-md-4">
+                        <div class="row g-0">
+
+                            <div class="col-lg-3 border-end border-secondary border-opacity-25 pe-lg-3 mb-4 mb-lg-0">
+                                <div class="nav flex-column nav-pills gap-2" id="v-pills-tab" role="tablist">
+                                    <button class="nav-link active text-start" id="v-pills-info-tab"
+                                        data-bs-toggle="pill" data-bs-target="#v-pills-info" type="button" role="tab">
+                                        <i class="fas fa-user me-2"></i>Personal Info
+                                    </button>
+                                    <button class="nav-link text-start" id="v-pills-reservas-tab" data-bs-toggle="pill"
+                                        data-bs-target="#v-pills-reservas" type="button" role="tab">
+                                        <i class="fas fa-calendar-check me-2"></i>Reservas
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-9 ps-lg-4">
+                                <div class="tab-content" id="v-pills-tabContent">
+
+                                    <div class="tab-pane fade show active" id="v-pills-info" role="tabpanel">
+                                        <h5 class="fw-bold mb-4 text-primary">Información Personal</h5>
+
+                                        <form>
+                                            <div class="row g-3 mb-4">
+                                                <div class="col-md-6">
+                                                    <label
+                                                        class="form-label text-secondary small fw-semibold">Nombre</label>
+                                                    <input type="text" class="form-control" value="Alex">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label
+                                                        class="form-label text-secondary small fw-semibold">Apellido</label>
+                                                    <input type="text" class="form-control" value="Johnson">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label
+                                                        class="form-label text-secondary small fw-semibold">Email</label>
+                                                    <input type="email" class="form-control"
+                                                        value="alex.johnson@example.com">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label
+                                                        class="form-label text-secondary small fw-semibold">Teléfono</label>
+                                                    <input type="tel" class="form-control" value="+34 654 321 098">
+                                                </div>
+                                            </div>
+
+                                            <div class="settings-card card mb-4">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <h6 class="text-white mb-1 fw-bold">Notificaciones por Email</h6>
+                                                            <p class="text-secondary mb-0 small">Recibe actualizaciones
+                                                                sobre el estado de tus reservas.</p>
+                                                        </div>
+                                                        <div class="form-check form-switch ms-3">
+                                                            <input class="form-check-input" type="checkbox" checked
+                                                                role="switch">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="d-flex justify-content-end">
+                                                <button type="submit" class="btn btn-primary px-4 py-2">Guardar
+                                                    Cambios</button>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                    <div class="tab-pane fade" id="v-pills-reservas" role="tabpanel">
+                                        <h5 class="fw-bold mb-4 text-primary">Mis Reservas</h5>
+
+                                        <div class="table-responsive">
+                                            <table
+                                                class="table table-dark table-hover align-middle rounded-3 overflow-hidden">
+                                                <thead class="table-secondary">
+                                                    <tr>
+                                                        <th>Puesto de Carga</th>
+                                                        <th>Fecha</th>
+                                                        <th>Horario</th>
+                                                        <th>Estado</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Kargagunea Zubieta</td>
+                                                        <td>12/03/2026</td>
+                                                        <td>10:00 - 12:00</td>
+                                                        <td><span class="badge bg-success">Confirmada</span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Kargagunea Donostia</td>
+                                                        <td>05/03/2026</td>
+                                                        <td>16:00 - 17:30</td>
+                                                        <td><span class="badge bg-secondary">Finalizada</span></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </main>
 
-    <footer>
-
+    <footer class=" text-light mt-auto py-5" data-bs-theme="dark">
+        <div class="container text-center">
+            <h5 class="mb-3">POWERBANK</h5>
+            <ul class="list-inline small mb-3">
+                <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="#">Features</a></li>
+                <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none" href="#">Pricing</a>
+                </li>
+                <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="#">Docs</a></li>
+                <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none" href="#">Contact</a>
+                </li>
+            </ul>
+            <span class="text-body-secondary small">&copy; 2026 POWERBANK Inc.</span>
+        </div>
     </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

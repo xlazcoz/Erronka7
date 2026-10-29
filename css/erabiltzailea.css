@@ -1,0 +1,86 @@
+body {
+  background-color: #0b0f19;
+  background-image: 
+    linear-gradient(#1e293b 1px, transparent 1px),
+    linear-gradient(90deg, #1e293b 1px, transparent 1px);
+  background-size: 40px 40px; 
+  color: #f1f5f9;
+}
+
+nav {
+  border-bottom: rgba(255, 255, 255, 0.2) solid 1px;
+    background-color: #1b2331;
+
+}
+
+header{
+      background-color: rgba(11, 15, 25, 1);
+}
+
+.navbar-brand img {
+  width: 50px;
+}
+
+footer   {
+  border-top: rgba(255, 255, 255, 0.2) solid 1px;
+    background-color: rgba(11, 15, 25);
+}
+
+.card-main-panel {
+  background-color: rgba(11, 15, 25, 0.6);
+  backdrop-filter: blur(8px);
+  border: rgba(255, 255, 255, 0.2) 2px solid;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border-radius: 1.5em;
+  color: #f1f5f9;
+}
+
+.form-control, .form-select {
+  background-color: #1b2331 !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff !important;
+  border-radius: 0.5rem;
+}
+
+.form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 8px rgba(13, 110, 253, 0.4);
+}
+
+.nav-pills .nav-link {
+  color: #94a3b8;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.nav-pills .nav-link:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.nav-pills .nav-link.active {
+  background-color: #0d6efd;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
+
+.settings-card {
+  background-color: rgba(27, 35, 49, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 1rem;
+}
+
+.profile-avatar {
+  width: 90px;
+  height: 90px;
+  background-color: #1b2331;
+  border: 2px solid #0d6efd;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: #0d6efd;
+  margin: 0 auto;
+}
