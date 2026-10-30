@@ -39,3 +39,9 @@ const imagen1 = document.getElementById("imagen1");
 const imagen2 = document.getElementById("imagen2");
 const imagen3 = document.getElementById("imagen3");
 
+
+function cambiarImagenes(ruta1, ruta2, ruta3){
+    imagen1.src = ruta1;
+    imagen2.src = ruta2;
+    imagen3.src = ruta3;
+}
