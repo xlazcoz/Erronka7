@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from api_erronka.models.models import Base
+from models.models import Base
 from database import engine
 from routers import erabiltzaileak, kargaguneak, powerbanks, erreserbak, karga_postuak, login
 
@@ -15,6 +15,6 @@ app.include_router(login.router)
 
 
 
-# @app.get("/")
-# def main():
-#     return {"aaa" : "aaa"}
+@app.get("/")
+def main():
+    return {"mezua" : "Ongi etorri powerbank alokairu sistemara"}
