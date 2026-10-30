@@ -3,8 +3,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from database import get_session
-from models import Powerbank
-from schemas import PowerbankCreate, PowerbankResponse, PowerbankUpdate
+from models.models import Powerbank
+from schemas.schemas import PowerbankCreate, PowerbankResponse, PowerbankUpdate
 
 router = APIRouter(prefix="/powerbanks", tags=["Powerbanks"])
 

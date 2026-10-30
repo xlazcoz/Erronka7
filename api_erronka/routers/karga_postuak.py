@@ -3,8 +3,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from database import get_session
-from models import KargaPostua
-from schemas import KargaPostuaResponse, KargaPostuaCreate
+from models.models import KargaPostua
+from schemas.schemas import KargaPostuaResponse, KargaPostuaCreate
 
 router = APIRouter(prefix="/kargapostuak", tags=["Karga postuak"])
 

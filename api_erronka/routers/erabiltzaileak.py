@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from database import get_session
-from models import Erabiltzailea
-from schemas import ErabiltzaileaCreate, ErabiltzaileaResponse, ErabiltzaileaUpdate, ErabiltzaileaRolaUpdate, ErabiltzaileaErreserbakResponse
+from models.models import Erabiltzailea
+from schemas.schemas import ErabiltzaileaCreate, ErabiltzaileaResponse, ErabiltzaileaUpdate, ErabiltzaileaRolaUpdate, ErabiltzaileaErreserbakResponse
 
 router = APIRouter(prefix="/erabiltzaileak", tags=["Erabiltzaileak"])
 

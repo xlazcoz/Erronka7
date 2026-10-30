@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from models import Base
+from api_erronka.models.models import Base
 from database import engine
 from routers import erabiltzaileak, kargaguneak, powerbanks, erreserbak, karga_postuak, login
 

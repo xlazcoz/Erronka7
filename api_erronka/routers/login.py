@@ -3,8 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from database import get_session
-from schemas import LoginRequest, RegisterRequest, ErabiltzaileaResponse
-from models import AuthSession, Erabiltzailea
+from schemas.schemas import LoginRequest, RegisterRequest, ErabiltzaileaResponse
+from models.models import AuthSession, Erabiltzailea
 
 router = APIRouter(prefix="/login", tags=["Login"])
 
