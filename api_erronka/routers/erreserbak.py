@@ -3,8 +3,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from database import get_session
-from models import Erreserba
-from schemas import ErreserbakUpdate, ErreserbakResponse, ErreserbakEgoeraUpdate
+from models.models import Erreserba
+from schemas.schemas import ErreserbakUpdate, ErreserbakResponse, ErreserbakEgoeraUpdate
 
 router = APIRouter(prefix="/erreserbak", tags=["Erreserbak"])
 
