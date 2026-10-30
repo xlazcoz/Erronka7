@@ -31,26 +31,25 @@ class Kargagunea(Base):
     irudia3: Mapped[str] = mapped_column(String(100))
     egoera: Mapped[str] = mapped_column(String(100))
 
-    karga_postuak: Mapped[list["KargaPostua"]] = relationship(back_populates="kargagunea")
+    takillak: Mapped[list["Takilla"]] = relationship(back_populates="kargagunea")
 
-class KargaPostua(Base):
-    __tablename__ = "karga_postuak"
+class Takilla(Base):
+    __tablename__ = "takillak"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     egoera: Mapped[str] = mapped_column(String(100))
     tamaina: Mapped[str] = mapped_column(String(100))
     kargagunea_id: Mapped[int] = mapped_column(ForeignKey(Kargagunea.id))
 
-    kargagunea: Mapped["Kargagunea"] = relationship(back_populates="karga_postuak")
+    kargagunea: Mapped["Kargagunea"] = relationship(back_populates="takillak")
 
 class Powerbank(Base):
     __tablename__ = "powerbanks"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     karga_maila: Mapped[float]
-    potentzia: Mapped[float]
-    tamaina: Mapped[str] = mapped_column(String(100))
-    karga_postua_id: Mapped[int] = mapped_column(ForeignKey(KargaPostua.id))
+    egoera: Mapped[str] = mapped_column(String(100))
+    takilla_id: Mapped[int] = mapped_column(ForeignKey(Takilla.id))
 
     erreserbak: Mapped[list["Erreserba"]] = relationship(back_populates="powerbank")
 
@@ -63,8 +62,8 @@ class Erreserba(Base):
     amaiera_data_ordua: Mapped[datetime]
     egikaritze_data_ordua: Mapped[datetime]
     amaitze_data_ordua: Mapped[datetime]
-    hasierako_karga_postua: Mapped[int] = mapped_column(ForeignKey(KargaPostua.id))
-    bukaerako_karga_postua: Mapped[int] = mapped_column(ForeignKey(KargaPostua.id))
+    hasierako_takilla: Mapped[int] = mapped_column(ForeignKey(Takilla.id))
+    bukaerako_takilla: Mapped[int] = mapped_column(ForeignKey(Takilla.id))
     egoera: Mapped[str] = mapped_column(String(100))
 
     erabiltzailea: Mapped["Erabiltzailea"] = relationship(back_populates="erreserbak")

@@ -17,8 +17,7 @@ def get_powerbanks(session: SessionDep):
 
 @router.post("", response_model=PowerbankResponse, status_code=201)
 def sortu_powerbank(session: SessionDep, data: PowerbankCreate):
-    powerbank = Powerbank(karga_maila=data.karga_maila, potentzia=data.potentzia, tamaina=data.tamaina,
-                            karga_postua_id=data.karga_postua_id)
+    powerbank = Powerbank(karga_maila=data.karga_maila, takilla_id=data.takilla_id)
     session.add(powerbank)
     session.commit()
     session.refresh(powerbank)

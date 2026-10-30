@@ -83,17 +83,15 @@ class KargaguneaUpdate(BaseModel):
 class KargaguneaIrudiaUpdate(BaseModel):
     irudia: str | None = Field(default=None, min_length=1, max_length=100)
 
-class KargaPostuaResponse(BaseModel):
+class TakillaResponse(BaseModel):
     id: int
     egoera: str
-    tamaina: str
     kargagunea_id: int
 
     model_config = ConfigDict(from_attributes=True)
 
-class KargaPostuaCreate(BaseModel):
+class TakillaCreate(BaseModel):
     egoera: str = Field(min_length=1, max_length=100)
-    tamaina: str = Field(min_length=1, max_length=100)
     kargagunea_id: int = Field(gt=0)
 
     @field_validator("egoera")
@@ -104,39 +102,22 @@ class KargaPostuaCreate(BaseModel):
             raise ValueError("Egoera hauetako bat izan behar da: hutsa, kargatuta, kargatzen")
         return value
 
-    @field_validator("tamaina")
-    @classmethod
-    def tamaina_balidatu(cls, value: str) -> str:
-        powerbank_tamaina = {"txikia", "ertaina", "handia"}
-        if value not in powerbank_tamaina:
-            raise ValueError("Tamaina hauetako bat izan behar da: txikia, ertaina, handia")
-        return value
-
 class PowerbankResponse(BaseModel):
     id: int
     karga_maila: float
-    potentzia: float
-    tamaina: str
-    karga_postua_id: int
+    egoera: str
+    takilla_id: int
 
     model_config = ConfigDict(from_attributes=True)
 
 class PowerbankCreate(BaseModel):
     karga_maila: float = Field(le=100)
-    potentzia: float = Field(ge=1)
-    tamaina: str = Field(min_length=1, max_length=100)
-    karga_postua_id: int = Field(ge=1)
+    egoera: str
+    takilla_id: int = Field(ge=1)
 
-    @field_validator("tamaina")
-    @classmethod
-    def tamaina_balidatu(cls, value: str) -> str:
-        powerbank_tamaina = {"txikia", "ertaina", "handia"}
-        if value not in powerbank_tamaina:
-            raise ValueError("Tamaina hauetako bat izan behar da: txikia, ertaina, handia")
-        return value
 
 class PowerbankUpdate(BaseModel):
-    karga_postua_id: int = Field(ge=1)
+    takilla_id: int = Field(ge=1)
 
 class ErreserbakResponse(BaseModel):
     erabiltzailea_id: int
@@ -145,8 +126,8 @@ class ErreserbakResponse(BaseModel):
     amaiera_data_ordua: datetime
     egikaritze_data_ordua: datetime
     amaitze_data_ordua: datetime
-    hasierako_karga_postua: datetime
-    bukaerako_karga_postua: datetime
+    hasierako_takilla: datetime
+    bukaerako_takilla: datetime
     egoera: str
 
     model_config = ConfigDict(from_attributes=True)
@@ -156,8 +137,8 @@ class ErreserbakCreate(BaseModel):
     amaiera_data_ordua: datetime
     egikaritze_data_ordua: datetime
     amaitze_data_ordua: datetime
-    hasierako_karga_postua: datetime
-    bukaerako_karga_postua: datetime
+    hasierako_takilla: datetime
+    bukaerako_takilla: datetime
     egoera: str = Field(min_length=1)
 
     @field_validator("egoera")
@@ -173,8 +154,8 @@ class ErreserbakUpdate(BaseModel):
     amaiera_data_ordua: datetime
     egikaritze_data_ordua: datetime
     amaitze_data_ordua: datetime
-    hasierako_karga_postua: datetime
-    bukaerako_karga_postua: datetime
+    hasierako_takilla: datetime
+    bukaerako_takilla: datetime
     egoera: str = Field(min_length=1)
 
     @field_validator("egoera")
