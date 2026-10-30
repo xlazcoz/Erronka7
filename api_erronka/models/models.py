@@ -18,6 +18,7 @@ class Erabiltzailea(Base):
     erreserben_historikoa: Mapped[str] = mapped_column(String(100))
 
     erreserbak: Mapped[list["Erreserba"]] = relationship(back_populates="erabiltzailea")
+    auth_sessions: Mapped[list["AuthSession"]] = relationship(back_populates="erabiltzailea")
 
 class Kargagunea(Base):
     __tablename__ = "kargaguneak"
@@ -25,7 +26,9 @@ class Kargagunea(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     izena: Mapped[str] = mapped_column(String(100))
     helbidea: Mapped[str] = mapped_column(String(100))
-    irudia: Mapped[str] = mapped_column(String(100))
+    irudia1: Mapped[str] = mapped_column(String(100))
+    irudia2: Mapped[str] = mapped_column(String(100))
+    irudia3: Mapped[str] = mapped_column(String(100))
     egoera: Mapped[str] = mapped_column(String(100))
 
     karga_postuak: Mapped[list["KargaPostua"]] = relationship(back_populates="kargagunea")
@@ -74,4 +77,4 @@ class AuthSession(Base):
 
     erabiltzailea_id: Mapped[int] = mapped_column(ForeignKey(Erabiltzailea.id))
 
-    #erabiltzailea: Mapped["Erabiltzailea"] = relationship(back_populates="auth_sessions")
+    erabiltzailea: Mapped["Erabiltzailea"] = relationship(back_populates="auth_sessions")

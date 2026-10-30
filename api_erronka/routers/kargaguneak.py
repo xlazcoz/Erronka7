@@ -24,7 +24,8 @@ def get_kargaguneak_id(session: SessionDep, id: int):
 
 @router.post("", response_model=KargaguneaResponse, status_code=201)
 def sortu_kargagunea(session: SessionDep, data: KargaguneaCreate):
-    kargagunea = Kargagunea(izena=data.izena, helbidea=data.helbidea, irudia=data.irudia, egoera=data.egoera)
+    kargagunea = Kargagunea(izena=data.izena, helbidea=data.helbidea, irudia1=data.irudia1, irudia2=data.irudia2,
+                            irudia3=data.irudia3, egoera=data.egoera)
     session.add(kargagunea)
     session.commit()
     session.refresh(kargagunea)

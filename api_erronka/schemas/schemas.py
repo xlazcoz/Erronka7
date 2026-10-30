@@ -41,7 +41,9 @@ class KargaguneaResponse(BaseModel):
     id: int
     izena: str
     helbidea: str
-    irudia: str
+    irudia1: str
+    irudia2: str
+    irudia3: str
     egoera: str
 
     model_config = ConfigDict(from_attributes=True)
@@ -49,7 +51,9 @@ class KargaguneaResponse(BaseModel):
 class KargaguneaCreate(BaseModel):
     izena: str = Field(min_length=1, max_length=100)
     helbidea: str = Field(min_length=1, max_length=100)
-    irudia: str = Field(min_length=1, max_length=100)
+    irudia1: str = Field(min_length=1, max_length=100)
+    irudia2: str = Field(min_length=1, max_length=100)
+    irudia3: str = Field(min_length=1, max_length=100)
     egoera: str = Field(min_length=1, max_length=100)
 
     @field_validator("egoera")
@@ -63,7 +67,9 @@ class KargaguneaCreate(BaseModel):
 class KargaguneaUpdate(BaseModel):
     izena: str = Field(min_length=1, max_length=100)
     helbidea: str = Field(min_length=1, max_length=100)
-    irudia: str | None = Field(default=None, min_length=1, max_length=100)
+    irudia1: str | None = Field(default=None, min_length=1, max_length=100)
+    irudia2: str | None = Field(default=None, min_length=1, max_length=100)
+    irudia3: str | None = Field(default=None, min_length=1, max_length=100)
     egoera: str = Field(min_length=1, max_length=100)
 
     @field_validator("egoera")
