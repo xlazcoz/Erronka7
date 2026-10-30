@@ -172,46 +172,7 @@
     </div>
   </footer>
 
-  <script>
-    const loginContainer = document.getElementById("Login");
-    const registroContainer = document.getElementById("Registrarse");
-
-    function registrar() {
-      registroContainer.style.display = "block";
-      loginContainer.style.display = "none";
-    }
-
-    function iniciarSesion() {
-      loginContainer.style.display = "block";
-      registroContainer.style.display = "none";
-    }
-
-
-
-    // comprobar si existen las credenciales en la base de datos
-    const usuario = document.getElementById("user")
-    const pass = document.getElementById("Contraseña")
-    // pillar datos de la api
-
-
-
-    //ejemplo de lo que hay que hacer con la api
-    async function getData() {
-      const url = "";
-      try {
-        const response = await fetch(url);
-        if (!responsive.ok) {
-          throw new Error(`Response status: ${response.status}`);
-        }
-        
-      } catch (error) {
-        console.error(error.message);
-        
-      }
-    }
-
-
-  </script>
+  <script src="js/login.js"></script>
 </body>
 
 </html>
