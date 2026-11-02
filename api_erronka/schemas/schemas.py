@@ -186,25 +186,32 @@ class KargaPostuaCreate(BaseModel):
             raise ValueError("Tamaina hauetako bat izan behar da: txikia, ertaina, handia")
         return value
 
-class PowerbankResponse(BaseModel):
-    id: int
-    karga_postua_id: int
+class PowerbankBase(BaseModel):
+    karga_maila: float
+    potentzia: float
+    tamaina: str
+    karga_postua_id: Optional[int] = None
 
-    model_config = ConfigDict(from_attributes=True)
+# Crear
+class PowerbankCreate(PowerbankBase):
+    pass
 
-class PowerbankCreate(BaseModel):
-    karga_postua_id: int = Field(ge=1)
-
-    @field_validator("tamaina")
-    @classmethod
-    def tamaina_balidatu(cls, value: str) -> str:
-        powerbank_tamaina = {"txikia", "ertaina", "handia"}
-        if value not in powerbank_tamaina:
-            raise ValueError("Tamaina hauetako bat izan behar da: txikia, ertaina, handia")
-        return value
-
+# Actualizar
 class PowerbankUpdate(BaseModel):
-    karga_postua_id: int = Field(ge=1)
+    karga_maila: Optional[float] = None
+    potentzia: Optional[float] = None
+    tamaina: Optional[str] = None
+    karga_postua_id: Optional[int] = None
+
+# Respuesta (PowerbankResponse / Powerbank)
+class PowerbankResponse(PowerbankBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+# Alias por si se referencia como Powerbank en otros lados
+Powerbank = PowerbankResponse
 
 
 class RegisterRequest(BaseModel):

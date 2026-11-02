@@ -56,14 +56,14 @@ def poblar_base_de_datos():
         session.add_all([p1, p2, p3, p4])
         session.commit()
 
-        # 4. Crear Powerbanks (Baterías)
+
         pb1 = Powerbank( karga_postua_id=p1.id)
         pb2 = Powerbank(karga_postua_id=p2.id)
         pb3 = Powerbank(karga_postua_id=p4.id)
         session.add_all([pb1, pb2, pb3])
         session.commit()
 
-        # 5. Crear Reservas de prueba
+
         ahora = datetime.now()
         r1 = Erreserba(
             erabiltzailea_id=u1.id,
