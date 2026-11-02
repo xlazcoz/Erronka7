@@ -1,7 +1,5 @@
 
 
-
-
 const lista = document.getElementById("lista");
 
 const url = "http://127.0.0.1:8000/kargaguneak"
@@ -32,6 +30,7 @@ async function Datuak() {
     span.textContent = poste.izena;
     
     const div = document.createElement("div");
+    
     div.className = "bg-"+ color + " rounded-circle shadow-sm";
     div.style.cssText = "width: 25px; height: 25px;"
 
