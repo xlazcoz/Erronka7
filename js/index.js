@@ -39,3 +39,12 @@ async function Datuak() {
     a.appendChild(div);
     lista.appendChild(a);
  });
+
+
+ function color(numPower){
+    if (numPower === 0){
+        return "danger"
+    }
+    else return "succes"
+ }
+ 

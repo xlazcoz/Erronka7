@@ -4,12 +4,31 @@ const circulo = document.getElementById('mi-circulo');
             circulo.classList.toggle('bg-success');
         });
 
+
+const url = "http://127.0.0.1:8000/local"
+
+const datos = ""
+async function Datuak() {
+    try{
+        const respuesta = await fetch(url);
+
+        if(!respuesta.ok) {
+      throw new Error(`Error en la petición: ${respuesta.status}`);
+    }
+    datos = await respuesta.json();
+
+    } catch(error){
+        console.error('Hubo un problema con la petición Fetch:', error);
+    }
+}
+    
+
     
 
 const estado = document.getElementById("estado");
 
-// si hay 0 pone el circulo en rojo y si hay mas pone el circulo en verde y estado: el numero
 
+// pasarle el numero de powerbanks del local
 function numeroEstado(numero){
 
 
@@ -25,12 +44,15 @@ function numeroEstado(numero){
 
 const mapa = document.getElementById("maps");
 
+
+// pasarle el link del maps 
 function linkMaps(link){
         mapa.href = link;
 }
 
 const titulo = document.getElementById("titulo");
 
+//titulo del local
 function cambiarTitutlo(texto){
     titulo.innerHTML = texto;
 }
@@ -39,7 +61,7 @@ const imagen1 = document.getElementById("imagen1");
 const imagen2 = document.getElementById("imagen2");
 const imagen3 = document.getElementById("imagen3");
 
-
+// pasar link de las imagenes
 function cambiarImagenes(ruta1, ruta2, ruta3){
     imagen1.src = ruta1;
     imagen2.src = ruta2;
