@@ -1,11 +1,16 @@
 from typing import Annotated
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from database import get_session
 from models.models import Erabiltzailea
-from schemas.schemas import ErabiltzaileaCreate, ErabiltzaileaResponse, ErabiltzaileaUpdate, ErabiltzaileaRolaUpdate, ErabiltzaileaErreserbakResponse
+from schemas.schemas import (
+    ErabiltzaileaCreate, 
+    ErabiltzaileaResponse, 
+    ErabiltzaileaUpdate, 
+    ErabiltzaileaRolaUpdate, 
+    ErreserbakResponse
+)
 
 router = APIRouter(prefix="/erabiltzaileak", tags=["Erabiltzaileak"])
 
@@ -23,18 +28,22 @@ def get_erabiltzailea_id(session: SessionDep, id: int):
         raise HTTPException(status_code=404, detail="Erabiltzailea ez da aurkitzen")
     return erabiltzailea
 
-@router.get("/{id}/erreserben_historikoa", response_model=ErabiltzaileaErreserbakResponse, status_code=200)
+@router.get("/{id}/erreserbak", response_model=list[ErreserbakResponse], status_code=200)
 def erreserbak_kontsultatu(session: SessionDep, id: int):
     erabiltzailea = session.get(Erabiltzailea, id)
-    
     if erabiltzailea is None:
         raise HTTPException(status_code=404, detail="Erabiltzailea ez da aurkitzen")
-    return erabiltzailea
+    return erabiltzailea.erreserbak
 
 @router.post("", response_model=ErabiltzaileaResponse, status_code=201)
 def sortu_erabiltzailea(session: SessionDep, data: ErabiltzaileaCreate):
-    erabiltzailea = Erabiltzailea(izena=data.izena, abizena=data.abizena, login_email=data.login_email, 
-                                  login_pasahitza=data.login_pasahitza, rola=data.rola, erreserben_historikoa=data.erreserben_historikoa)
+    erabiltzailea = Erabiltzailea(
+        izena=data.izena, 
+        abizena=data.abizena, 
+        login_email=data.login_email, 
+        login_pasahitza=data.login_pasahitza, 
+        rola=data.rola
+    )
     session.add(erabiltzailea)
     session.commit()
     session.refresh(erabiltzailea)
@@ -44,6 +53,9 @@ def sortu_erabiltzailea(session: SessionDep, data: ErabiltzaileaCreate):
 @router.patch("/{id}", response_model=ErabiltzaileaResponse, status_code=200)
 def aldatu_erabiltzailea(session: SessionDep, data: ErabiltzaileaUpdate, id: int):
     erabiltzailea = session.get(Erabiltzailea, id)
+    if not erabiltzailea:
+        raise HTTPException(status_code=404, detail="Erabiltzailea ez da aurkitzen")
+
     changes = data.model_dump(exclude_unset=True)
     for field, value in changes.items():
         setattr(erabiltzailea, field, value)
@@ -56,6 +68,9 @@ def aldatu_erabiltzailea(session: SessionDep, data: ErabiltzaileaUpdate, id: int
 @router.patch("/{id}/rola", response_model=ErabiltzaileaResponse, status_code=200)
 def aldatu_rolak(session: SessionDep, data: ErabiltzaileaRolaUpdate, id: int):
     erabiltzailea = session.get(Erabiltzailea, id)
+    if not erabiltzailea:
+        raise HTTPException(status_code=404, detail="Erabiltzailea ez da aurkitzen")
+
     erabiltzailea.rola = data.rola
 
     session.commit()

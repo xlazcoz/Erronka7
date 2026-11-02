@@ -14,7 +14,7 @@ async function Datuak() {
         }
         
         datos = await respuesta.json();
-        console.log("Datos cargados correctamente");
+        console.log("Datos cargados correctamente:", datos);
 
         renderizarLista(datos);
 
@@ -28,18 +28,19 @@ function renderizarLista(elementos) {
 
     elementos.forEach(poste => {
         const a = document.createElement("a");
-         a.href = `puesto-Carga.html?id=${poste.id}`;
+        a.href = `puesto-Carga.html?id=${poste.id}`;
         a.className = "list-group-item list-group-item-action estacion-item text-white rounded-pill d-flex justify-content-between align-items-center py-3 px-4 shadow-sm mb-2";
         
         const span = document.createElement("span");
         span.className = "text-lowercase fw-medium";
         span.textContent = poste.izena;
         
-        const div = document.createElement("div");
+        const disponibles = poste.karga_postuak ? poste.karga_postuak.filter(p => p.egoera === "kargatuta").length : 0;
         
+        const estadoColor = disponibles > 0 && poste.egoera === "erabilgarri" ? "success" : "danger";
 
-        
-        div.className = `bg-${color} rounded-circle shadow-sm`;
+        const div = document.createElement("div");
+        div.className = `bg-${estadoColor} rounded-circle shadow-sm`;
         div.style.cssText = "width: 25px; height: 25px;";
 
         a.appendChild(span);
@@ -47,13 +48,5 @@ function renderizarLista(elementos) {
         lista.appendChild(a);
     });
     
-    console.log("Lista creada en el DOM");
-}
-
-function color(numPower) {
-    if (numPower === 0 || !numPower) {
-        return "danger";
-    } else {
-        return "success"; 
-    }
+    console.log("Lista renderizada en el DOM");
 }

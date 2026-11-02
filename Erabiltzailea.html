@@ -81,43 +81,22 @@
                                     <div class="tab-pane fade show active" id="v-pills-info" role="tabpanel">
                                         <h5 class="fw-bold mb-4 text-primary">Información Personal</h5>
 
-                                        <form>
+                                        <form id="perfilForm">
                                             <div class="row g-3 mb-4">
                                                 <div class="col-md-6">
                                                     <label
                                                         class="form-label text-secondary small fw-semibold">Nombre</label>
-                                                    <input type="text" class="form-control" value="Alex"
-                                                        id="nombreform">
+                                                    <input type="text" class="form-control" id="nombreform">
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label
                                                         class="form-label text-secondary small fw-semibold">Apellido</label>
-                                                    <input type="text" class="form-control" value="Johnson"
-                                                        id="apellidoform">
+                                                    <input type="text" class="form-control" id="apellidoform">
                                                 </div>
                                                 <div class="col-md-6">
                                                     <label
                                                         class="form-label text-secondary small fw-semibold">Email</label>
-                                                    <input type="email" class="form-control"
-                                                        value="alex.johnson@example.com" id="emailform">
-                                                </div>
-
-                                            </div>
-
-                                            <div class="settings-card card mb-4">
-                                                <div class="card-body">
-                                                    <div class="d-flex justify-content-between align-items-center">
-                                                        <div>
-                                                            <h6 class="text-white mb-1 fw-bold">Notificaciones por Email
-                                                            </h6>
-                                                            <p class="text-secondary mb-0 small">Recibe actualizaciones
-                                                                sobre el estado de tus reservas.</p>
-                                                        </div>
-                                                        <div class="form-check form-switch ms-3">
-                                                            <input class="form-check-input" type="checkbox" checked
-                                                                role="switch">
-                                                        </div>
-                                                    </div>
+                                                    <input type="email" class="form-control" id="emailform">
                                                 </div>
                                             </div>
 
@@ -135,32 +114,21 @@
 
                                         <div class="table-responsive">
                                             <table
-                                                class="table table-dark table-hover align-middle rounded-3 overflow-hidden">
+                                                class="table table-dark table-hover align-middle rounded-3 overflow-hidden shadow-sm">
                                                 <thead class="table-secondary">
                                                     <tr>
-                                                        <th>Puesto de Carga</th>
+                                                        <th># ID</th>
+                                                        <th>Puesto Origen</th>
                                                         <th>Fecha</th>
                                                         <th>Horario</th>
                                                         <th>Estado</th>
+                                                        <th class="text-center">Acción</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>Kargagunea Zubieta</td>
-                                                        <td>12/03/2026</td>
-                                                        <td>10:00 - 12:00</td>
-                                                        <td><span class="badge bg-success">Confirmada</span></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Kargagunea Donostia</td>
-                                                        <td>05/03/2026</td>
-                                                        <td>16:00 - 17:30</td>
-                                                        <td><span class="badge bg-secondary">Finalizada</span></td>
-                                                    </tr>
+                                                <tbody id="tablaReservasBody">
                                                 </tbody>
                                             </table>
                                         </div>
-
                                     </div>
 
                                 </div>

@@ -17,17 +17,20 @@ def get_powerbanks(session: SessionDep):
 
 @router.post("", response_model=PowerbankResponse, status_code=201)
 def sortu_powerbank(session: SessionDep, data: PowerbankCreate):
-    powerbank = Powerbank(karga_maila=data.karga_maila, potentzia=data.potentzia, tamaina=data.tamaina,
-                            karga_postua_id=data.karga_postua_id)
+    powerbank = Powerbank(
+        karga_postua_id=data.karga_postua_id
+    )
     session.add(powerbank)
     session.commit()
     session.refresh(powerbank)
-
     return powerbank
 
-@router.patch("{id}", response_model=PowerbankResponse, status_code=200)
+# Corregida la barra en la ruta: "/{id}"
+@router.patch("/{id}", response_model=PowerbankResponse, status_code=200)
 def powerbank_tokia_aldatu(session: SessionDep, data: PowerbankUpdate, id: int):
     powerbank = session.get(Powerbank, id)
+    if not powerbank:
+        raise HTTPException(status_code=404, detail="Powerbank ez da aurkitzen")
     
     changes = data.model_dump(exclude_unset=True)
     for field, value in changes.items():
@@ -35,6 +38,4 @@ def powerbank_tokia_aldatu(session: SessionDep, data: PowerbankUpdate, id: int):
 
     session.commit()
     session.refresh(powerbank)
-
     return powerbank
-

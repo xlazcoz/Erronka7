@@ -24,34 +24,44 @@ def get_kargaguneak_id(session: SessionDep, id: int):
 
 @router.post("", response_model=KargaguneaResponse, status_code=201)
 def sortu_kargagunea(session: SessionDep, data: KargaguneaCreate):
-    kargagunea = Kargagunea(izena=data.izena, helbidea=data.helbidea, irudia1=data.irudia1, irudia2=data.irudia2,
-                            irudia3=data.irudia3, egoera=data.egoera)
+    kargagunea = Kargagunea(
+        izena=data.izena, 
+        helbidea=data.helbidea, 
+        irudia1=data.irudia1, 
+        irudia2=data.irudia2,
+        irudia3=data.irudia3, 
+        egoera=data.egoera
+    )
     session.add(kargagunea)
     session.commit()
     session.refresh(kargagunea)
-
     return kargagunea
-
 
 @router.patch("/{id}", response_model=KargaguneaResponse, status_code=200)
 def aldatu_kargagunea(session: SessionDep, data: KargaguneaUpdate, id: int):
     kargagunea = session.get(Kargagunea, id)
+    if not kargagunea:
+        raise HTTPException(status_code=404, detail="Kargagunea ez da aurkitzen")
+
     changes = data.model_dump(exclude_unset=True)
     for field, value in changes.items():
         setattr(kargagunea, field, value)
 
     session.commit()
     session.refresh(kargagunea)
-
     return kargagunea
 
 @router.patch("/{id}/irudia", response_model=KargaguneaResponse, status_code=200)
 def aldatu_irudia(session: SessionDep, data: KargaguneaIrudiaUpdate, id: int):
     kargagunea = session.get(Kargagunea, id)
-    kargagunea.irudia = data.irudia
+    if not kargagunea:
+        raise HTTPException(status_code=404, detail="Kargagunea ez da aurkitzen")
+
+    if data.irudia:
+        kargagunea.irudia1 = data.irudia
 
     session.commit()
-
+    session.refresh(kargagunea)
     return kargagunea
 
 @router.delete("/{id}", response_model=KargaguneaResponse, status_code=200)

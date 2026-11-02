@@ -4,7 +4,13 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from database import get_session
 from models.models import Erreserba
-from schemas.schemas import ErreserbakUpdate, ErreserbakResponse, ErreserbakEgoeraUpdate
+from schemas.schemas import (
+    ErreserbakCreate, 
+    ErreserbakResponse, 
+    ErreserbakUpdate, 
+    ErreserbakEgoeraUpdate, 
+    ErreserbakItzuliUpdate
+)
 
 router = APIRouter(prefix="/erreserbak", tags=["Erreserbak"])
 
@@ -15,12 +21,42 @@ def get_erreserbak(session: SessionDep):
     stmt = select(Erreserba)
     return session.scalars(stmt).all()
 
+@router.get("/{id}", response_model=ErreserbakResponse, status_code=200)
+def get_erreserba_by_id(session: SessionDep, id: int):
+    erreserba = session.get(Erreserba, id)
+    if not erreserba:
+        raise HTTPException(status_code=404, detail="Erreserba ez da aurkitzen")
+    return erreserba
+
+@router.post("", response_model=ErreserbakResponse, status_code=201)
+def sortu_erreserba(session: SessionDep, data: ErreserbakCreate):
+    erreserba = Erreserba(**data.model_dump())
+    session.add(erreserba)
+    session.commit()
+    session.refresh(erreserba)
+    return erreserba
+
 @router.patch("/{id}/egoera", response_model=ErreserbakResponse, status_code=200)
 def erreserben_egoera_kudeatu(session: SessionDep, data: ErreserbakEgoeraUpdate, id: int):
     erreserba = session.get(Erreserba, id)
+    if not erreserba:
+        raise HTTPException(status_code=404, detail="Erreserba ez da aurkitzen")
+
+    erreserba.egoera = data.egoera
+    session.commit()
+    session.refresh(erreserba)
+    return erreserba
+
+@router.patch("/{id}/itzuli", response_model=ErreserbakResponse, status_code=200)
+def itzuli_powerbank(session: SessionDep, data: ErreserbakItzuliUpdate, id: int):
+    erreserba = session.get(Erreserba, id)
+    if not erreserba:
+        raise HTTPException(status_code=404, detail="Erreserba ez da aurkitzen")
+
+    erreserba.bukaerako_karga_postua = data.bukaerako_karga_postua
+    erreserba.amaitze_data_ordua = data.amaitze_data_ordua
     erreserba.egoera = data.egoera
 
     session.commit()
     session.refresh(erreserba)
-
     return erreserba
