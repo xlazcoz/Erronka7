@@ -102,25 +102,17 @@ export class Taula implements OnInit{
   
   constructor(cdr1: ChangeDetectorRef) {
     this.cdr = cdr1;
-    effect(() => {
-      const page = this.currentPage();
-      const perPage = this.perPage();
-      const search = this.searchTerm();
-      const sort = this.ordination();
-      this.loadServerData(page, perPage, search, sort);
-    });
   }
   
   
     erabiltzaileak: any;
     ngOnInit(): void {
-        // throw new Error('Method not implemented.');
-        
-        this.apiService.getErabiltzaileak(this.erabiltzaileak).subscribe({
+        this.isLoading.set(true);
+        this.apiService.getErabiltzaileak().subscribe({
             next: (data) => {
                 console.log(data)
-                this.erabiltzaileak = data;
-                
+                this.users.set(data)
+                this.totalItems.set(data.length)
                 this.cdr.detectChanges();
             }, error: (err) => console.error('Errorea', err)
         })

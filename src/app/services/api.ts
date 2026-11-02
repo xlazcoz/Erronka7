@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, Service } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Erabiltzaileak } from '../erabiltzaileak/erabiltzaileak';
+import { Util } from 'igniteui-angular/core';
 
 interface Erabiltzailea{
     izena: string
@@ -53,84 +54,71 @@ export class Api {
     constructor(private http: HttpClient){}
 
     // ERABILTZAILEAK DEIAK
-    erabiltzaileak: string = this.apiErabiltzaileakGet;
-    getErabiltzaileak(erabiltzaileak: any): Observable<any>{
+    getErabiltzaileak(): Observable<any>{
         const url = this.apiErabiltzaileakGet;
         return this.http.get(url);
     }
 
-    erabiltzaileakSortu: string = this.apiErabiltzaileakSortu;
     sortuErabiltzaileak(erabiltzailea: Erabiltzailea): Observable<Erabiltzailea>{
         const url = this.apiErabiltzaileakSortu;
         return this.http.post<Erabiltzailea>(url, erabiltzailea);
     }
 
-    idAldatuErab: string = this.apiErabiltzaileakAldatu;
-    aldatuErabiltzaileak(idAldatuErab: number, partialData: Partial<Erabiltzailea>): Observable<any>{
-        const url = this.apiErabiltzaileakAldatu.replace('{id}', idAldatuErab.toString());
-        return this.http.patch<Erabiltzailea>(`${url}/${idAldatuErab}`, partialData);
+    aldatuErabiltzaileak(id: number, partialData: Partial<Erabiltzailea>): Observable<any>{
+        const url = this.apiErabiltzaileakAldatu.replace('{id}', id.toString());
+        return this.http.patch<Erabiltzailea>(url, partialData);
     }
 
-    idRolErab: string = this.apiErabiltzaileakRolak;
-    aldatuErabiltzaileakRolak(idRolErab: number, partialData: Partial<Erabiltzailea>): Observable<any>{
-        const url = this.apiErabiltzaileakRolak.replace('{id}', idRolErab.toString());
-        return this.http.patch<Erabiltzailea>(`${url}/${idRolErab}`, partialData);
+    aldatuErabiltzaileakRolak(id: number, partialData: Partial<Erabiltzailea>): Observable<any>{
+        const url = this.apiErabiltzaileakRolak.replace('{id}', id.toString());
+        return this.http.patch<Erabiltzailea>(url, partialData);
     }
 
-    idErreserbaErab: string = this.apiErabiltzaileakErreserbak;
-    getErabiltzaileakErreserbak(idErreserbaErab: number): Observable<any>{
-        const url = this.apiErabiltzaileakErreserbak.replace('{id}', idErreserbaErab.toString());
+    getErabiltzaileakErreserbak(id: number): Observable<any>{
+        const url = this.apiErabiltzaileakErreserbak.replace('{id}', id.toString());
         return this.http.get(url);
     }
 
     // KARGAGUNEAK DEIAK
-    kargaguneakSortu: string = this.apiKargaguneakSortu;
     sortuKargaguneak(kargagunea: Kargagunea): Observable<Kargagunea>{
         const url = this.apiKargaguneakSortu;
         return this.http.post<Kargagunea>(url, kargagunea);
     }
 
-    idAldatuKarg: string = this.apiKargaguneakAldatu;
-    aldatuKargaguneak(idAldatuKarg: number, partialData: Partial<Kargagunea>): Observable<Kargagunea>{
-        const url = this.apiKargaguneakAldatu.replace('{id}', idAldatuKarg.toString());
-        return this.http.patch<Kargagunea>(`${url}/${idAldatuKarg}`, partialData);
+    aldatuKargaguneak(id: number, partialData: Partial<Kargagunea>): Observable<Kargagunea>{
+        const url = this.apiKargaguneakAldatu.replace('{id}', id.toString());
+        return this.http.patch<Kargagunea>(url, partialData);
     }
 
-    idEzabatuKarg: string = this.apiKargaguneakEzabatu;
-    EzabatuKargaguneak(idEzabatuKarg: number): Observable<Kargagunea>{
-        const url = this.apiKargaguneakEzabatu.replace('{id}', idEzabatuKarg.toString());
-        return this.http.delete<Kargagunea>(`${url}/${idEzabatuKarg}`);
+    EzabatuKargaguneak(id: number): Observable<Kargagunea>{
+        const url = this.apiKargaguneakEzabatu.replace('{id}', id.toString());
+        return this.http.delete<Kargagunea>(url);
     }
 
-    idIrudiaKarg: string = this.apiKargaguneakIrudiak;
-    aldatuKargaguneakIrudia(idIrudiaKarg: number, partialData: Partial<Kargagunea>): Observable<Kargagunea>{
-        const url = this.apiKargaguneakIrudiak.replace('{id}', idIrudiaKarg.toString());
-        return this.http.patch<Kargagunea>(`${url}/${idIrudiaKarg}`, partialData);
+    aldatuKargaguneakIrudia(id: number, partialData: Partial<Kargagunea>): Observable<Kargagunea>{
+        const url = this.apiKargaguneakIrudiak.replace('{id}', id.toString());
+        return this.http.patch<Kargagunea>(url, partialData);
     }
 
     // POWERBANK DEIAK
-    powerbankSortu: string = this.apiPowerbankSortu;
     sortuPowerbank(powerbank: Powerbank): Observable<Powerbank>{
         const url = this.apiPowerbankSortu;
         return this.http.post<Powerbank>(url, powerbank);
     }
 
-    idAldatuPowerpankTokia: string = this.apiPowerbankTokiaAldatu;
-    aldatuPowerbankTokia(idAldatuPowerpankTokia: number, partialData: Partial<Powerbank>): Observable<Powerbank>{
-        const url = this.apiPowerbankTokiaAldatu.replace('{id}', idAldatuPowerpankTokia.toString());
-        return this.http.patch<Powerbank>(`${url}/${idAldatuPowerpankTokia}`, partialData);
+    aldatuPowerbankTokia(id: number, partialData: Partial<Powerbank>): Observable<Powerbank>{
+        const url = this.apiPowerbankTokiaAldatu.replace('{id}', id.toString());
+        return this.http.patch<Powerbank>(url, partialData);
     }
 
     // ERRESERBAK DEIAK
-    erreserbak: string = this.apiErreserbakGet;
     getErreserbak(): Observable<any>{
         const url = this.apiErreserbakGet;
         return this.http.get(url);
     }
 
-    idAldatuEgoeraErres: string = this.apiErreserbakEgoeraAldatu;
-    aldatuErreserbenEgoera(idAldatuEgoeraErres: number, partialData: Partial<Erreserba>): Observable<Erreserba>{
-        const url = this.apiErreserbakEgoeraAldatu.replace('{id}', idAldatuEgoeraErres.toString());
-        return this.http.patch<Erreserba>(`${url}/${idAldatuEgoeraErres}`, partialData);
+    aldatuErreserbenEgoera(id: number, partialData: Partial<Erreserba>): Observable<Erreserba>{
+        const url = this.apiErreserbakEgoeraAldatu.replace('{id}', id.toString());
+        return this.http.patch<Erreserba>(url, partialData);
     }
 }

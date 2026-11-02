@@ -18,11 +18,10 @@ export class Kargaguneak implements OnInit{
 
   kargaguneak: any;
   ngOnInit(): void {
-      this.apiService.getErabiltzaileak(this.kargaguneak).subscribe({
+      this.apiService.getErabiltzaileak().subscribe({
           next: (data) => {
               console.log(data)
               this.kargaguneak = data;
-              
               this.cdr.detectChanges();
           }, error: (err) => console.error('Errorea', err)
       })

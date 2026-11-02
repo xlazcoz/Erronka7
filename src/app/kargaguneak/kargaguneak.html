@@ -1,50 +1,77 @@
 <br>
-<div class="row">
-  <div class="col-sm-6 mb-3 mb-sm-0">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">Kargagunea sortu</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <button type="button" (click)="kargaguneaSortu.showModal()" class="btn btn-primary">Sortu</button>
-      </div>
+
+<div class="bg-light">
+    <div class="container py-5">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card feature-card h-100 p-4">
+                    <div class="icon-wrapper bg-soft-primary">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                            class="text-primary">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Kargagunea sortu</h3>
+                    <p class="card-text text-muted">Get deep insights into your data with our advanced analytics tools.</p>
+                    <button type="button" (click)="kargaguneaSortu.showModal()" class="btn btn-primary">Sortu</button>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card feature-card h-100 p-4">
+                    <div class="icon-wrapper bg-soft-success">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                            class="text-success">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Kargaguneen datuak aldatu</h3>
+                    <p class="card-text text-muted">Monitor your systems in real-time with instant notifications.</p>
+                    <button type="button" (click)="kargaguneaAldatu.showModal()" class="btn btn-primary">Datuak aldatu</button>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card h-100 p-4">
+                    <div class="icon-wrapper bg-soft-warning">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                            class="text-warning">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Kargaguneak ezabatu edo desaktibatu</h3>
+                    <p class="card-text text-muted">Enterprise-grade security to protect your valuable data.</p>
+                    <button type="button" class="btn btn-primary">Ezabatu</button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card feature-card h-100 p-4">
+                    <div class="icon-wrapper bg-soft-warning">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                            class="text-warning">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Kargaguneen irudiak igo eta aldatu</h3>
+                    <p class="card-text text-muted">Enterprise-grade security to protect your valuable data.</p>
+                    <button type="button" (click)="kargaguneaIrudia.showModal()" class="btn btn-primary">Irudiak kudeatu</button>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card feature-card h-100 p-4">
+                    <div class="icon-wrapper bg-soft-warning">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                            class="text-warning">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Kargagune bakoitzeko takillak kudeatu</h3>
+                    <p class="card-text text-muted">Enterprise-grade security to protect your valuable data.</p>
+                    <button type="button" class="btn btn-primary">Takillak kudeatu</button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-  <div class="col-sm-6">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">Kargaguneen datuak aldatu</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <button type="button" (click)="kargaguneaAldatu.showModal()" class="btn btn-primary">Datuak aldatu</button>
-      </div>
-    </div>
-  </div>
-  <div class="col-sm-6">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">Kargaguneak ezabatu edo desaktibatu</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <button type="button" class="btn btn-primary">Ezabatu</button>
-      </div>
-    </div>
-  </div>
-  <div class="col-sm-6">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">Kargaguneen irudiak igo eta aldatu</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <button type="button" (click)="kargaguneaIrudia.showModal()" class="btn btn-primary">Irudiak kudeatu</button>
-      </div>
-    </div>
-  </div>
-  <div class="col-sm-6">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">Kargagune bakoitzeko takillak kudeatu.</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <button type="button" class="btn btn-primary">Takillak kudeatu</button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <dialog #kargaguneaSortu>
