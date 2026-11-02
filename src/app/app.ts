@@ -4,9 +4,11 @@ import { Erabiltzaileak } from './erabiltzaileak/erabiltzaileak';
 import { Kargaguneak } from './kargaguneak/kargaguneak';
 import { Powerbanks } from './powerbanks/powerbanks';
 import { Erreserbak } from './erreserbak/erreserbak';
+import { Taula } from './taula/taula';
+import { Desplegable } from './desplegable/desplegable';
 
 @Component({
-  imports: [RouterOutlet, RouterLink, Erabiltzaileak, Kargaguneak, Powerbanks, Erreserbak],
+  imports: [RouterOutlet, RouterLink, Erabiltzaileak, Kargaguneak, Powerbanks, Erreserbak, Taula, Desplegable],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',

@@ -1,0 +1,29 @@
+<br><br>
+<hub-table
+  [data]="users()"
+  [headers]="headers"
+  [selectable]="true"
+  [batchActions]="batchActions"
+  [(ngModel)]="selectedUsers"
+  [totalItems]="totalItems()"
+  [(page)]="currentPage"
+  [(perPage)]="perPage"
+  [loading]="isLoading()"
+  [searchable]="true"
+  [(searchTerm)]="searchTerm"
+  [(ordination)]="ordination">
+</hub-table>
+
+<div class="alert alert-secondary mt-3">
+  <h6>Server Request Info:</h6>
+  <ul class="mb-0">
+    <li><strong>Page:</strong> {{ currentPage() }}</li>
+    <li><strong>Search:</strong> {{ searchTerm() || 'None' }}</li>
+    <li>
+      <strong>Sort:</strong> {{ ordination()?.property || 'None' }} ({{
+        ordination()?.direction || 'None'
+      }})
+    </li>
+    <li><strong>Total Items:</strong> {{ totalItems() }}</li>
+  </ul>
+</div>

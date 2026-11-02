@@ -1,1 +1,157 @@
-<p>kargaguneak works!</p>
+<br>
+<div class="row">
+  <div class="col-sm-6 mb-3 mb-sm-0">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Kargagunea sortu</h5>
+        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+        <button type="button" (click)="kargaguneaSortu.showModal()" class="btn btn-primary">Sortu</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Kargaguneen datuak aldatu</h5>
+        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+        <button type="button" (click)="kargaguneaAldatu.showModal()" class="btn btn-primary">Datuak aldatu</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Kargaguneak ezabatu edo desaktibatu</h5>
+        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+        <button type="button" class="btn btn-primary">Ezabatu</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Kargaguneen irudiak igo eta aldatu</h5>
+        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+        <button type="button" (click)="kargaguneaIrudia.showModal()" class="btn btn-primary">Irudiak kudeatu</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Kargagune bakoitzeko takillak kudeatu.</h5>
+        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+        <button type="button" class="btn btn-primary">Takillak kudeatu</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<dialog #kargaguneaSortu>
+    <form class="row g-3" method="dialog">
+        <div class="col-md-6">
+            <label for="izena" class="form-label">Izena</label>
+            <input type="text" class="form-control" id="izena">
+        </div>
+        <div class="col-12">
+            <label for="helbidea" class="form-label">Helbidea</label>
+            <input type="text" class="form-control" id="helbidea">
+        </div>
+        <div class="col-md-6">
+            <label for="irudia" class="form-label">Irudia</label>
+            <input type="text" class="form-control" id="irudia">
+        </div>
+        <div class="col-md-4">
+            <label for="egoera" class="form-label">Egoera</label>
+            <select id="egoera" class="form-select">
+                <option selected>Erabilgarri</option>
+                <option>Mantentze-lanetan</option>
+                <option>Zerbitzutik kanpo</option>
+            </select>
+        </div>
+        <div class="col-12 d-flex">
+            <button type="button" class="btn btn-success">Gorde</button>
+            <button type="button" class="btn btn-danger ms-auto">Irten</button>
+        </div>
+    </form>
+</dialog>
+
+<dialog #kargaguneaAldatu>
+    <form class="row g-3" method="dialog">
+        <div class="col-md-6">
+            <label for="izena" class="form-label">Izena</label>
+            <input type="text" class="form-control" id="izena">
+        </div>
+        <div class="col-12">
+            <label for="helbidea" class="form-label">Helbidea</label>
+            <input type="text" class="form-control" id="helbidea">
+        </div>
+        <div class="col-md-6">
+            <label for="irudia" class="form-label">Irudia</label>
+            <input type="text" class="form-control" id="irudia">
+        </div>
+        <div class="col-md-4">
+            <label for="egoera" class="form-label">Egoera</label>
+            <select id="egoera" class="form-select">
+                <option selected>Erabilgarri</option>
+                <option>Mantentze-lanetan</option>
+                <option>Zerbitzutik kanpo</option>
+            </select>
+        </div>
+        <div class="col-12 d-flex">
+            <button type="button" class="btn btn-success">Gorde</button>
+            <button type="button" class="btn btn-danger ms-auto">Irten</button>
+        </div>
+    </form>
+</dialog>
+
+<dialog #kargaguneaIrudia>
+    <form class="row g-3" method="dialog">
+        <div class="col-12">
+            <label for="irudia" class="form-label">Irudia</label>
+            <input type="text" class="form-control" id="irudia">
+        </div>
+        <div class="col-12 d-flex">
+            <button type="button" class="btn btn-success">Gorde</button>
+            <button type="button" class="btn btn-danger ms-auto">Irten</button>
+        </div>
+    </form>
+</dialog>
+
+<dialog #kargaguneTaula>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Izena</th>
+                <th scope="col">Helbidea</th>
+                <th scope="col">Irudia1</th>
+                <th scope="col">Irudia2</th>
+                <th scope="col">Irudia3</th>
+                <th scope="col">Egoera</th>
+                <th scope="col">Karga postuak</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row">1</th>
+                <td>Mark</td>
+                <td>Otto</td>
+                <td>@mdo</td>
+            </tr>
+            <tr>
+                <th scope="row">2</th>
+                <td>Jacob</td>
+                <td>Thornton</td>
+                <td>@fat</td>
+            </tr>
+            <tr>
+                <th scope="row">3</th>
+                <td>John</td>
+                <td>Doe</td>
+                <td>@social</td>
+            </tr>
+        </tbody>
+    </table>
+</dialog>
+

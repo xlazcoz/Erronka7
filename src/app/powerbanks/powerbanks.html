@@ -1,1 +1,46 @@
-<p>powerbanks works!</p>
+<br>
+
+<div class="row">
+  <div class="col-sm-6 mb-3 mb-sm-0">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Powerbank berriak sortu</h5>
+        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+        <button type="button" (click)="powerbankSortu.showModal()" class="btn btn-primary">Sortu</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Powerbank-aren tokia aldatu</h5>
+        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+        <a href="#" class="btn btn-primary">Go somewhere</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<dialog #powerbankSortu>
+    <form class="row g-3" method="dialog">
+        <div class="col-md-6">
+            <label for="izena" class="form-label">Karga maila</label>
+            <input type="text" class="form-control" id="izena">
+        </div>
+        <div class="col-md-4">
+            <label for="egoera" class="form-label">Egoera</label>
+            <select id="egoera" class="form-select">
+            <option selected>Choose...</option>
+            <option>...</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="irudia" class="form-label">Takillaren ID-a</label>
+            <input type="text" class="form-control" id="irudia">
+        </div>
+        <div class="col-12 d-flex">
+            <button type="button" class="btn btn-success">Gorde</button>
+            <button type="button" class="btn btn-danger ms-auto">Irten</button>
+        </div>
+    </form>
+</dialog>
