@@ -48,7 +48,8 @@ class Powerbank(Base):
     __tablename__ = "powerbanks"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-   
+    karga_maila: Mapped[float]
+    egoera: Mapped[str] = mapped_column(String(100))
     karga_postua_id: Mapped[int] = mapped_column(ForeignKey("karga_postuak.id"))
 
     erreserbak: Mapped[list["Erreserba"]] = relationship(back_populates="powerbank")

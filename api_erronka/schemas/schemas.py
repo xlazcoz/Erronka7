@@ -182,14 +182,18 @@ class PowerbankBase(BaseModel):
     karga_postua_id: int = Field(gt=0)
 
 class PowerbankCreate(PowerbankBase):
-    pass
+    karga_maila: float = Field(le=100)
+    egoera: str
+    karga_postua_id: int = Field(ge=1)
 
 class PowerbankUpdate(BaseModel):
     karga_postua_id: Optional[int] = Field(default=None, gt=0)
 
 class PowerbankResponse(PowerbankBase):
     id: int
-
+    karga_maila: float
+    egoera: str
+    karga_postua_id: int
     class Config:
         from_attributes = True
 
