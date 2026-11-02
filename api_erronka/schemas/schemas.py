@@ -1,5 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+from typing import Optional
 
 
 
@@ -27,12 +28,12 @@ class ErabiltzaileaCreate(BaseModel):
 
     
 class ErabiltzaileaUpdate(BaseModel):
-    izena: str = Field(min_length=1)
-    abizena: str = Field(min_length=1)
-    login_email: str = Field(min_length=1, max_length=100)
-    login_pasahitza: str = Field(min_length=1, max_length=100)
-    rola: str = Field(min_length=1, max_length=100)
-    erreserben_historikoa: str = Field(min_length=1, max_length=100)
+    izena: Optional[str] = None
+    abizena: Optional[str] = None
+    login_email: Optional[str] = None
+    login_pasahitza: Optional[str] = None  
+    rola: Optional[str] = None
+    erreserben_historikoa: Optional[str] = None
 
 class ErabiltzaileaRolaUpdate(BaseModel):
     rola: str = Field(min_length=1, max_length=100)

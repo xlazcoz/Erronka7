@@ -26,9 +26,9 @@ class Kargagunea(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     izena: Mapped[str] = mapped_column(String(100))
     helbidea: Mapped[str] = mapped_column(String(100))
-    irudia1: Mapped[str] = mapped_column(String(100))
-    irudia2: Mapped[str] = mapped_column(String(100))
-    irudia3: Mapped[str] = mapped_column(String(100))
+    irudia1: Mapped[str] = mapped_column(String(1000))
+    irudia2: Mapped[str] = mapped_column(String(1000))
+    irudia3: Mapped[str] = mapped_column(String(1000))
     egoera: Mapped[str] = mapped_column(String(100))
 
     karga_postuak: Mapped[list["KargaPostua"]] = relationship(back_populates="kargagunea")
