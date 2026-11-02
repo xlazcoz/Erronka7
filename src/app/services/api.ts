@@ -25,7 +25,7 @@ interface Kargagunea{
 interface Powerbank{
     karga_maila: number
     egoera: string
-    takilla_id: number
+    karga_postua_id: number
 }
 
 interface Erreserba{
