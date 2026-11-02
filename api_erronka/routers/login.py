@@ -1,4 +1,3 @@
-from typing import Annotated
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -11,20 +10,22 @@ router = APIRouter(prefix="/login", tags=["Login"])
 
 @router.post("/register", response_model=ErabiltzaileaResponse, status_code=201)
 def erregistratu(data: RegisterRequest, session: Session = Depends(get_session)):
+    existing_user = session.scalar(
+        select(Erabiltzailea).where(Erabiltzailea.login_email == data.login_email)
+    )
+    if existing_user is not None:
+        raise HTTPException(status_code=409, detail="Emaila existitzen da, saioa hasi behar duzu")
+
     erabiltzailea = Erabiltzailea(
         izena=data.izena,
-        abizena="",  # abizena por defecto en registro rápido
+        abizena="",
         login_email=data.login_email,
         login_pasahitza=hash_password(data.login_pasahitza),
         rola="user"
     )
-    try:
-        session.add(erabiltzailea)
-        session.commit()
-        session.refresh(erabiltzailea)
-    except Exception:
-        session.rollback()
-        raise HTTPException(status_code=409, detail="Emaila existitzen da, saioa hasi behar duzu")
+    session.add(erabiltzailea)
+    session.commit()
+    session.refresh(erabiltzailea)
 
     return erabiltzailea
 
@@ -33,13 +34,10 @@ def login(data: LoginRequest, response: Response, session: Session = Depends(get
     stmt = select(Erabiltzailea).where(Erabiltzailea.login_email == data.login_email)
     erabiltzailea = session.scalars(stmt).first()
 
-    # Corregido: usa login_pasahitza de tu modelo de SQLAlchemy
     if erabiltzailea is None or not pasahitza_egiaztatu(data.login_pasahitza, erabiltzailea.login_pasahitza):
         raise HTTPException(status_code=401, detail="Emaila edo pasahitza ez da zuzena")
 
     session_id = create_session_id()
-
-    # Corregido: se asigna a la relación erabiltzailea
     auth_session = AuthSession(id=session_id, erabiltzailea=erabiltzailea)
 
     session.add(auth_session)
@@ -47,7 +45,15 @@ def login(data: LoginRequest, response: Response, session: Session = Depends(get
 
     response.set_cookie(key="session_id", value=session_id, httponly=True, samesite="lax", secure=False)
 
-    return {"message": "Saioa hasi da"}
+    return {
+        "message": "Saioa hasi da",
+        "usuario": {
+            "id": erabiltzailea.id,
+            "izena": erabiltzailea.izena,
+            "email": erabiltzailea.login_email,
+            "rola": erabiltzailea.rola
+        }
+    }
 
 @router.post("/logout")
 def logout(response: Response, session_id: str | None = Cookie(default=None), session: Session = Depends(get_session)):

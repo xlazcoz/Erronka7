@@ -1,137 +1,114 @@
-const Id = "1";
-const url = "http://127.0.0.1:8000/erabiltzaileak/" + Id;
+let usuarioActual = null;
 
-let izena, nombreform, apellidoform, emailform;
-let datosUsuarioOriginales = {}; 
+document.addEventListener("DOMContentLoaded", cargarPerfil);
 
-document.addEventListener("DOMContentLoaded", () => {
-    izena = document.getElementById("izena");
-    nombreform = document.getElementById("nombreform");
-    apellidoform = document.getElementById("apellidoform");
-    emailform = document.getElementById("emailform");
-
-    Datuak();
-});
-
-async function Datuak() {
+async function cargarPerfil() {
     try {
-        const respuesta = await fetch(url);
-        if (!respuesta.ok) {
-            throw new Error(`Error en la petición: ${respuesta.status}`);
-        }
-        datosUsuarioOriginales = await respuesta.json();
-        
-        informazioa(datosUsuarioOriginales);
-        renderizarTablaReservas(datosUsuarioOriginales.erreserbak);
+        usuarioActual = await apiRequest("/login/me");
+        document.getElementById("izena").textContent =
+            `${usuarioActual.izena} ${usuarioActual.abizena}`.trim();
+        document.getElementById("nombreform").value = usuarioActual.izena || "";
+        document.getElementById("apellidoform").value = usuarioActual.abizena || "";
+        document.getElementById("emailform").value = usuarioActual.login_email || "";
+        renderizarTablaReservas(usuarioActual.erreserbak || []);
     } catch (error) {
-        console.error('Hubo un problema con la petición Fetch:', error);
+        if (error.status === 401) {
+            window.location.href = "Login.html";
+        } else {
+            await mostrarDialogo(`No se pudo cargar el perfil: ${error.message}`, {
+                title: "Error al cargar el perfil",
+                type: "error",
+            });
+        }
     }
 }
 
-function informazioa(datos) {
-    if (izena) izena.textContent = `${datos.izena} ${datos.abizena}`;
-    
-    if (nombreform) nombreform.value = datos.izena || "";
-    if (apellidoform) apellidoform.value = datos.abizena || "";
-    if (emailform) emailform.value = datos.login_email || "";
-}
-
-async function cambios(e) {
-    if (e) e.preventDefault();
-
-    const datosActualizados = {
-        izena: nombreform.value,
-        abizena: apellidoform.value,
-        login_email: emailform.value
-    };
+async function cambios(event) {
+    event.preventDefault();
+    if (!usuarioActual) return;
 
     try {
-        const respuesta = await fetch(url, {
-            method: "PATCH", 
-            headers: {
-                "Content-Type": "application/json"
+        usuarioActual = await apiRequest(`/erabiltzaileak/${usuarioActual.id}`, {
+            method: "PATCH",
+            body: {
+                izena: document.getElementById("nombreform").value.trim(),
+                abizena: document.getElementById("apellidoform").value.trim(),
+                login_email: document.getElementById("emailform").value.trim(),
             },
-            body: JSON.stringify(datosActualizados)
         });
-
-        if (!respuesta.ok) {
-            const errorDetalle = await respuesta.json();
-            console.error("--- DETALLE DEL ERROR 422 ---", errorDetalle);
-            throw new Error(`Error ${respuesta.status}`);
-        }
-
-        const datosServidor = await respuesta.json();
-        datosUsuarioOriginales = datosServidor;
-        
-        informazioa(datosServidor);
-
+        document.getElementById("izena").textContent =
+            `${usuarioActual.izena} ${usuarioActual.abizena}`.trim();
+        await mostrarDialogo("Perfil actualizado.", {
+            title: "Cambios guardados",
+            type: "success",
+        });
     } catch (error) {
-        console.error("Error al actualizar en la API:", error);
+        await mostrarDialogo(`No se pudieron guardar los cambios: ${error.message}`, {
+            title: "Error al guardar",
+            type: "error",
+        });
     }
 }
 
 function renderizarTablaReservas(reservas) {
-    const tbody = document.getElementById("tablaReservasBody");
-    if (!tbody) return;
+    const tablaBody = document.getElementById("tablaReservasBody");
+    tablaBody.replaceChildren();
 
-    tbody.innerHTML = "";
-
-    if (!reservas || reservas.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4">No tienes reservas registradas.</td></tr>`;
+    if (reservas.length === 0) {
+        const fila = tablaBody.insertRow();
+        const celda = fila.insertCell();
+        celda.colSpan = 6;
+        celda.className = "text-center text-muted";
+        celda.textContent = "No tienes reservas registradas.";
         return;
     }
 
-    reservas.forEach(r => {
-        const tr = document.createElement("tr");
-
-        const fechaObj = new Date(r.hasiera_data_ordua);
-        const fechaFormateada = fechaObj.toLocaleDateString();
-        const horaInicio = fechaObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const horaFin = new Date(r.amaiera_data_ordua).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-        let badgeClass = "bg-secondary";
-        if (r.egoera === "aktiboa") badgeClass = "bg-success";
-        if (r.egoera === "ezeztatua") badgeClass = "bg-danger";
-
-        let botonAccion = `<span class="text-muted small">-</span>`;
-        if (r.egoera === "aktiboa") {
-            botonAccion = `
-                <button class="btn btn-outline-danger btn-sm" onclick="cancelarReserva(${r.id})">
-                    <i class="fas fa-times me-1"></i> Cancelar
-                </button>
-            `;
-        }
-
-        tr.innerHTML = `
-            <td><strong>#${r.id}</strong></td>
-            <td>Puesto ${r.hasierako_karga_postua}</td>
-            <td>${fechaFormateada}</td>
-            <td>${horaInicio} - ${horaFin}</td>
-            <td><span class="badge ${badgeClass}">${r.egoera}</span></td>
-            <td class="text-center">${botonAccion}</td>
-        `;
-
-        tbody.appendChild(tr);
-    });
-}
-
-async function cancelarReserva(reservaId) {
-    const confirmar = confirm(`¿Estás seguro de que deseas cancelar la reserva #${reservaId}?`);
-    if (!confirmar) return;
-
-    try {
-        const respuesta = await fetch(`http://127.0.0.1:8000/erreserbak/${reservaId}/egoera`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ egoera: "ezeztatua" })
+    reservas.forEach((reserva) => {
+        const fila = tablaBody.insertRow();
+        const valores = [
+            `#${reserva.id}`,
+            `Puesto ${reserva.hasierako_karga_postua}`,
+            new Date(reserva.hasiera_data_ordua).toLocaleDateString(),
+            `${new Date(reserva.hasiera_data_ordua).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} - ${new Date(reserva.amaiera_data_ordua).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
+            reserva.egoera,
+        ];
+        valores.forEach((valor) => {
+            fila.insertCell().textContent = valor;
         });
 
-        if (!respuesta.ok) {
-            throw new Error(`Error al cancelar: ${respuesta.status}`);
-        }
+        const acciones = fila.insertCell();
+        acciones.className = "text-center";
+        if (reserva.egoera === "aktiboa") {
+            const boton = document.createElement("button");
+            boton.className = "btn btn-outline-danger btn-sm";
+            boton.textContent = "Cancelar";
+            boton.addEventListener("click", () => cancelarReserva(reserva.id));
+            acciones.appendChild(boton);
+        } else {
+            acciones.textContent = "-";
+        } 
+    });
+}   
+async function cancelarReserva(reservaId) {
+    const confirmado = await confirmarDialogo("¿Quieres cancelar esta reserva?", {
+        title: "Cancelar reserva",
+    });
+    if (!confirmado) return;
 
-        Datuak(); 
+    try {
+        await apiRequest(`/erreserbak/${reservaId}/egoera`, {
+            method: "PATCH",
+            body: { egoera: "ezeztatua" },
+        });
+        await cargarPerfil();
+        await mostrarDialogo("La reserva se ha cancelado.", {
+            title: "Reserva cancelada",
+            type: "success",
+        });
     } catch (error) {
-        console.error("Error al cancelar la reserva:", error);
+        await mostrarDialogo(`No se pudo cancelar la reserva: ${error.message}`, {
+            title: "Error al cancelar",
+            type: "error",
+        });
     }
 }

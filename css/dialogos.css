@@ -1,0 +1,79 @@
+.dialogo {
+  width: min(92vw, 420px);
+  padding: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+}
+
+.dialogo::backdrop {
+  background: rgba(17, 24, 39, 0.5);
+}
+
+.dialogo-contenido {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.dialogo-titulo {
+  margin: 0 0 0.75rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.dialogo-mensaje {
+  margin: 0;
+  color: #374151;
+  white-space: pre-line;
+}
+
+.dialogo-acciones {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.dialogo-btn {
+  min-width: 7rem;
+  padding: 0.6rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+}
+
+.dialogo-btn:hover {
+  background: #1d4ed8;
+}
+
+.dialogo-btn-cancelar {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+  color: #111827;
+}
+
+.dialogo-btn-cancelar:hover {
+  background: #d1d5db;
+}
+
+.dialogo-btn[hidden] {
+  display: none;
+}
+
+.dialogo-error .dialogo-titulo {
+  color: #b91c1c;
+}
+
+.dialogo-exito .dialogo-titulo {
+  color: #15803d;
+}
+
+@media (max-width: 480px) {
+  .dialogo-contenido {
+    padding: 1.2rem;
+  }
+}

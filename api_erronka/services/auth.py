@@ -1,5 +1,3 @@
-from typing import Annotated
-
 from fastapi import Cookie, Depends, HTTPException
 
 from pwdlib import PasswordHash
@@ -31,7 +29,7 @@ def get_current_user(session_id: str | None = Cookie(default=None), session: Ses
     return auth_session.erabiltzailea
 
 def require_admin(current_user: Erabiltzailea = Depends(get_current_user)) -> Erabiltzailea:
-    if current_user.role != "admin":
+    if current_user.rola != "admin":
         raise HTTPException(
             status_code=403, detail="Ez zara administratzailea",)
 

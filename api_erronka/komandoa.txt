@@ -1,3 +1,12 @@
 
-Api-a exekutatzeko:
+APIa abiarazteko, `api_erronka` karpetan:
 uv run python -m fastapi dev main.py
+
+Demo datuak kargatzeko, behin bakarrik eta `api_erronka` karpetan:
+uv run python seed.py
+
+Frontend-a VS Code Live Server erabiliz ireki `index.html` fitxategitik
+(http://localhost:5500 edo http://127.0.0.1:5500). APIak PostgreSQL zerbitzaria
+`localhost:5432` portuan martxan izatea behar du.
+
+Demo erabiltzailea: alex@example.com / 1234

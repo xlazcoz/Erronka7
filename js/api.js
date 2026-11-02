@@ -1,14 +1,24 @@
-    //ejemplo de lo que hay que hacer con la api
-    async function getData() {
-      const url = "";
-      try {
-        const response = await fetch(url);
-        if (!responsive.ok) {
-          throw new Error(`Response status: ${response.status}`);
-        }
-        
-      } catch (error) {
-        console.error(error.message);
-        
-      }
+const API_BASE_URL = `http://${window.location.hostname || "localhost"}:8000`;
+
+async function apiRequest(path, { body, ...options } = {}) {
+    const headers = new Headers(options.headers || {});
+    if (body !== undefined) {
+        headers.set("Content-Type", "application/json");
     }
+
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+        ...options,
+        headers,
+        credentials: "include",
+        body: body === undefined ? undefined : JSON.stringify(body),
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+        const error = new Error(result.detail || `Error ${response.status}`);
+        error.status = response.status;
+        throw error;
+    }
+
+    return result;
+}

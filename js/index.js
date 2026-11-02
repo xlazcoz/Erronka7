@@ -1,25 +1,15 @@
 const lista = document.getElementById("lista");
-const url = "http://127.0.0.1:8000/kargaguneak";
-
-let datos = []; 
 
 document.addEventListener("DOMContentLoaded", Datuak);
 
 async function Datuak() {
     try {
-        const respuesta = await fetch(url);
-
-        if (!respuesta.ok) {
-            throw new Error(`Error en la petición: ${respuesta.status}`);
-        }
-        
-        datos = await respuesta.json();
-        console.log("Datos cargados correctamente:", datos);
-
+        const datos = await apiRequest("/kargaguneak");
         renderizarLista(datos);
 
     } catch (error) {
-        console.error('Hubo un problema con la petición Fetch:', error);
+        console.error("No se pudieron cargar las estaciones:", error);
+        lista.textContent = `No se pudieron cargar las estaciones: ${error.message}`;
     }
 }
 
@@ -35,7 +25,7 @@ function renderizarLista(elementos) {
         span.className = "text-lowercase fw-medium";
         span.textContent = poste.izena;
         
-        const disponibles = poste.karga_postuak ? poste.karga_postuak.filter(p => p.egoera === "kargatuta").length : 0;
+        const disponibles = poste.libres || 0;
         
         const estadoColor = disponibles > 0 && poste.egoera === "erabilgarri" ? "success" : "danger";
 
@@ -48,5 +38,4 @@ function renderizarLista(elementos) {
         lista.appendChild(a);
     });
     
-    console.log("Lista renderizada en el DOM");
 }

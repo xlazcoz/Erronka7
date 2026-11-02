@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 from typing import Optional, List
 
 class ErreserbakResponse(BaseModel):
@@ -18,25 +18,16 @@ class ErreserbakResponse(BaseModel):
 
 
 class ErreserbakCreate(BaseModel):
-    erabiltzailea_id: int
-    powerbank_id: int
-    
+    kargagunea_id: int = Field(gt=0)
     hasiera_data_ordua: datetime
     amaiera_data_ordua: datetime
-    egikaritze_data_ordua: datetime
-    amaitze_data_ordua: datetime
-    
-    hasierako_karga_postua: int
-    bukaerako_karga_postua: Optional[int] = None
-    
-    egoera: str = Field(default="aktiboa", min_length=1)
 
-    @field_validator("egoera")
+    @field_validator("amaiera_data_ordua")
     @classmethod
-    def egoera_balidatu(cls, value: str) -> str:
-        kargagunea_egoera = {"aktiboa", "ezeztatua", "amaitua"}
-        if value not in kargagunea_egoera:
-            raise ValueError("Egoera hauetako bat izan behar da: aktiboa, ezeztatua, amaitua")
+    def amaiera_geroago(cls, value: datetime, info: ValidationInfo) -> datetime:
+        hasiera = info.data.get("hasiera_data_ordua")
+        if hasiera is not None and value <= hasiera:
+            raise ValueError("Amaiera-data hasiera-data baino geroagokoa izan behar da")
         return value
 
 
@@ -115,6 +106,7 @@ class KargaguneaResponse(BaseModel):
     irudia2: str
     irudia3: str
     egoera: str
+    libres: int = 0
     karga_postuak: List[KargaPostuaResponse] = []
 
     model_config = ConfigDict(from_attributes=True)
@@ -187,30 +179,20 @@ class KargaPostuaCreate(BaseModel):
         return value
 
 class PowerbankBase(BaseModel):
-    karga_maila: float
-    potentzia: float
-    tamaina: str
-    karga_postua_id: Optional[int] = None
+    karga_postua_id: int = Field(gt=0)
 
-# Crear
 class PowerbankCreate(PowerbankBase):
     pass
 
-# Actualizar
 class PowerbankUpdate(BaseModel):
-    karga_maila: Optional[float] = None
-    potentzia: Optional[float] = None
-    tamaina: Optional[str] = None
-    karga_postua_id: Optional[int] = None
+    karga_postua_id: Optional[int] = Field(default=None, gt=0)
 
-# Respuesta (PowerbankResponse / Powerbank)
 class PowerbankResponse(PowerbankBase):
     id: int
 
     class Config:
         from_attributes = True
 
-# Alias por si se referencia como Powerbank en otros lados
 Powerbank = PowerbankResponse
 
 

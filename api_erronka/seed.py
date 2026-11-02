@@ -5,10 +5,11 @@ from services.auth import hash_password
 
 
 def poblar_base_de_datos():
+    Base.metadata.create_all(engine)
     session = SessionLocal()
 
     try:
-        print("🌱 Insertando datos de prueba...")
+        print("Insertando datos de prueba...")
 
         # 1. Crear Usuarios de prueba
         u1 = Erabiltzailea(
@@ -49,9 +50,9 @@ def poblar_base_de_datos():
         session.commit()
 
 
-        p1 = KargaPostua(egoera="kargatuta", tamaina="estandarra", kargagunea_id=k1.id)
+        p1 = KargaPostua(egoera="kargatuta", tamaina="ertaina", kargagunea_id=k1.id)
         p2 = KargaPostua(egoera="kargatuta", tamaina="handia", kargagunea_id=k1.id)
-        p3 = KargaPostua(egoera="hutsa", tamaina="estandarra", kargagunea_id=k2.id)
+        p3 = KargaPostua(egoera="hutsa", tamaina="txikia", kargagunea_id=k2.id)
         p4 = KargaPostua(egoera="kargatuta", tamaina="handia", kargagunea_id=k2.id)
         session.add_all([p1, p2, p3, p4])
         session.commit()
@@ -90,11 +91,11 @@ def poblar_base_de_datos():
         session.add_all([r1, r2])
         session.commit()
 
-        print("✅ ¡Base de datos poblada con éxito!")
+        print("Base de datos poblada con exito.")
 
     except Exception as e:
         session.rollback()
-        print("❌ Error al insertar datos:", e)
+        print("Error al insertar datos:", e)
     finally:
         session.close()
 

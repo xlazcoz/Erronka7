@@ -7,16 +7,16 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="css/lista.css">
+    <link rel="stylesheet" href="css/dialogos.css">
     <title>Document</title>
 </head>
 
-<body >
+<body class="d-flex flex-column min-vh-100">
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-transparent">
             <div class="container">
-                <a class="navbar-brand logo" href="#">
-                    <img src="https://assets.footylogos.com/logos/rayo-vallecano-white-logo-footylogos.png" alt="Logo"
-                        style="height: 40px;">
+                <a class="navbar-brand logo" href="index.html">
+                    <img src="https://assets.footylogos.com/logos/rayo-vallecano-white-logo-footylogos.png" alt="Logo">
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav4">
@@ -24,26 +24,24 @@
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarNav4">
-                    <ul class="navbar-nav ms-auto align-items-center">
+                    <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="index.html">Home</a>
+                            <a class="nav-link" href="index.html">Estaciones</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="index.html">Lista</a>
+                            <a class="nav-link" href="Erabiltzailea.html">Cuenta</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="puesto-Carga.html">Botones</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="Erabiltzailea.html">Otros</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-outline-primary ms-lg-2 mt-2 mt-lg-0" href="Login.html">Cuenta</a>
+                            <a class="btn btn-outline-primary ms-md-2 mt-2 mt-md-0" href="Login.html"
+                                id="btnCuenta">Iniciar Sesión</a>
                         </li>
                     </ul>
                 </div>
             </div>
         </nav>
+        <script src="js/api.js"></script>
+        <script src="js/dialogos.js"></script>
+        <script src="js/auth.js"></script>
     </header>
 
     <main class="container my-5 flex-grow-1">
@@ -67,16 +65,17 @@
         <div class="container text-center">
             <h5 class="mb-3 fw-bold">POWERBANK</h5>
             <ul class="list-inline small mb-3">
-                <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="#">Features</a></li>
-                <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none" href="#">Pricing</a>
+                <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="index.html">Estaciones</a></li>
+                <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none" href="#"> </a>
                 </li>
-                <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="#">Docs</a></li>
-                <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none" href="#">Contact</a>
+                <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="#"> </a></li>
+                <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none" href="erabiltzailea.html">Cuenta</a>
                 </li>
             </ul>
             <span class="text-body-secondary small">&copy; 2026 Powerbank Inc.</span>
         </div>
     </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
