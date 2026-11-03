@@ -58,11 +58,16 @@ document.getElementById("reservationForm").addEventListener("submit", async (eve
     const date = document.getElementById("FechaReserva").value;
     const startTime = document.getElementById("horaReserva").value;
     const endTime = document.getElementById("HoraDevolucion").value;
+    if (endTime <= startTime) {
+        await mostrarDialogo("La hora de devolución debe ser posterior a la hora de reserva.", {
+            title: "Hora no válida",
+            type: "error",
+        });
+        return;
+    }
+
     const start = new Date(`${date}T${startTime}`);
     const end = new Date(`${date}T${endTime}`);
-    if (end <= start) {
-        end.setDate(end.getDate() + 1);
-    }
     if (start < new Date()) {
         await mostrarDialogo("La fecha de reserva no puede estar en el pasado.", {
             title: "Fecha no válida",

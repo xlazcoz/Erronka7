@@ -38,22 +38,30 @@ def sortu_erreserba(
     current_user: Erabiltzailea = Depends(get_current_user),
 ):
     available = session.execute(
-        select(KargaPostua, Powerbank)
+        select(KargaPostua, Powerbank.id)
         .join(Powerbank, Powerbank.karga_postua_id == KargaPostua.id)
         .where( 
             KargaPostua.kargagunea_id == data.kargagunea_id,
             KargaPostua.egoera == "kargatuta",
-            ~Powerbank.erreserbak.any(Erreserba.egoera == "aktiboa"),
+            ~select(Erreserba.id)
+            .where(
+                Erreserba.hasierako_karga_postua == KargaPostua.id,
+                Erreserba.egoera == "aktiboa",
+                Erreserba.hasiera_data_ordua < data.amaiera_data_ordua,
+                Erreserba.amaiera_data_ordua > data.hasiera_data_ordua,
+            )
+            .exists(),
         )
         .order_by(KargaPostua.id)
+        .with_for_update(of=KargaPostua)
     ).first() 
     if available is None:
-        raise HTTPException(status_code=409, detail="Ez dago powerbank erabilgarririk kargagune honetan")
-    available_slot, powerbank = available
+        raise HTTPException(status_code=409, detail="Ez dago powerbank erabilgarririk ordutegi horretan")
+    available_slot, powerbank_id = available
 
     erreserba = Erreserba(
         erabiltzailea_id=current_user.id,
-        powerbank_id=powerbank.id,
+        powerbank_id=powerbank_id,
         hasiera_data_ordua=data.hasiera_data_ordua,
         amaiera_data_ordua=data.amaiera_data_ordua,
         egikaritze_data_ordua=data.hasiera_data_ordua,
