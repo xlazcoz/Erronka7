@@ -50,10 +50,10 @@ def poblar_base_de_datos():
         session.commit()
 
 
-        p1 = KargaPostua(egoera="kargatuta", tamaina="ertaina", kargagunea_id=k1.id)
-        p2 = KargaPostua(egoera="kargatuta", tamaina="handia", kargagunea_id=k1.id)
-        p3 = KargaPostua(egoera="hutsa", tamaina="txikia", kargagunea_id=k2.id)
-        p4 = KargaPostua(egoera="kargatuta", tamaina="handia", kargagunea_id=k2.id)
+        p1 = KargaPostua(egoera="kargatuta", kargagunea_id=k1.id)
+        p2 = KargaPostua(egoera="kargatuta", kargagunea_id=k1.id)
+        p3 = KargaPostua(egoera="hutsa", kargagunea_id=k2.id)
+        p4 = KargaPostua(egoera="kargatuta", kargagunea_id=k2.id)
         session.add_all([p1, p2, p3, p4])
         session.commit()
 

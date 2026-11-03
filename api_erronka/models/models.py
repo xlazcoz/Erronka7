@@ -39,7 +39,6 @@ class KargaPostua(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     egoera: Mapped[str] = mapped_column(String(100))
-    tamaina: Mapped[str] = mapped_column(String(100))
     kargagunea_id: Mapped[int] = mapped_column(ForeignKey("kargaguneak.id"))
 
     kargagunea: Mapped["Kargagunea"] = relationship(back_populates="karga_postuak")
@@ -49,7 +48,6 @@ class Powerbank(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     karga_maila: Mapped[float]
-    egoera: Mapped[str] = mapped_column(String(100))
     karga_postua_id: Mapped[int] = mapped_column(ForeignKey("karga_postuak.id"))
 
     erreserbak: Mapped[list["Erreserba"]] = relationship(back_populates="powerbank")
