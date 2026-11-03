@@ -1,8 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Service } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Erabiltzaileak } from '../erabiltzaileak/erabiltzaileak';
-import { Util } from 'igniteui-angular/core';
 
 interface Erabiltzailea{
     izena: string
@@ -24,12 +22,31 @@ interface Kargagunea{
 
 interface Powerbank{
     karga_maila: number
-    egoera: string
     karga_postua_id: number
 }
 
 interface Erreserba{
+    id: number
+    erabiltzailea_id: number,
+    powerbank_id: number,
+    hasiera_data_ordua: Date,
+    amaiera_data_ordua: Date,
+    egikaritze_data_ordua: Date,
+    amaitze_data_ordua: Date,
+    hasierako_karga_postua: number,
+    bukaerako_karga_postua: number,
     egoera: string
+}
+
+interface Register{
+    izena: string
+    login_email: string
+    login_pasahitza: string
+}
+
+interface Login{
+    login_email: string
+    login_pasahitza: string
 }
 
 @Injectable({ providedIn: 'root' })
@@ -50,6 +67,9 @@ export class Api {
 
     private apiErreserbakGet = "http://127.0.0.1:8000/erreserbak";
     private apiErreserbakEgoeraAldatu = "http://127.0.0.1:8000/erreserbak/{id}/egoera";
+
+    private apiErregistratu = "http://127.0.0.1:8000/login/register"
+    private apiLogin = "http://127.0.0.1:8000/login" 
 
     constructor(private http: HttpClient){}
 
@@ -90,7 +110,7 @@ export class Api {
         return this.http.patch<Kargagunea>(url, partialData);
     }
 
-    EzabatuKargaguneak(id: number): Observable<Kargagunea>{
+    ezabatuKargaguneak(id: number): Observable<Kargagunea>{
         const url = this.apiKargaguneakEzabatu.replace('{id}', id.toString());
         return this.http.delete<Kargagunea>(url);
     }
@@ -120,5 +140,17 @@ export class Api {
     aldatuErreserbenEgoera(id: number, partialData: Partial<Erreserba>): Observable<Erreserba>{
         const url = this.apiErreserbakEgoeraAldatu.replace('{id}', id.toString());
         return this.http.patch<Erreserba>(url, partialData);
+    }
+
+    // ERREGISTRATU DEIA
+    erregistratu(register: Register): Observable<Register>{
+        const url = this.apiErregistratu;
+        return this.http.post<Register>(url, register);
+    }
+
+    // LOGIN DEIA
+    login(login: Login): Observable<Login>{
+        const url = this.apiLogin;
+        return this.http.post<Login>(url, login);
     }
 }

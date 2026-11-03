@@ -1,10 +1,14 @@
-<br><br>
+<div class="col-12">
+    <button type="button" class="btn btn-success" id="sortu" (click)="erabiltzaileaSortu.showModal()">Sortu</button>
+    <button type="button" class="btn btn-primary">Aldatu</button>
+    <button type="button" class="btn btn-danger">Desaktibatu</button>
+  </div>
+
 <hub-table
   [data]="users()"
   [headers]="headers"
   [selectable]="true"
-  [batchActions]="batchActions"
-  [(ngModel)]="selectedUsers"
+  [(ngModel)]="selectedUsers">
   [totalItems]="totalItems()"
   [(page)]="currentPage"
   [(perPage)]="perPage"
@@ -14,16 +18,68 @@
   [(ordination)]="ordination">
 </hub-table>
 
-<div class="alert alert-secondary mt-3">
-  <h6>Server Request Info:</h6>
-  <ul class="mb-0">
-    <li><strong>Page:</strong> {{ currentPage() }}</li>
-    <li><strong>Search:</strong> {{ searchTerm() || 'None' }}</li>
-    <li>
-      <strong>Sort:</strong> {{ ordination()?.property || 'None' }} ({{
-        ordination()?.direction || 'None'
-      }})
-    </li>
-    <li><strong>Total Items:</strong> {{ totalItems() }}</li>
-  </ul>
-</div>
+<dialog #erabiltzaileaSortu>
+  <form class="row g-3" method="dialog">
+    <div class="col-md-6">
+      <label for="izena" class="form-label">Izena</label>
+      <input type="text" class="form-control" id="izena" [(ngModel)]="erabiltzailea.izena" name="izena">
+    </div>
+    <div class="col-md-4">
+      <label for="abizena" class="form-label">Abizena</label>
+      <input type="text" class="form-control" id="abizena" [(ngModel)]="erabiltzailea.abizena" name="abizena">
+    </div>
+    <div class="col-md-6">
+      <label for="login_email" class="form-label">Email</label>
+      <input type="text" class="form-control" id="login_email" [(ngModel)]="erabiltzailea.login_email" name="login_email">
+    </div>
+    <div class="col-md-6">
+      <label for="login_pasahitza" class="form-label">Pasahitza</label>
+      <input type="text" class="form-control" id="login_pasahitza" [(ngModel)]="erabiltzailea.login_pasahitza" name="login_pasahitza">
+    </div>
+    <div class="col-md-6">
+      <label for="rola" class="form-label">Rola</label>
+      <input type="text" class="form-control" id="rola" [(ngModel)]="erabiltzailea.rola" name="rola">
+    </div>
+    <div class="col-md-6">
+      <label for="erreserben_historikoa" class="form-label">Erreserbak</label>
+      <input type="text" class="form-control" id="erreserben_historikoa" [(ngModel)]="erabiltzailea.erreserben_historikoa" name="erreserben_historikoa">
+    </div>
+    <div class="col-12 d-flex">
+      <button type="button" class="btn btn-success" (click)="sortuErabiltzailea(); erabiltzaileaSortu.close()">Gorde</button>
+      <button type="button" class="btn btn-danger ms-auto" (click)="erabiltzaileaSortu.close()">Irten</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog #erabiltzaileaAldatu>
+  <form class="row g-3" method="dialog">
+    <div class="col-md-6">
+      <label for="izena" class="form-label">Izena</label>
+      <input type="text" class="form-control" id="izena" [(ngModel)]="erabiltzailea.izena" name="izena">
+    </div>
+    <div class="col-md-4">
+      <label for="abizena" class="form-label">Abizena</label>
+      <input type="text" class="form-control" id="abizena" [(ngModel)]="erabiltzailea.abizena" name="abizena">
+    </div>
+    <div class="col-md-6">
+      <label for="login_email" class="form-label">Email</label>
+      <input type="text" class="form-control" id="login_email" [(ngModel)]="erabiltzailea.login_email" name="login_email">
+    </div>
+    <div class="col-md-6">
+      <label for="login_pasahitza" class="form-label">Pasahitza</label>
+      <input type="text" class="form-control" id="login_pasahitza" [(ngModel)]="erabiltzailea.login_pasahitza" name="login_pasahitza">
+    </div>
+    <div class="col-md-6">
+      <label for="rola" class="form-label">Rola</label>
+      <input type="text" class="form-control" id="rola" [(ngModel)]="erabiltzailea.rola" name="rola">
+    </div>
+    <div class="col-md-6">
+      <label for="erreserben_historikoa" class="form-label">Erreserbak</label>
+      <input type="text" class="form-control" id="erreserben_historikoa" [(ngModel)]="erabiltzailea.erreserben_historikoa" name="erreserben_historikoa">
+    </div>
+    <div class="col-12 d-flex">
+      <button type="button" class="btn btn-success" >Gorde</button>
+      <button type="button" class="btn btn-danger ms-auto">Irten</button>
+    </div>
+  </form>
+</dialog>

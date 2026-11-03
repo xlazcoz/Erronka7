@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { Taula } from '../taula/taula';
 import { HubTranslationService } from 'ng-hub-ui-paginable';
+import { ErreserbenTaula } from '../erreserben-taula/erreserben-taula';
 
 @Component({
-  imports: [Taula],
+  imports: [ErreserbenTaula],
   providers: [HubTranslationService],
   selector: 'app-erreserbak',
   styleUrl: './erreserbak.css',

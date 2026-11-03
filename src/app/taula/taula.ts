@@ -8,22 +8,7 @@ import { Api } from '../services/api';
   standalone: true,
   imports: [HubTableComponent, FormsModule],
   providers: [HubTranslationService],
-  template: `
-    <hub-table
-      [data]="users()"
-      [headers]="headers"
-      [selectable]="true"
-      [batchActions]="batchActions"
-      [(ngModel)]="selectedUsers">
-      [totalItems]="totalItems()"
-      [(page)]="currentPage"
-      [(perPage)]="perPage"
-      [loading]="isLoading()"
-      [searchable]="true"
-      [(searchTerm)]="searchTerm"
-      [(ordination)]="ordination">
-    </hub-table>
-  `
+  templateUrl: './taula.html',
 })
 export class Taula implements OnInit{
   users = signal<any[]>([]);
@@ -43,50 +28,50 @@ export class Taula implements OnInit{
     { property: 'rola', title: 'Rola', sortable: true },
     { property: 'erreserbak', title: 'Erreserbak', sortable: true }
   ];
-  batchActions: PaginableActionButton[] = [
-    {
-      icon: '',
-      title: 'Sortu',
-      classlist: 'btn btn-success',
-      handler: (items: readonly any[]) => this.deactivateSelected(items)
-    },
-    {
-      icon: '',
-      title: 'Aldatu',
-      classlist: 'btn btn-warning',
-      handler: (items: readonly any[]) => this.deactivateSelected(items)
-    },
-    {
-      icon: 'bi bi-check-circle',
-      title: 'Aktibatu',
-      tooltip: 'Activate selected users',
-      classlist: 'btn btn-primary',
-      handler: (items: readonly any[]) => this.activateSelected(items)
-    },
-    {
-      icon: 'bi bi-x-circle',
-      title: 'Desaktibatu',
-      classlist: 'btn btn-secondary',
-      handler: (items: readonly any[]) => this.deactivateSelected(items)
-    },
-    // {
-    //   icon: 'bi bi-trash',
-    //   title: 'Delete',
-    //   classlist: 'btn btn-danger',
-    //   handler: (items: readonly any[]) => this.deleteSelected(items)
-    // },
+  // batchActions: PaginableActionButton[] = [
+  //   {
+  //     icon: '',
+  //     title: 'Sortu',
+  //     classlist: 'btn btn-success',
+  //     handler: (items: readonly any[]) => this.deactivateSelected(items)
+  //   },
+  //   {
+  //     icon: '',
+  //     title: 'Aldatu',
+  //     classlist: 'btn btn-warning',
+  //     handler: (items: readonly any[]) => this.deactivateSelected(items)
+  //   },
+  //   {
+  //     icon: 'bi bi-check-circle',
+  //     title: 'Aktibatu',
+  //     tooltip: 'Activate selected users',
+  //     classlist: 'btn btn-primary',
+  //     handler: (items: readonly any[]) => this.activateSelected(items)
+  //   },
+  //   {
+  //     icon: 'bi bi-x-circle',
+  //     title: 'Desaktibatu',
+  //     classlist: 'btn btn-secondary',
+  //     handler: (items: readonly any[]) => this.deactivateSelected(items)
+  //   },
+  //   // {
+  //   //   icon: 'bi bi-trash',
+  //   //   title: 'Delete',
+  //   //   classlist: 'btn btn-danger',
+  //   //   handler: (items: readonly any[]) => this.deleteSelected(items)
+  //   // },
     
-  ];
+  // ];
 
-  activateSelected(items: readonly any[]): void {
-    items.forEach(user => user.status = 'Active');
-    this.selectedUsers.set([]);
-  }
+  // activateSelected(items: readonly any[]): void {
+  //   items.forEach(user => user.status = 'Active');
+  //   this.selectedUsers.set([]);
+  // }
 
-  deactivateSelected(items: readonly any[]): void {
-    items.forEach(user => user.status = 'Inactive');
-    this.selectedUsers.set([]);
-  }
+  // deactivateSelected(items: readonly any[]): void {
+  //   items.forEach(user => user.status = 'Inactive');
+  //   this.selectedUsers.set([]);
+  // }
 
 //   deleteSelected(items: readonly any[]): void {
 //     const selectedIds = items.map(u => u.id);
@@ -104,19 +89,18 @@ export class Taula implements OnInit{
     this.cdr = cdr1;
   }
   
-  
-    erabiltzaileak: any;
-    ngOnInit(): void {
-        this.isLoading.set(true);
-        this.apiService.getErabiltzaileak().subscribe({
-            next: (data) => {
-                console.log(data)
-                this.users.set(data)
-                this.totalItems.set(data.length)
-                this.cdr.detectChanges();
-            }, error: (err) => console.error('Errorea', err)
-        })
-    }
+  erabiltzaileak: any;
+  ngOnInit(): void {
+      this.isLoading.set(true);
+      this.apiService.getErabiltzaileak().subscribe({
+          next: (data) => {
+              console.log(data)
+              this.users.set(data)
+              this.totalItems.set(data.length)
+              this.cdr.detectChanges();
+          }, error: (err) => console.error('Errorea', err)
+      })
+  }
 
   private loadServerData(page: number, perPage: number, search: string, sort: PaginableTableOrdination | undefined): void {
     this.isLoading.set(true);
@@ -167,5 +151,31 @@ export class Taula implements OnInit{
       role: roles[i % roles.length],
       status: statuses[i % statuses.length],
     }));
+  }
+
+  erabiltzailea = {
+    izena: "",
+    abizena: "",
+    login_email: "",
+    login_pasahitza: "",
+    rola: "",
+    erreserben_historikoa: ""
+  }
+
+  sortuErabiltzailea(){
+    this.apiService.sortuErabiltzaileak(this.erabiltzailea).subscribe({
+      next: (response) => {
+        console.log("Sortuta", response)
+        this.cdr.detectChanges();
+      }, error: (err) => console.error('Errorea', err)
+    })
+  }
+
+  aldatuErabiltzailea(id: number){
+    this.apiService.aldatuErabiltzaileak(id, this.erabiltzailea).subscribe({
+      next: (response) => {
+        console.log("Aldatuta", response)
+      }, error: (err) => console.error('Errorea', err)
+    })
   }
 }

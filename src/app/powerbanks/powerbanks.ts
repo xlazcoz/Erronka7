@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 })
 export class Powerbanks {
   powerbank = {
+    id: 1,
     karga_maila: 0,
     egoera: "",
     karga_postua_id: 1
@@ -22,7 +23,15 @@ export class Powerbanks {
     this.apiService.sortuPowerbank(this.powerbank).subscribe({
       next: (response) => {
         console.log("Gordeta", response)
-      }, error: (err) => console.error('Errorea', err.error)
-      })
-    }
+      }, error: (err) => console.error('Errorea', err)
+    })
   }
+
+  powerbankTokiaAldatu(id: number){
+    this.apiService.aldatuPowerbankTokia(id, this.powerbank).subscribe({
+      next: (response) => {
+        console.log("Aldatuta", response)
+      }, error: (err) => console.error('Errorea', err)
+    })
+  }
+}

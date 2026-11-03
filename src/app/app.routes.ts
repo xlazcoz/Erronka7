@@ -3,6 +3,8 @@ import { Erabiltzaileak } from './erabiltzaileak/erabiltzaileak';
 import { Kargaguneak } from './kargaguneak/kargaguneak';
 import { Powerbanks } from './powerbanks/powerbanks';
 import { Erreserbak } from './erreserbak/erreserbak';
+import { SaioaHasi } from './saioa-hasi/saioa-hasi';
+import { Erregistratu } from './erregistratu/erregistratu';
 
 export const routes: Routes = [
     {
@@ -20,5 +22,13 @@ export const routes: Routes = [
     {
         path: 'erreserbak',
         component: Erreserbak
+    },
+    {
+        path: 'saioa-hasi',
+        component: SaioaHasi
+    },
+    {
+        path: 'erregistratu',
+        component: Erregistratu
     }
 ];

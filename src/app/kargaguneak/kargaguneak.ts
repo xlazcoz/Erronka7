@@ -26,7 +26,31 @@ export class Kargaguneak{
     this.apiService.sortuKargaguneak(this.kargagunea).subscribe({
       next: (response) => {
         console.log("Gordeta", response)
-      }, error: (err) => console.error('Errorea', err.error)
-      })
-    }
+      }, error: (err) => console.error('Errorea', err)
+    })
+  }
+
+  datuakAldatu(id: number){
+    this.apiService.aldatuKargaguneak(id, this.kargagunea).subscribe({
+      next: (response) => {
+        console.log("Aldatuta", response)
+      }, error: (err) => console.error('Errorea', err)
+    })
+  }
+
+  kargaguneaEzabatu(id: number){
+    this.apiService.ezabatuKargaguneak(id).subscribe({
+      next: (response) => {
+        console.log("Ezabatuta", response)
+      }, error: (err) => console.error('Errorea', err)
+    })
+  }
+
+  kargaguneaIrudiak(id: number){
+    this.apiService.aldatuKargaguneakIrudia(id, this.kargagunea).subscribe({
+      next: (response) => {
+        console.log("Irudiak aldatuta", response)
+      }, error: (err) => console.error('Errorea', err)
+    })
+  }
 }
