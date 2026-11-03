@@ -16,13 +16,13 @@ async function actualizarBotonNavbar() {
     } catch (error) {
         if (error.status !== 401) {
             console.error("No se pudo comprobar la sesión:", error);
-            btnCuenta.textContent = "Cuenta (sin conexión)";
+            btnCuenta.textContent = "Iniciar sesión";
             btnCuenta.title = error.message;
             return;
         }
 
         btnCuenta.className = "btn btn-primary me-2";
-        btnCuenta.textContent = "Cuenta";
+        btnCuenta.textContent = "Iniciar sesión";
         btnCuenta.href = "Login.html";
         btnCuenta.onclick = null;
     }
