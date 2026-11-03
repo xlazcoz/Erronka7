@@ -119,7 +119,59 @@ def poblar_base_de_datos():
                 egoera="amaitua",
             ))
 
+<<<<<<< HEAD
+
+        p1 = KargaPostua(egoera="kargatuta", kargagunea_id=k1.id)
+        p2 = KargaPostua(egoera="kargatuta", kargagunea_id=k1.id)
+        p3 = KargaPostua(egoera="hutsa", kargagunea_id=k2.id)
+        p4 = KargaPostua(egoera="kargatuta", kargagunea_id=k2.id)
+        session.add_all([p1, p2, p3, p4])
+        session.commit()
+
+
+        pb1 = Powerbank( karga_postua_id=p1.id)
+        pb2 = Powerbank(karga_postua_id=p2.id)
+        pb3 = Powerbank(karga_postua_id=p4.id)
+        session.add_all([pb1, pb2, pb3])
+        session.commit()
+
+
+        ahora = datetime.now()
+        r1 = Erreserba(
+            erabiltzailea_id=u1.id,
+            powerbank_id=pb1.id,
+            hasiera_data_ordua=ahora,
+            amaiera_data_ordua=ahora + timedelta(hours=2),
+            egikaritze_data_ordua=ahora,
+            amaitze_data_ordua=ahora + timedelta(hours=2),
+            hasierako_karga_postua=p1.id,
+            bukaerako_karga_postua=None,
+            egoera="aktiboa"
+        )
+        r2 = Erreserba(
+            erabiltzailea_id=u1.id,
+            powerbank_id=pb2.id,
+            hasiera_data_ordua=ahora - timedelta(days=2),
+            amaiera_data_ordua=ahora - timedelta(days=2, hours=-2),
+            egikaritze_data_ordua=ahora - timedelta(days=2),
+            amaitze_data_ordua=ahora - timedelta(days=2, hours=-2),
+            hasierako_karga_postua=p2.id,
+            bukaerako_karga_postua=p2.id,
+            egoera="amaitua"
+        )
+        session.add_all([r1, r2])
+        session.commit()
+
+        print("Base de datos poblada con exito.")
+
+    except Exception as e:
+        session.rollback()
+        print("Error al insertar datos:", e)
+    finally:
+        session.close()
+=======
     print("Seed completado: al menos 10 usuarios, estaciones, puestos, powerbanks y reservas.")
+>>>>>>> 001dfbaca6c83cdcd9ebdb2ae22cecb2f594d55b
 
 
 if __name__ == "__main__":

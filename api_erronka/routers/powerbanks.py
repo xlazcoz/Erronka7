@@ -19,7 +19,6 @@ def get_powerbanks(session: SessionDep):
 def sortu_powerbank(session: SessionDep, data: PowerbankCreate):
     powerbank = Powerbank(
         karga_maila=data.karga_maila,
-        egoera=data.egoera,
         karga_postua_id=data.karga_postua_id
     )
     session.add(powerbank)

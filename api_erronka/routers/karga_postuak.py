@@ -17,7 +17,7 @@ def get_karga_postuak(session: SessionDep):
 
 @router.post("", response_model=KargaPostuaResponse, status_code=201)
 def sortu_karga_postua(session: SessionDep, data: KargaPostuaCreate):
-    karga_postua = KargaPostua(egoera=data.egoera, tamaina=data.tamaina, kargagunea_id=data.kargagunea_id)
+    karga_postua = KargaPostua(egoera=data.egoera, kargagunea_id=data.kargagunea_id)
     session.add(karga_postua)
     session.commit()
     session.refresh(karga_postua)
