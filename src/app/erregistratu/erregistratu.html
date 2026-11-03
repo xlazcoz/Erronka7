@@ -1,20 +1,20 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-4">
-            <form>
+            <form (ngSubmit)="erregistratuErab()">
                 <div class="mb-3">
                     <label for="izena" class="form-label">Izena</label>
-                    <input type="text" class="form-control" id="izena">
+                    <input type="text" class="form-control" id="izena" name="izena" [(ngModel)]="register.izena" required>
                 </div>
                 <div class="mb-3">
                     <label for="emaila" class="form-label">Emaila</label>
-                    <input type="email" class="form-control" id="emaila">
+                    <input type="email" class="form-control" id="emaila" name="emaila" [(ngModel)]="register.login_email" required>
                 </div>
                 <div class="mb-3">
                     <label for="pasahitza" class="form-label">Pasahitza</label>
-                    <input type="password" class="form-control" id="pasahitza">
+                    <input type="password" class="form-control" id="pasahitza" name="pasahitza" [(ngModel)]="register.login_pasahitza" required>
                 </div>
-                <button type="submit" class="btn btn-primary" (click)="erregistratuErab()">Erregistratu</button>
+                <button type="submit" class="btn btn-primary">Erregistratu</button>
             </form>
         </div>
     </div>
