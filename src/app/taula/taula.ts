@@ -18,7 +18,8 @@ export class Taula implements OnInit{
   perPage = signal<number>(10);
   searchTerm = signal<string>('');
   ordination = signal<PaginableTableOrdination | undefined>(undefined);
-  selectedUsers = signal<any[]>([]);
+  // selectedUsers = signal<any[]>([]);
+  selectedUsers = signal<any | null>(null);
 
   headers = [
     { property: 'id', title: 'ID', sortable: true },
@@ -28,57 +29,6 @@ export class Taula implements OnInit{
     { property: 'rola', title: 'Rola', sortable: true },
     { property: 'erreserbak', title: 'Erreserbak', sortable: true }
   ];
-  // batchActions: PaginableActionButton[] = [
-  //   {
-  //     icon: '',
-  //     title: 'Sortu',
-  //     classlist: 'btn btn-success',
-  //     handler: (items: readonly any[]) => this.deactivateSelected(items)
-  //   },
-  //   {
-  //     icon: '',
-  //     title: 'Aldatu',
-  //     classlist: 'btn btn-warning',
-  //     handler: (items: readonly any[]) => this.deactivateSelected(items)
-  //   },
-  //   {
-  //     icon: 'bi bi-check-circle',
-  //     title: 'Aktibatu',
-  //     tooltip: 'Activate selected users',
-  //     classlist: 'btn btn-primary',
-  //     handler: (items: readonly any[]) => this.activateSelected(items)
-  //   },
-  //   {
-  //     icon: 'bi bi-x-circle',
-  //     title: 'Desaktibatu',
-  //     classlist: 'btn btn-secondary',
-  //     handler: (items: readonly any[]) => this.deactivateSelected(items)
-  //   },
-  //   // {
-  //   //   icon: 'bi bi-trash',
-  //   //   title: 'Delete',
-  //   //   classlist: 'btn btn-danger',
-  //   //   handler: (items: readonly any[]) => this.deleteSelected(items)
-  //   // },
-    
-  // ];
-
-  // activateSelected(items: readonly any[]): void {
-  //   items.forEach(user => user.status = 'Active');
-  //   this.selectedUsers.set([]);
-  // }
-
-  // deactivateSelected(items: readonly any[]): void {
-  //   items.forEach(user => user.status = 'Inactive');
-  //   this.selectedUsers.set([]);
-  // }
-
-//   deleteSelected(items: readonly any[]): void {
-//     const selectedIds = items.map(u => u.id);
-//     this.mockDatabase = this.mockDatabase.filter(u => !selectedIds.includes(u.id));
-//     this.users.update(currentUsers => currentUsers.filter(u => !selectedIds.includes(u.id)));
-//     this.selectedUsers.set([]);
-//   }
 
   private mockDatabase = this.generateMockData(50);
 
@@ -98,6 +48,7 @@ export class Taula implements OnInit{
               this.users.set(data)
               this.totalItems.set(data.length)
               this.cdr.detectChanges();
+              this.isLoading.set(false);
           }, error: (err) => console.error('Errorea', err)
       })
   }
@@ -166,15 +117,39 @@ export class Taula implements OnInit{
     this.apiService.sortuErabiltzaileak(this.erabiltzailea).subscribe({
       next: (response) => {
         console.log("Sortuta", response)
-        this.cdr.detectChanges();
       }, error: (err) => console.error('Errorea', err)
     })
+  }
+
+  erabiltzaileaID: number = 0;
+  erabiltzaileaEditatu(dialog: HTMLDialogElement) {
+    const erab = this.selectedUsers();
+    if (!erab) {
+      alert('Erabiltzaile bat hautatu');
+      return;
+    }
+
+    this.erabiltzaileaID = erab.id;
+
+    this.erabiltzailea = {
+      izena: erab.izena,
+      abizena: erab.abizena,
+      login_email: erab.login_email,
+      login_pasahitza: '',
+      rola: erab.rola,
+      erreserben_historikoa: erab.erreserben_historikoa
+    };
+    dialog.showModal();
   }
 
   aldatuErabiltzailea(id: number){
     this.apiService.aldatuErabiltzaileak(id, this.erabiltzailea).subscribe({
       next: (response) => {
         console.log("Aldatuta", response)
+        this.apiService.getErabiltzaileak().subscribe(data => {
+          this.users.set(data);
+          this.selectedUsers.set([]);
+        });
       }, error: (err) => console.error('Errorea', err)
     })
   }

@@ -1,6 +1,6 @@
-<div class="col-12">
+<div class="col-12 d-flex gap-2">
     <button type="button" class="btn btn-success" id="sortu" (click)="erabiltzaileaSortu.showModal()">Sortu</button>
-    <button type="button" class="btn btn-primary">Aldatu</button>
+    <button type="button" class="btn btn-primary" (click)="erabiltzaileaEditatu(erabiltzaileaAldatu)">Aldatu</button>
     <button type="button" class="btn btn-danger">Desaktibatu</button>
   </div>
 
@@ -8,7 +8,8 @@
   [data]="users()"
   [headers]="headers"
   [selectable]="true"
-  [(ngModel)]="selectedUsers">
+  [ngModel]="selectedUsers()"
+  (ngModelChange)="selectedUsers.set($event)"
   [totalItems]="totalItems()"
   [(page)]="currentPage"
   [(perPage)]="perPage"
@@ -78,8 +79,8 @@
       <input type="text" class="form-control" id="erreserben_historikoa" [(ngModel)]="erabiltzailea.erreserben_historikoa" name="erreserben_historikoa">
     </div>
     <div class="col-12 d-flex">
-      <button type="button" class="btn btn-success" >Gorde</button>
-      <button type="button" class="btn btn-danger ms-auto">Irten</button>
+      <button type="button" class="btn btn-success" (click)="aldatuErabiltzailea(erabiltzaileaID); erabiltzaileaAldatu.close()">Gorde</button>
+      <button type="button" class="btn btn-danger ms-auto" (click)="erabiltzaileaAldatu.close()">Irten</button>
     </div>
   </form>
 </dialog>
