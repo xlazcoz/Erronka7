@@ -179,25 +179,29 @@ class KargaPostuaCreate(BaseModel):
         return value
 
 class PowerbankBase(BaseModel):
-    karga_postua_id: int = Field(gt=0)
-
-class PowerbankCreate(PowerbankBase):
+    # id: int
     karga_maila: float = Field(le=100)
     egoera: str
-    karga_postua_id: int = Field(ge=1)
+    karga_postua_id: int = Field(gt=0)
+    
+
+class PowerbankCreate(PowerbankBase):
+    # karga_maila: float = Field(le=100)
+    # egoera: str
+    # karga_postua_id: int = Field(ge=1)
+    pass
 
 class PowerbankUpdate(BaseModel):
     karga_postua_id: Optional[int] = Field(default=None, gt=0)
 
 class PowerbankResponse(PowerbankBase):
     id: int
-    karga_maila: float
-    egoera: str
-    karga_postua_id: int
+    # karga_maila: float
+    # egoera: str
+    # karga_postua_id: int
     class Config:
         from_attributes = True
 
-Powerbank = PowerbankResponse
 
 
 class RegisterRequest(BaseModel):
