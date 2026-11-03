@@ -1,4 +1,4 @@
-import { Component, NgModule } from '@angular/core';
+import { Component } from '@angular/core';
 import { Api } from '../services/api';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   imports: [FormsModule, CommonModule],
   selector: 'app-powerbanks',
+  standalone: true,
   styleUrl: './powerbanks.css',
   templateUrl: './powerbanks.html',
 })
@@ -22,13 +23,17 @@ export class Powerbanks {
   sortuPowerbanka(){
     this.apiService.sortuPowerbank(this.powerbank).subscribe({
       next: (response) => {
+        alert("Gordeta")
         console.log("Gordeta", response)
       }, error: (err) => console.error('Errorea', err)
     })
   }
 
   powerbankTokiaAldatu(id: number){
-    this.apiService.aldatuPowerbankTokia(id, this.powerbank).subscribe({
+    const datuak = {
+        karga_postua_id: this.powerbank.karga_postua_id
+    };
+    this.apiService.aldatuPowerbankTokia(id, datuak).subscribe({
       next: (response) => {
         console.log("Aldatuta", response)
       }, error: (err) => console.error('Errorea', err)

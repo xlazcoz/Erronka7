@@ -26,7 +26,7 @@
                     </div>
                     <h3 class="card-title">Powerbank-aren tokia aldatu</h3>
                     <p class="card-text text-muted">Monitor your systems in real-time with instant notifications.</p>
-                    <button type="button" class="btn btn-primary">Tokia aldatu</button>
+                    <button type="button" class="btn btn-primary" (click)="powerbankAldatu.showModal()">Tokia aldatu</button>
             </div>
         </div>
     </div>
@@ -45,6 +45,23 @@
         <div class="col-12 d-flex">
             <button type="button" class="btn btn-success" (click)="sortuPowerbanka(); powerbankSortu.close()">Gorde</button>
             <button type="button" class="btn btn-danger ms-auto" (click)="powerbankSortu.close()">Irten</button>
+        </div>
+    </form>
+</dialog>
+
+<dialog #powerbankAldatu>
+    <form class="row g-3" method="dialog">
+        <div class="col-md-6">
+            <label for="powerbank_id" class="form-label">Powerbank ID</label>
+            <input type="number" class="form-control" id="powerbank_id" [(ngModel)]="powerbank.id" name="powerbank_id">
+        </div>
+        <div class="col-md-6">
+            <label for="karga_postua_id_berria" class="form-label">Takillaren ID berria</label>
+            <input type="number" class="form-control" id="karga_postua_id_berria" [(ngModel)]="powerbank.karga_postua_id" name="karga_postua_id_berria">
+        </div>
+        <div class="col-12 d-flex">
+            <button type="button" class="btn btn-success" (click)="powerbankTokiaAldatu(powerbank.id); powerbankAldatu.close()">Gorde</button>
+            <button type="button" class="btn btn-danger ms-auto" (click)="powerbankAldatu.close()">Irten</button>
         </div>
     </form>
 </dialog>
