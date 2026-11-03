@@ -13,7 +13,7 @@ export class Powerbanks {
   powerbank = {
     karga_maila: 0,
     egoera: "",
-    karga_postua_id: 0
+    karga_postua_id: 1
   }
 
   constructor(private apiService: Api){}

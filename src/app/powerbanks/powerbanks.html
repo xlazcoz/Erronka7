@@ -36,18 +36,18 @@
     <form class="row g-3" method="dialog">
         <div class="col-md-6">
             <label for="karga_maila" class="form-label">Karga maila</label>
-            <input type="text" class="form-control" id="karga_maila" [(ngModel)]="powerbank.karga_maila" name="karga_maila" [ngModelOptions]="{standalone: true}">
+            <input type="text" class="form-control" id="karga_maila" [(ngModel)]="powerbank.karga_maila" name="karga_maila">
         </div>
         <div class="col-md-4">
             <label for="egoera" class="form-label">Egoera</label>
-            <select id="egoera" class="form-select" [(ngModel)]="powerbank.egoera" name="egoera" [ngModelOptions]="{standalone: true}">
+            <select id="egoera" class="form-select" [(ngModel)]="powerbank.egoera" name="egoera">
             <option selected>Choose...</option>
             <option>...</option>
             </select>
         </div>
         <div class="col-md-6">
             <label for="karga_postua_id" class="form-label">Takillaren ID-a</label>
-            <input type="text" class="form-control" id="karga_postua_id" [(ngModel)]="powerbank.karga_postua_id" name="karga_postua_id" [ngModelOptions]="{standalone: true}">
+            <input type="text" class="form-control" id="karga_postua_id" [(ngModel)]="powerbank.karga_postua_id" name="karga_postua_id">
         </div>
         <div class="col-12 d-flex">
             <button type="button" class="btn btn-success" (click)="sortuPowerbanka(); powerbankSortu.close()">Gorde</button>
