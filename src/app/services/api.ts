@@ -122,6 +122,7 @@ export class Api {
     private apiErreserbakGet = `${API_BASE}/erreserbak`;
     private apiErreserbakEgoeraAldatu = `${API_BASE}/erreserbak/{id}/egoera`;
     private apiErreserbakItzuli = `${API_BASE}/erreserbak/{id}/itzuli`;
+    private apiErreserbakEzabatu = `${API_BASE}/erreserbak/{id}`;
 
     private apiErregistratu = `${API_BASE}/login/register`;
     private apiLogin = `${API_BASE}/login`;
@@ -275,6 +276,11 @@ export class Api {
     aldatuErreserbenEgoera(id: number, partialData: Partial<Erreserba>): Observable<Erreserba>{
         const url = this.apiErreserbakEgoeraAldatu.replace('{id}', id.toString());
         return this.http.patch<Erreserba>(url, partialData);
+    }
+
+    ezabatuErreserba(id: number): Observable<unknown>{
+        const url = this.apiErreserbakEzabatu.replace('{id}', id.toString());
+        return this.http.delete<unknown>(url);
     }
 
     itzuliErreserba(

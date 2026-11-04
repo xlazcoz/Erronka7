@@ -133,6 +133,31 @@ export class ErreserbenTaula implements OnInit {
       });
   }
 
+  ezabatuErreserba(erreserba: ErreserbaTaulan): void {
+    if (!this.auth.isSuperadmin()) {
+      return;
+    }
+
+    if (
+      !window.confirm(
+        `Ziur zaude ${erreserba.id}. erreserba ezabatu nahi duzula? Eragiketa hau ezin da desegin.`,
+      )
+    ) {
+      return;
+    }
+
+    this.apiService.ezabatuErreserba(erreserba.id).subscribe({
+      next: () => {
+        this.feedback.set({ mota: 'ok', testua: 'Erreserba ongi ezabatu da.' });
+        this.kargatu();
+      },
+      error: (err) => {
+        this.erakutsiErrorea(err);
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
   irekiItzultzea(erreserba: ErreserbaTaulan): void {
     this.feedback.set(null);
     this.erreserbaItzultzeko = erreserba;
@@ -331,7 +356,7 @@ export class ErreserbenTaula implements OnInit {
         onlyButtons: true,
         align: 'end',
         sticky: 'end',
-        width: 120,
+        width: 160,
       },
     ];
   }
