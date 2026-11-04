@@ -1,4 +1,8 @@
-const API_BASE_URL = `http://${window.location.hostname || "localhost"}:8000`;
+const API_BASE_URL =
+    window.API_BASE_URL ??
+    (["5500", "4200"].includes(window.location.port)
+        ? `http://${window.location.hostname || "localhost"}:8000`
+        : "/api");
 
 function formatearErrorApi(result, status) {
     const detail = result?.detail ?? result?.message ?? result;

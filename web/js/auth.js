@@ -14,12 +14,14 @@ async function actualizarBotonNavbar() {
             await cerrarSesion();
         };
         actualizarBotonQR(usuario);
+        actualizarEnlaceTaquilla(usuario);
     } catch (error) {
         if (error.status !== 401) {
             console.error("No se pudo comprobar la sesión:", error);
             btnCuenta.innerHTML = '<i class="fas fa-right-to-bracket me-2"></i>Iniciar sesión';
             btnCuenta.title = error.message;
             ocultarBotonQR();
+            ocultarEnlaceTaquilla();
             return;
         }
 
@@ -28,6 +30,7 @@ async function actualizarBotonNavbar() {
         btnCuenta.href = "Login.html";
         btnCuenta.onclick = null;
         ocultarBotonQR();
+        ocultarEnlaceTaquilla();
     }
 }
 
@@ -63,6 +66,36 @@ function actualizarBotonQR(usuario) {
 
 function ocultarBotonQR() {
     document.getElementById("qrQuickButton")?.classList.add("d-none");
+}
+
+function actualizarEnlaceTaquilla(usuario) {
+    const nav = document.querySelector(".pb-nav-pill");
+    if (!nav) return;
+
+    let item = document.getElementById("navLocker");
+
+    if (usuario.rola !== "admin") {
+        item?.remove();
+        return;
+    }
+
+    if (!item) {
+        item = document.createElement("li");
+        item.className = "nav-item";
+        item.id = "navLocker";
+
+        const link = document.createElement("a");
+        link.className = "nav-link";
+        link.href = "locker.html";
+        link.innerHTML = '<i class="fas fa-qrcode"></i>Taquilla';
+
+        item.appendChild(link);
+        nav.appendChild(item);
+    }
+}
+
+function ocultarEnlaceTaquilla() {
+    document.getElementById("navLocker")?.remove();
 }
 
 async function cerrarSesion() {

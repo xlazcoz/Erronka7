@@ -1,9 +1,13 @@
 let reservas = [];
 let filtroReservas = "all";
+let qrReservaActual = null;
+let qrUrlActual = "";
 
 document.addEventListener("DOMContentLoaded", () => {
   cargarReservas();
   document.getElementById("btnRefrescarReservas").addEventListener("click", refrescarReservas);
+  document.getElementById("qrDownload")?.addEventListener("click", descargarQR);
+  document.getElementById("qrPrint")?.addEventListener("click", imprimirQR);
 
   document.querySelectorAll("[data-reservation-filter]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -232,6 +236,12 @@ function renderizarReservas() {
 
     main.append(title, meta, fecha);
 
+    if (reserva.egikaritze_data_ordua) {
+      const recogido = crearElemento("div", "reservation-meta mt-1");
+      recogido.append(crearMeta("fa-hand-holding", `Recogido: ${formatearFechaHora(reserva.egikaritze_data_ordua)}`));
+      main.appendChild(recogido);
+    }
+
     if (reserva.egoera === "amaitua" && reserva.amaitze_data_ordua) {
       const devuelto = crearElemento("div", "reservation-meta mt-1");
       devuelto.append(crearMeta("fa-circle-check", `Devuelto: ${formatearFechaHora(reserva.amaitze_data_ordua)}`));
@@ -268,6 +278,13 @@ function renderizarReservas() {
       cancel.type = "button";
       cancel.addEventListener("click", () => cancelarReserva(reserva.id));
       actions.appendChild(cancel);
+    } else if (reserva.egoera === "aktiboa" && !reserva.egikaritze_data_ordua) {
+      const pickupButton = crearElemento("button", "btn btn-outline-primary btn-sm");
+      pickupButton.append(crearElemento("i", "fas fa-hand-holding"), document.createTextNode("Recoger"));
+      pickupButton.type = "button";
+      pickupButton.title = "Marcar la powerbank como recogida";
+      pickupButton.addEventListener("click", () => recogerReserva(reserva.id));
+      actions.appendChild(pickupButton);
     } else if (reserva.egoera === "aktiboa") {
       const returnButton = crearElemento("button", "btn btn-outline-primary btn-sm");
       returnButton.append(crearElemento("i", "fas fa-rotate-left"), document.createTextNode("Devolver"));
@@ -317,6 +334,28 @@ function abrirQrDesdeUrl() {
   params.delete("qr");
   const query = params.toString();
   history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
+}
+
+async function recogerReserva(reservaId) {
+  const confirmado = await confirmarDialogo(
+    "¿Has recogido ya la powerbank? Se registrará la fecha y hora de recogida.",
+    { title: "Recoger powerbank" },
+  );
+  if (!confirmado) return;
+
+  try {
+    await apiRequest(`/erreserbak/${reservaId}/recoger`, { method: "PATCH" });
+    await cargarReservas();
+    await mostrarDialogo("La recogida se ha registrado correctamente.", {
+      title: "Powerbank recogida",
+      type: "success",
+    });
+  } catch (error) {
+    await mostrarDialogo(`No se pudo registrar la recogida: ${error.message}`, {
+      title: "Error al recoger",
+      type: "error",
+    });
+  }
 }
 
 async function devolverReserva(reservaId) {

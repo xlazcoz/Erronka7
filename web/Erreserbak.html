@@ -166,7 +166,17 @@
         <div class="modal-body text-center">
           <div id="qrCode" class="qr-box d-inline-flex align-items-center justify-content-center"></div>
           <p class="pb-muted small mt-3 mb-0" id="qrInfo"></p>
-          <p class="pb-muted small mt-2 mb-0">Muestra este código en el puesto para abrir la taquilla.</p>
+          <p class="pb-muted small mt-2 mb-0">
+            Guarda este QR. Lo escanearás en la taquilla para recoger y devolver la powerbank.
+          </p>
+          <div class="qr-actions mt-3 d-flex flex-wrap gap-2 justify-content-center">
+            <button type="button" class="btn btn-primary btn-sm" id="qrDownload">
+              <i class="fas fa-download me-2"></i>Descargar PNG
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="qrPrint">
+              <i class="fas fa-print me-2"></i>Imprimir
+            </button>
+          </div>
         </div>
       </div>
     </div>
