@@ -31,10 +31,10 @@ interface Erreserba{
     powerbank_id: number,
     hasiera_data_ordua: Date,
     amaiera_data_ordua: Date,
-    egikaritze_data_ordua: Date,
-    amaitze_data_ordua: Date,
+    egikaritze_data_ordua: Date | null,
+    amaitze_data_ordua: Date | null,
     hasierako_karga_postua: number,
-    bukaerako_karga_postua: number,
+    bukaerako_karga_postua: number | null,
     egoera: string
 }
 

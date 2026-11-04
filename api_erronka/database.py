@@ -135,6 +135,237 @@ def ensure_schema():
             "AND rola = 'user' AND udalerria_id IS NULL"
         ))
 
+        # Datu zaharrak estatu berrira normalizatu.
+        connection.execute(text(
+            "UPDATE kargaguneak SET egoera = 'zerbitzutik-kanpo' "
+            "WHERE egoera = 'zerbitzutik kanpo'"
+        ))
+        connection.execute(text(
+            "UPDATE kargaguneak SET egoera = 'mantentze-lanetan' "
+            "WHERE egoera = 'mantentze lanetan'"
+        ))
+
+        # Pasahitzen hash modernoek 100 karaktere baino gehiago izan ditzakete.
+        connection.execute(text(
+            "ALTER TABLE erabiltzaileak ALTER COLUMN login_pasahitza TYPE VARCHAR(255)"
+        ))
+        connection.execute(text(
+            "ALTER TABLE kargaguneak ALTER COLUMN helbidea TYPE VARCHAR(255)"
+        ))
+
+        # QR kodea eta atzerapenaren datuak.
+        connection.execute(text(
+            "ALTER TABLE erreserbak ADD COLUMN IF NOT EXISTS qr_token VARCHAR(64)"
+        ))
+        connection.execute(text(
+            "ALTER TABLE erreserbak ADD COLUMN IF NOT EXISTS berandu BOOLEAN NOT NULL DEFAULT FALSE"
+        ))
+        connection.execute(text(
+            "ALTER TABLE erreserbak ADD COLUMN IF NOT EXISTS karga_extra DOUBLE PRECISION NOT NULL DEFAULT 0"
+        ))
+        connection.execute(text(
+            "UPDATE erreserbak SET qr_token = "
+            "md5(random()::text || id::text || clock_timestamp()::text) "
+            "WHERE qr_token IS NULL"
+        ))
+        connection.execute(text(
+            "ALTER TABLE erreserbak ALTER COLUMN qr_token SET NOT NULL"
+        ))
+        connection.execute(text(
+            "CREATE UNIQUE INDEX IF NOT EXISTS erreserbak_qr_token_uidx "
+            "ON erreserbak (qr_token)"
+        ))
+        # Erabiltzaile bakoitzak erreserba aktibo bakarra izan dezake.
+        connection.execute(text(
+            "CREATE UNIQUE INDEX IF NOT EXISTS erreserbak_erabiltzaile_aktibo_uidx "
+            "ON erreserbak (erabiltzailea_id) WHERE egoera = 'aktiboa'"
+        ))
+
+        # Beharrezko murrizketak. Datu-basea berria bada, create_all-ek
+        # sortu dituen murrizketa hauek ez dira berriro gehituko.
+        connection.execute(text("""
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM pg_constraint WHERE conname = 'erabiltzaileak_rola_check'
+                ) THEN
+                    ALTER TABLE erabiltzaileak
+                    ADD CONSTRAINT erabiltzaileak_rola_check
+                    CHECK (rola IN ('user', 'udalerri_admin', 'admin'));
+                END IF;
+
+                IF NOT EXISTS (
+                    SELECT 1 FROM pg_constraint
+                    WHERE conname = 'erabiltzaileak_udalerri_admin_check'
+                ) THEN
+                    ALTER TABLE erabiltzaileak
+                    ADD CONSTRAINT erabiltzaileak_udalerri_admin_check
+                    CHECK (rola <> 'udalerri_admin' OR udalerria_id IS NOT NULL);
+                END IF;
+
+                IF NOT EXISTS (
+                    SELECT 1 FROM pg_constraint WHERE conname = 'kargaguneak_egoera_check'
+                ) THEN
+                    ALTER TABLE kargaguneak
+                    ADD CONSTRAINT kargaguneak_egoera_check
+                    CHECK (egoera IN ('erabilgarri', 'mantentze-lanetan', 'zerbitzutik-kanpo'));
+                END IF;
+
+                IF NOT EXISTS (
+                    SELECT 1 FROM pg_constraint WHERE conname = 'kargaguneak_latitud_check'
+                ) THEN
+                    ALTER TABLE kargaguneak
+                    ADD CONSTRAINT kargaguneak_latitud_check
+                    CHECK (latitud IS NULL OR (latitud >= -90 AND latitud <= 90));
+                END IF;
+
+                IF NOT EXISTS (
+                    SELECT 1 FROM pg_constraint WHERE conname = 'kargaguneak_longitud_check'
+                ) THEN
+                    ALTER TABLE kargaguneak
+                    ADD CONSTRAINT kargaguneak_longitud_check
+                    CHECK (longitud IS NULL OR (longitud >= -180 AND longitud <= 180));
+                END IF;
+
+                IF NOT EXISTS (
+                    SELECT 1 FROM pg_constraint WHERE conname = 'karga_postuak_egoera_check'
+                ) THEN
+                    ALTER TABLE karga_postuak
+                    ADD CONSTRAINT karga_postuak_egoera_check
+                    CHECK (egoera IN ('hutsa', 'kargatuta', 'kargatzen'));
+                END IF;
+
+                IF NOT EXISTS (
+                    SELECT 1 FROM pg_constraint WHERE conname = 'karga_postuak_tamaina_check'
+                ) THEN
+                    ALTER TABLE karga_postuak
+                    ADD CONSTRAINT karga_postuak_tamaina_check
+                    CHECK (tamaina IN ('txikia', 'ertaina', 'handia', 'estandar'));
+                END IF;
+
+                IF NOT EXISTS (
+                    SELECT 1 FROM pg_constraint WHERE conname = 'powerbanks_karga_maila_check'
+                ) THEN
+                    ALTER TABLE powerbanks
+                    ADD CONSTRAINT powerbanks_karga_maila_check
+                    CHECK (karga_maila >= 0 AND karga_maila <= 100);
+                END IF;
+
+                IF NOT EXISTS (
+                    SELECT 1 FROM pg_constraint WHERE conname = 'powerbanks_egoera_check'
+                ) THEN
+                    ALTER TABLE powerbanks
+                    ADD CONSTRAINT powerbanks_egoera_check
+                    CHECK (egoera IN ('erabilgarri', 'erreserbatua', 'erabiltzen', 'mantentze-lanetan', 'zerbitzutik-kanpo'));
+                END IF;
+
+                IF NOT EXISTS (
+                    SELECT 1 FROM pg_constraint WHERE conname = 'erreserbak_data_tartea_check'
+                ) THEN
+                    ALTER TABLE erreserbak
+                    ADD CONSTRAINT erreserbak_data_tartea_check
+                    CHECK (amaiera_data_ordua > hasiera_data_ordua);
+                END IF;
+
+                IF NOT EXISTS (
+                    SELECT 1 FROM pg_constraint WHERE conname = 'erreserbak_egikaritze_data_check'
+                ) THEN
+                    ALTER TABLE erreserbak
+                    ADD CONSTRAINT erreserbak_egikaritze_data_check
+                    CHECK (egikaritze_data_ordua IS NULL OR egikaritze_data_ordua >= hasiera_data_ordua);
+                END IF;
+
+                IF NOT EXISTS (
+                    SELECT 1 FROM pg_constraint WHERE conname = 'erreserbak_amaitze_data_check'
+                ) THEN
+                    ALTER TABLE erreserbak
+                    ADD CONSTRAINT erreserbak_amaitze_data_check
+                    CHECK (amaitze_data_ordua IS NULL OR amaitze_data_ordua >= hasiera_data_ordua);
+                END IF;
+
+                IF NOT EXISTS (
+                    SELECT 1 FROM pg_constraint WHERE conname = 'erreserbak_data_orden_check'
+                ) THEN
+                    ALTER TABLE erreserbak
+                    ADD CONSTRAINT erreserbak_data_orden_check
+                    CHECK (
+                        amaitze_data_ordua IS NULL
+                        OR egikaritze_data_ordua IS NULL
+                        OR amaitze_data_ordua >= egikaritze_data_ordua
+                    );
+                END IF;
+
+                IF NOT EXISTS (
+                    SELECT 1 FROM pg_constraint WHERE conname = 'erreserbak_egoera_check'
+                ) THEN
+                    ALTER TABLE erreserbak
+                    ADD CONSTRAINT erreserbak_egoera_check
+                    CHECK (egoera IN ('aktiboa', 'ezeztatua', 'amaitua'));
+                END IF;
+            END $$;
+        """))
+
+        # Indize bakunak.
+        connection.execute(text(
+            "CREATE UNIQUE INDEX IF NOT EXISTS erabiltzaileak_login_email_uidx "
+            "ON erabiltzaileak (lower(login_email))"
+        ))
+        connection.execute(text(
+            "CREATE UNIQUE INDEX IF NOT EXISTS udalerriak_izena_uidx "
+            "ON udalerriak (izena)"
+        ))
+        connection.execute(text(
+            "CREATE UNIQUE INDEX IF NOT EXISTS powerbanks_karga_postua_id_uidx "
+            "ON powerbanks (karga_postua_id)"
+        ))
+        connection.execute(text(
+            "CREATE INDEX IF NOT EXISTS erreserbak_erabiltzailea_hasiera_idx "
+            "ON erreserbak (erabiltzailea_id, hasiera_data_ordua)"
+        ))
+        connection.execute(text(
+            "CREATE INDEX IF NOT EXISTS erreserbak_powerbank_hasiera_idx "
+            "ON erreserbak (powerbank_id, hasiera_data_ordua)"
+        ))
+
+        # Erreserba aktiboen gainjarpenak datu-basean bertan galarazi.
+        connection.execute(text(
+            "ALTER TABLE erreserbak ALTER COLUMN egikaritze_data_ordua DROP NOT NULL"
+        ))
+        connection.execute(text(
+            "ALTER TABLE erreserbak ALTER COLUMN amaitze_data_ordua DROP NOT NULL"
+        ))
+        connection.execute(text("CREATE EXTENSION IF NOT EXISTS btree_gist"))
+        connection.execute(text("""
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM pg_constraint
+                    WHERE conname = 'erreserbak_powerbank_gainjarpena_ez'
+                ) THEN
+                    ALTER TABLE erreserbak
+                    ADD CONSTRAINT erreserbak_powerbank_gainjarpena_ez
+                    EXCLUDE USING gist (
+                        powerbank_id WITH =,
+                        tsrange(hasiera_data_ordua, amaiera_data_ordua, '[)') WITH &&
+                    )
+                    WHERE (egoera = 'aktiboa');
+                END IF;
+
+                IF NOT EXISTS (
+                    SELECT 1 FROM pg_constraint
+                    WHERE conname = 'erreserbak_erabiltzaile_gainjarpena_ez'
+                ) THEN
+                    ALTER TABLE erreserbak
+                    ADD CONSTRAINT erreserbak_erabiltzaile_gainjarpena_ez
+                    EXCLUDE USING gist (
+                        erabiltzailea_id WITH =,
+                        tsrange(hasiera_data_ordua, amaiera_data_ordua, '[)') WITH &&
+                    )
+                    WHERE (egoera = 'aktiboa');
+                END IF;
+            END $$;
+        """))
+
 
 def get_session():
     with SessionLocal() as session:

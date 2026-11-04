@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from database import SessionLocal, engine
+from database import SessionLocal, engine, ensure_schema
 from media import IRUDIAK
 from models.models import Base, Erabiltzailea, Erreserba, KargaPostua, Kargagunea, Powerbank, Udalerria
 from services.auth import hash_password
@@ -11,7 +11,12 @@ ERABILTZAILEAK = [
 ] + [
     (f"Demo {number:02}", "Erabiltzailea", f"demo{number:02}@example.com", "user")
     for number in range(3, 11)
+] + [
+    ("Xabier", "", "xabier@gmail.com", "admin"),
 ]
+
+# Demo erabiltzaile gehienek 1234 dute; Xabierrek 123.
+PASAHITZAK = {"xabier@gmail.com": "123"}
 
 ESTACIONES = [
     ("Kargagunea Zubieta", "Zubieta Plaza, 1", "erabilgarri", "Donostia", 43.3078, -1.9566, [
@@ -60,7 +65,7 @@ def poblar_base_de_datos():
                 izena=izena,
                 abizena=abizena,
                 login_email=email,
-                login_pasahitza=hash_password("1234"),
+                login_pasahitza=hash_password(PASAHITZAK.get(email, "1234")),
                 rola=rola,
             )
             session.add(erabiltzailea)
@@ -144,12 +149,16 @@ def poblar_base_de_datos():
                 powerbank_id=powerbank_id,
                 hasiera_data_ordua=start,
                 amaiera_data_ordua=end,
-                egikaritze_data_ordua=start,
-                amaitze_data_ordua=end,
+                egikaritze_data_ordua=None,
+                amaitze_data_ordua=None,
                 hasierako_karga_postua=slot_id,
                 bukaerako_karga_postua=None,
                 egoera="aktiboa",
             ))
+
+    # Murrizketa bereziak (adibidez, gainjarpenen aurkakoak) datuak
+    # txertatu ondoren aplikatzen dira.
+    ensure_schema()
 
     print("Seed completado: usuarios, estaciones, puestos, powerbanks y reservas.")
 

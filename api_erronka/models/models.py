@@ -1,7 +1,28 @@
 from datetime import datetime
 from typing import Optional
-from sqlalchemy import Boolean, ForeignKey, String
+from uuid import uuid4
+
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    ForeignKey,
+    Index,
+    String,
+    UniqueConstraint,
+    func,
+    text,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
+from constants import (
+    ERRESERBA_EGOERAK,
+    KARGA_POSTU_TAMAINAK,
+    KARGA_POSTUA_EGOERAK,
+    KARGAGUNEA_EGOERAK,
+    POWERBANK_EGOERAK,
+    ROLAK,
+    sql_balioak,
+)
 
 
 class Base(DeclarativeBase):
@@ -15,19 +36,34 @@ class Erabiltzailea(Base):
     izena: Mapped[str] = mapped_column(String(100))
     abizena: Mapped[str] = mapped_column(String(100))
     login_email: Mapped[str] = mapped_column(String(100))
-    login_pasahitza: Mapped[str] = mapped_column(String(100))
+    login_pasahitza: Mapped[str] = mapped_column(String(255))
     rola: Mapped[str] = mapped_column(String(100), default="user")
     udalerria_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey("udalerriak.id"), nullable=True, default=None
+        ForeignKey("udalerriak.id", ondelete="SET NULL"), nullable=True, default=None
     )
 
     udalerria: Mapped[Optional["Udalerria"]] = relationship(back_populates="erabiltzaileak")
     erreserbak: Mapped[list["Erreserba"]] = relationship(back_populates="erabiltzailea")
     auth_sessions: Mapped[list["AuthSession"]] = relationship(back_populates="erabiltzailea")
 
+    __table_args__ = (
+        CheckConstraint(f"rola IN ({sql_balioak(ROLAK)})", name="erabiltzaileak_rola_check"),
+        CheckConstraint(
+            "rola <> 'udalerri_admin' OR udalerria_id IS NOT NULL",
+            name="erabiltzaileak_udalerri_admin_check",
+        ),
+        # Emaila maiuskulaz/minuskulaz independentea izan dadin.
+        Index(
+            "erabiltzaileak_login_email_uidx",
+            func.lower(login_email),
+            unique=True,
+        ),
+    )
+
     @property
     def udalerria_izena(self) -> Optional[str]:
         return self.udalerria.izena if self.udalerria is not None else None
+
 
 class Udalerria(Base):
     __tablename__ = "udalerriak"
@@ -39,20 +75,24 @@ class Udalerria(Base):
     kargaguneak: Mapped[list["Kargagunea"]] = relationship(back_populates="udalerria")
     erabiltzaileak: Mapped[list["Erabiltzailea"]] = relationship(back_populates="udalerria")
 
+    __table_args__ = (
+        UniqueConstraint("izena", name="udalerriak_izena_uidx"),
+    )
+
 
 class Kargagunea(Base):
     __tablename__ = "kargaguneak"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     izena: Mapped[str] = mapped_column(String(100))
-    helbidea: Mapped[str] = mapped_column(String(100))
+    helbidea: Mapped[str] = mapped_column(String(255))
     irudia1: Mapped[str] = mapped_column(String(1000))
     irudia2: Mapped[str] = mapped_column(String(1000))
     irudia3: Mapped[str] = mapped_column(String(1000))
-    egoera: Mapped[str] = mapped_column(String(100))
+    egoera: Mapped[str] = mapped_column(String(100), default="erabilgarri")
 
     udalerria_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey("udalerriak.id"), nullable=True, default=None
+        ForeignKey("udalerriak.id", ondelete="SET NULL"), nullable=True, default=None
     )
     latitud: Mapped[Optional[float]] = mapped_column(nullable=True, default=None)
     longitud: Mapped[Optional[float]] = mapped_column(nullable=True, default=None)
@@ -60,19 +100,50 @@ class Kargagunea(Base):
     udalerria: Mapped[Optional["Udalerria"]] = relationship(back_populates="kargaguneak")
     karga_postuak: Mapped[list["KargaPostua"]] = relationship(back_populates="kargagunea")
 
+    __table_args__ = (
+        CheckConstraint(
+            f"egoera IN ({sql_balioak(KARGAGUNEA_EGOERAK)})",
+            name="kargaguneak_egoera_check",
+        ),
+        CheckConstraint(
+            "latitud IS NULL OR (latitud >= -90 AND latitud <= 90)",
+            name="kargaguneak_latitud_check",
+        ),
+        CheckConstraint(
+            "longitud IS NULL OR (longitud >= -180 AND longitud <= 180)",
+            name="kargaguneak_longitud_check",
+        ),
+    )
+
     @property
     def udalerria_izena(self) -> Optional[str]:
         return self.udalerria.izena if self.udalerria is not None else None
+
 
 class KargaPostua(Base):
     __tablename__ = "karga_postuak"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    egoera: Mapped[str] = mapped_column(String(100))
+    egoera: Mapped[str] = mapped_column(String(100), default="hutsa")
     tamaina: Mapped[str] = mapped_column(String(100), default="estandar")
-    kargagunea_id: Mapped[int] = mapped_column(ForeignKey("kargaguneak.id"))
+    kargagunea_id: Mapped[int] = mapped_column(
+        ForeignKey("kargaguneak.id", ondelete="RESTRICT")
+    )
 
     kargagunea: Mapped["Kargagunea"] = relationship(back_populates="karga_postuak")
+    powerbanks: Mapped[list["Powerbank"]] = relationship(back_populates="karga_postua")
+
+    __table_args__ = (
+        CheckConstraint(
+            f"egoera IN ({sql_balioak(KARGA_POSTUA_EGOERAK)})",
+            name="karga_postuak_egoera_check",
+        ),
+        CheckConstraint(
+            f"tamaina IN ({sql_balioak(KARGA_POSTU_TAMAINAK)})",
+            name="karga_postuak_tamaina_check",
+        ),
+    )
+
 
 class Powerbank(Base):
     __tablename__ = "powerbanks"
@@ -80,38 +151,112 @@ class Powerbank(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     karga_maila: Mapped[float]
     egoera: Mapped[str] = mapped_column(String(100), default="erabilgarri")
-    karga_postua_id: Mapped[int] = mapped_column(ForeignKey("karga_postuak.id"))
+    karga_postua_id: Mapped[int] = mapped_column(
+        ForeignKey("karga_postuak.id", ondelete="RESTRICT")
+    )
 
+    karga_postua: Mapped["KargaPostua"] = relationship(back_populates="powerbanks")
     erreserbak: Mapped[list["Erreserba"]] = relationship(back_populates="powerbank")
+
+    __table_args__ = (
+        UniqueConstraint("karga_postua_id", name="powerbanks_karga_postua_id_uidx"),
+        CheckConstraint(
+            "karga_maila >= 0 AND karga_maila <= 100",
+            name="powerbanks_karga_maila_check",
+        ),
+        CheckConstraint(
+            f"egoera IN ({sql_balioak(POWERBANK_EGOERAK)})",
+            name="powerbanks_egoera_check",
+        ),
+    )
+
 
 class Erreserba(Base):
     __tablename__ = "erreserbak"
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    erabiltzailea_id: Mapped[int] = mapped_column(ForeignKey("erabiltzaileak.id"))
-    powerbank_id: Mapped[int] = mapped_column(ForeignKey("powerbanks.id"))
+    erabiltzailea_id: Mapped[int] = mapped_column(
+        ForeignKey("erabiltzaileak.id", ondelete="RESTRICT")
+    )
+    powerbank_id: Mapped[int] = mapped_column(
+        ForeignKey("powerbanks.id", ondelete="RESTRICT")
+    )
 
     hasiera_data_ordua: Mapped[datetime]
     amaiera_data_ordua: Mapped[datetime]
-    egikaritze_data_ordua: Mapped[datetime]
-    amaitze_data_ordua: Mapped[datetime]
-
-    hasierako_karga_postua: Mapped[int] = mapped_column(ForeignKey("karga_postuak.id"))
-    
-    bukaerako_karga_postua: Mapped[Optional[int]] = mapped_column(
-        ForeignKey("karga_postuak.id"), nullable=True, default=None
+    egikaritze_data_ordua: Mapped[Optional[datetime]] = mapped_column(
+        nullable=True, default=None
     )
-    
+    amaitze_data_ordua: Mapped[Optional[datetime]] = mapped_column(
+        nullable=True, default=None
+    )
+
+    hasierako_karga_postua: Mapped[int] = mapped_column(
+        ForeignKey("karga_postuak.id", ondelete="RESTRICT")
+    )
+    bukaerako_karga_postua: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("karga_postuak.id", ondelete="RESTRICT"),
+        nullable=True,
+        default=None,
+    )
+
     egoera: Mapped[str] = mapped_column(String(100), default="aktiboa")
+
+    # QR bakarra: erabiltzaileak deskargatzen du eta taquillak irakurtzen du.
+    qr_token: Mapped[str] = mapped_column(
+        String(64), default=lambda: uuid4().hex
+    )
+    berandu: Mapped[bool] = mapped_column(Boolean, default=False)
+    karga_extra: Mapped[float] = mapped_column(default=0.0)
 
     erabiltzailea: Mapped["Erabiltzailea"] = relationship(back_populates="erreserbak")
     powerbank: Mapped["Powerbank"] = relationship(back_populates="erreserbak")
+    hasierako_postua: Mapped["KargaPostua"] = relationship(
+        foreign_keys=[hasierako_karga_postua]
+    )
+    bukaerako_postua: Mapped[Optional["KargaPostua"]] = relationship(
+        foreign_keys=[bukaerako_karga_postua]
+    )
+
+    __table_args__ = (
+        CheckConstraint(
+            "amaiera_data_ordua > hasiera_data_ordua",
+            name="erreserbak_data_tartea_check",
+        ),
+        CheckConstraint(
+            "egikaritze_data_ordua IS NULL OR egikaritze_data_ordua >= hasiera_data_ordua",
+            name="erreserbak_egikaritze_data_check",
+        ),
+        CheckConstraint(
+            "amaitze_data_ordua IS NULL OR amaitze_data_ordua >= hasiera_data_ordua",
+            name="erreserbak_amaitze_data_check",
+        ),
+        CheckConstraint(
+            "amaitze_data_ordua IS NULL OR egikaritze_data_ordua IS NULL "
+            "OR amaitze_data_ordua >= egikaritze_data_ordua",
+            name="erreserbak_data_orden_check",
+        ),
+        CheckConstraint(
+            f"egoera IN ({sql_balioak(ERRESERBA_EGOERAK)})",
+            name="erreserbak_egoera_check",
+        ),
+        Index("erreserbak_qr_token_uidx", "qr_token", unique=True),
+        Index(
+            "erreserbak_erabiltzaile_aktibo_uidx",
+            "erabiltzailea_id",
+            unique=True,
+            postgresql_where=text("egoera = 'aktiboa'"),
+        ),
+    )
+
 
 class AuthSession(Base):
     __tablename__ = "auth_sessions"
 
     id: Mapped[str] = mapped_column(String(100), primary_key=True)
-    erabiltzailea_id: Mapped[int] = mapped_column(ForeignKey("erabiltzaileak.id"))
+    erabiltzailea_id: Mapped[int] = mapped_column(
+        ForeignKey("erabiltzaileak.id", ondelete="CASCADE")
+    )
 
     erabiltzailea: Mapped["Erabiltzailea"] = relationship(back_populates="auth_sessions")

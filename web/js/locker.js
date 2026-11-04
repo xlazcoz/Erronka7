@@ -1,0 +1,439 @@
+const LOCKER_STATION_KEY = "powerbank_locker_station";
+
+let lockerUser = null;
+let lockerStations = [];
+let qrScanner = null;
+let scannerRunning = false;
+let processingToken = false;
+let pendingToken = null;
+
+const STATUS_META = {
+  idle: { icon: "fa-qrcode", title: "Esperando un QR…", kind: "idle" },
+  loading: { icon: "fa-spinner fa-spin", title: "Validando QR…", kind: "idle" },
+  in_use: { icon: "fa-lock-open", title: "Taquilla abierta", kind: "success" },
+  returned: { icon: "fa-circle-check", title: "Powerbank entregada", kind: "success" },
+  returned_late: {
+    icon: "fa-triangle-exclamation",
+    title: "Entregada con retraso",
+    kind: "warning",
+  },
+  too_early: { icon: "fa-clock", title: "Todavía no es la hora", kind: "warning" },
+  expired: { icon: "fa-hourglass-end", title: "QR expirado", kind: "danger" },
+  wrong_station: {
+    icon: "fa-location-crosshairs",
+    title: "Estación incorrecta",
+    kind: "danger",
+  },
+  no_free_locker: { icon: "fa-box-open", title: "Sin taquillas libres", kind: "danger" },
+  already_returned: { icon: "fa-circle-info", title: "Ya devuelta", kind: "info" },
+  cancelled: { icon: "fa-ban", title: "Reserva cancelada", kind: "danger" },
+  invalid: { icon: "fa-qrcode", title: "QR no válido", kind: "danger" },
+  invalid_station: { icon: "fa-location-xmark", title: "Estación no válida", kind: "danger" },
+  error: { icon: "fa-triangle-exclamation", title: "Error", kind: "danger" },
+};
+
+document.addEventListener("DOMContentLoaded", iniciarTaquilla);
+
+async function iniciarTaquilla() {
+  document.getElementById("btnLogout").addEventListener("click", cerrarSesion);
+  document.getElementById("lockerSaveStation").addEventListener("click", guardarEstacion);
+  document.getElementById("lockerChangeStation").addEventListener("click", cambiarEstacion);
+  document.getElementById("lockerScanButton").addEventListener("click", iniciarEscaner);
+  document.getElementById("lockerStopButton").addEventListener("click", detenerEscaner);
+  document.getElementById("lockerTokenSubmit").addEventListener("click", validarTokenManual);
+  document.getElementById("lockerTokenInput").addEventListener("keydown", (event) => {
+    if (event.key === "Enter") validarTokenManual();
+  });
+
+  pendingToken = new URLSearchParams(window.location.search).get("token");
+
+  try {
+    lockerUser = await apiRequest("/login/me");
+  } catch (error) {
+    if (error.status === 401) {
+      const next = `locker.html${window.location.search || ""}`;
+      window.location.href = `Login.html?next=${encodeURIComponent(next)}`;
+      return;
+    }
+
+    mostrarSeccion("lockerUnauthorized");
+    return;
+  }
+
+  if (lockerUser.rola !== "admin") {
+    mostrarSeccion("lockerUnauthorized");
+    return;
+  }
+
+  try {
+    await cargarEstaciones();
+  } catch (error) {
+    mostrarResultado({
+      status: "error",
+      message: `No se pudieron cargar las estaciones: ${error.message}`,
+    });
+    mostrarSeccion("lockerPanel");
+    return;
+  }
+
+  const savedStationId = Number(localStorage.getItem(LOCKER_STATION_KEY));
+  const savedStation = lockerStations.find((station) => station.id === savedStationId);
+
+  if (savedStation) {
+    abrirPanel(savedStation);
+  } else {
+    document.getElementById("lockerStationSelect").value = "";
+    mostrarSeccion("lockerSetup");
+  }
+}
+
+function mostrarSeccion(id) {
+  ["lockerLoading", "lockerUnauthorized", "lockerSetup", "lockerPanel"].forEach(
+    (sectionId) => {
+      document.getElementById(sectionId).classList.toggle("d-none", sectionId !== id);
+    },
+  );
+}
+
+async function cargarEstaciones() {
+  lockerStations = await apiRequest("/kargaguneak");
+  const select = document.getElementById("lockerStationSelect");
+  select.replaceChildren();
+
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "Selecciona una estación";
+  select.appendChild(placeholder);
+
+  lockerStations.forEach((station) => {
+    const option = document.createElement("option");
+    option.value = String(station.id);
+    option.textContent = [station.izena, station.udalerria_izena]
+      .filter(Boolean)
+      .join(" · ");
+    select.appendChild(option);
+  });
+}
+
+function guardarEstacion() {
+  const select = document.getElementById("lockerStationSelect");
+  const stationId = Number(select.value);
+  if (!stationId) {
+    select.classList.add("is-invalid");
+    return;
+  }
+  select.classList.remove("is-invalid");
+
+  const station = lockerStations.find((item) => item.id === stationId);
+  if (!station) return;
+
+  localStorage.setItem(LOCKER_STATION_KEY, String(stationId));
+  abrirPanel(station);
+}
+
+function abrirPanel(station) {
+  document.getElementById("lockerStationName").textContent = station.izena;
+  document.getElementById("lockerStationAddress").textContent = [
+    station.udalerria_izena,
+    station.helbidea,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  mostrarSeccion("lockerPanel");
+
+  if (pendingToken) {
+    const token = pendingToken;
+    pendingToken = null;
+    procesarToken(token);
+  }
+}
+
+function cambiarEstacion() {
+  detenerEscaner();
+  localStorage.removeItem(LOCKER_STATION_KEY);
+  document.getElementById("lockerStationSelect").value = "";
+  mostrarSeccion("lockerSetup");
+}
+
+function validarTokenManual() {
+  const input = document.getElementById("lockerTokenInput");
+  const token = extraerToken(input.value.trim());
+  if (!token) {
+    mostrarResultado({
+      status: "invalid",
+      message: "Pega un token o una URL de QR válida.",
+    });
+    return;
+  }
+  input.value = "";
+  procesarToken(token);
+}
+
+function extraerToken(texto) {
+  if (!texto) return "";
+  try {
+    const url = new URL(texto);
+    return url.searchParams.get("token") || "";
+  } catch (error) {
+    const match = texto.match(/[a-f0-9]{32}/i);
+    return match ? match[0] : "";
+  }
+}
+
+async function procesarToken(token) {
+  if (processingToken) return;
+  const stationId = Number(localStorage.getItem(LOCKER_STATION_KEY));
+  if (!stationId) {
+    pendingToken = token;
+    mostrarSeccion("lockerSetup");
+    return;
+  }
+
+  processingToken = true;
+  mostrarResultado({ status: "loading", message: "Comprobando la reserva…" });
+
+  try {
+    const data = await apiRequest("/qr/eskaneatu", {
+      method: "POST",
+      body: { token, kargagunea_id: stationId },
+    });
+    mostrarResultado(data);
+  } catch (error) {
+    const payload =
+      error.data && !error.data.status
+        ? {
+            status: "error",
+            message: error.data.detail || error.data.message || error.message,
+          }
+        : error.data || {
+            status: "error",
+            message: error.message || "No se pudo validar el QR.",
+          };
+    mostrarResultado(payload);
+  } finally {
+    processingToken = false;
+    if (window.location.search) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }
+}
+
+function mostrarResultado(data) {
+  const meta = STATUS_META[data?.status] || STATUS_META.error;
+  const result = document.getElementById("lockerResult");
+  result.replaceChildren();
+  result.className = `locker-result locker-result-${meta.kind}`;
+
+  const icon = document.createElement("i");
+  icon.className = `fas ${meta.icon} locker-result-icon`;
+
+  const title = document.createElement("h3");
+  title.className = "h5 fw-bold";
+  title.textContent = meta.title;
+
+  const message = document.createElement("p");
+  message.className = "mb-3";
+  message.textContent = data?.message || "";
+
+  result.append(icon, title, message);
+
+  if (data?.station?.izena) {
+    result.appendChild(crearDetalle("Estación", data.station.izena));
+  }
+
+  if (data?.locker_id) {
+    result.appendChild(crearDetalle("Taquilla", `#${data.locker_id}`));
+  }
+
+  if (data?.powerbank_id) {
+    result.appendChild(crearDetalle("Powerbank", `#${data.powerbank_id}`));
+  }
+
+  if (data?.reservation) {
+    const reserva = data.reservation;
+
+    if (reserva.kargagunea_izena) {
+      result.appendChild(crearDetalle("Reserva en", reserva.kargagunea_izena));
+    }
+    if (reserva.hasiera_data_ordua) {
+      result.appendChild(crearDetalle("Horario", formatearRango(reserva)));
+    }
+    if (reserva.berandu) {
+      const importe = Number(reserva.karga_extra || 0)
+        .toFixed(2)
+        .replace(".", ",");
+      result.appendChild(crearDetalle("Cargo extra", `${importe} €`));
+    }
+  }
+
+  if (data?.status === "returned_late" && data.extra_fee != null) {
+    const importe = Number(data.extra_fee).toFixed(2).replace(".", ",");
+    result.appendChild(
+      crearDetalle("Cargo extra", `${importe} € (${data.late_hours} h empezada(s))`),
+    );
+  }
+
+  if (data?.status === "in_use") {
+    result.appendChild(
+      crearBoton("Cerrar taquilla", "btn btn-primary w-100 mt-2", () => {
+        mostrarResultado({
+          status: "idle",
+          message: "Taquilla cerrada. La reserva queda en uso hasta la devolución.",
+        });
+      }),
+    );
+  }
+
+  if (data?.status && !["loading", "idle"].includes(data.status)) {
+    result.appendChild(
+      crearBoton("Escanear otro QR", "btn btn-outline-primary w-100 mt-2", () => {
+        mostrarResultado({ status: "idle" });
+        document.getElementById("lockerScanButton").focus();
+      }),
+    );
+  }
+}
+
+function crearDetalle(label, value) {
+  const row = document.createElement("div");
+  row.className = "locker-detail";
+
+  const labelElement = document.createElement("span");
+  labelElement.className = "locker-detail-label";
+  labelElement.textContent = label;
+
+  const valueElement = document.createElement("strong");
+  valueElement.className = "locker-detail-value";
+  valueElement.textContent = value;
+
+  row.append(labelElement, valueElement);
+  return row;
+}
+
+function crearBoton(texto, className, onClick) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = className;
+  button.textContent = texto;
+  button.addEventListener("click", onClick);
+  return button;
+}
+
+function formatearRango(reserva) {
+  const start = new Date(reserva.hasiera_data_ordua);
+  const end = new Date(reserva.amaiera_data_ordua);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return "—";
+
+  const date = start.toLocaleDateString("es-ES", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+  const startTime = start.toLocaleTimeString("es-ES", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const endTime = end.toLocaleTimeString("es-ES", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return `${date} · ${startTime} – ${endTime}`;
+}
+
+async function iniciarEscaner() {
+  if (scannerRunning) return;
+
+  if (!window.Html5Qrcode) {
+    mostrarResultado({
+      status: "error",
+      message:
+        "No se pudo cargar el lector. Usa la cámara nativa del móvil o pega el código del QR.",
+    });
+    return;
+  }
+
+  if (!window.isSecureContext) {
+    mostrarResultado({
+      status: "error",
+      message:
+        "La cámara integrada necesita HTTPS. En local usa la cámara nativa del móvil o pega el código del QR.",
+    });
+    return;
+  }
+
+  if (!qrScanner) {
+    qrScanner = new Html5Qrcode("qrReader");
+  }
+
+  const scanButton = document.getElementById("lockerScanButton");
+  const stopButton = document.getElementById("lockerStopButton");
+  const badge = document.getElementById("lockerStatusBadge");
+
+  scanButton.disabled = true;
+  badge.textContent = "Iniciando…";
+
+  try {
+    await qrScanner.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      (decodedText) => {
+        const token = extraerToken(decodedText);
+        if (!token || processingToken) return;
+        detenerEscaner().then(() => procesarToken(token));
+      },
+    );
+    scannerRunning = true;
+    scanButton.classList.add("d-none");
+    stopButton.classList.remove("d-none");
+    badge.textContent = "Cámara activa";
+    badge.className = "pb-badge pb-badge-success";
+  } catch (error) {
+    scanButton.disabled = false;
+    badge.textContent = "Listo";
+    badge.className = "pb-badge pb-badge-primary";
+    try {
+      qrScanner?.clear();
+    } catch (clearError) {
+      // Ignorar.
+    }
+    qrScanner = null;
+    mostrarResultado({
+      status: "error",
+      message:
+        "No se pudo abrir la cámara. Usa la cámara nativa del móvil o pega el código del QR.",
+    });
+  }
+}
+
+async function detenerEscaner() {
+  const scanButton = document.getElementById("lockerScanButton");
+  const stopButton = document.getElementById("lockerStopButton");
+  const badge = document.getElementById("lockerStatusBadge");
+
+  if (qrScanner && scannerRunning) {
+    try {
+      await qrScanner.stop();
+      qrScanner.clear();
+    } catch (error) {
+      // La cámara ya estaba parada.
+    }
+  }
+
+  qrScanner = null;
+  scannerRunning = false;
+  scanButton.disabled = false;
+  scanButton.classList.remove("d-none");
+  stopButton.classList.add("d-none");
+  badge.textContent = "Listo";
+  badge.className = "pb-badge pb-badge-primary";
+}
+
+async function cerrarSesion() {
+  try {
+    await apiRequest("/login/logout", { method: "POST" });
+  } catch (error) {
+    // Aunque falle, volvemos al login.
+  }
+  window.location.href = "Login.html";
+}

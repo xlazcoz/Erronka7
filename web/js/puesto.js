@@ -309,7 +309,7 @@ document.getElementById("reservationForm").addEventListener("submit", async (eve
       return;
     }
 
-    await apiRequest("/erreserbak", {
+    const reserva = await apiRequest("/erreserbak", {
       method: "POST",
       body: {
         kargagunea_id: Number(posteId),
@@ -319,15 +319,16 @@ document.getElementById("reservationForm").addEventListener("submit", async (eve
     });
 
     document.getElementById("Reserva").hidePopover();
-    await mostrarDialogo("Reserva creada correctamente. Puedes verla en Mi cuenta.", {
-      title: "Reserva confirmada",
-      type: "success",
-    });
+    await mostrarDialogo(
+      "Reserva creada correctamente. Guarda el QR que verás a continuación: lo necesitarás en la taquilla, incluso sin internet.",
+      {
+        title: "Reserva confirmada",
+        type: "success",
+      },
+    );
 
-    configurePickupDefaults();
-    updateSummary();
-    clearFeedback();
-    await Datuak();
+    window.location.href = `Erreserbak.html?qr=${reserva.id}`;
+    return;
   } catch (error) {
     if (error.status === 401) {
       await mostrarDialogo("Inicia sesión para reservar.", {
@@ -335,6 +336,17 @@ document.getElementById("reservationForm").addEventListener("submit", async (eve
         type: "error",
       });
       window.location.href = `Login.html?next=${encodeURIComponent(`puesto-Carga.html?id=${posteId}`)}`;
+      return;
+    }
+
+    if (error.status === 409 && /erreserba aktibo/i.test(error.message)) {
+      await mostrarDialogo(
+        "Ya tienes una reserva activa. Cancélala o devuélvela antes de crear otra.",
+        {
+          title: "Reserva activa",
+          type: "info",
+        },
+      );
       return;
     }
 

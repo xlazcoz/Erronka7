@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Response
+import os
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
@@ -89,7 +90,7 @@ def login(data: LoginRequest, response: Response, session: Session = Depends(get
         value=session_id,
         httponly=True,
         samesite="lax",
-        secure=False,
+        secure=os.getenv("COOKIE_SECURE", "false").lower() in {"1", "true", "yes"},
         max_age=SESSION_MAX_AGE,
     )
 

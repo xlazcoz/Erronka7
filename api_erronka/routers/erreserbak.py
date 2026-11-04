@@ -15,9 +15,10 @@ from schemas.schemas import (
 from services.auth import can_manage_municipality, get_current_user, require_admin
 from services.erreserbak import (
     expire_stale_reservations,
-    normalize_datetime,
     now_local,
+    pickup_reservation,
     reservation_response,
+    return_reservation,
     validate_reservation_window,
 )
 
@@ -85,6 +86,23 @@ def sortu_erreserba(
     current_user: CurrentUser,
 ):
     expire_stale_reservations(session)
+
+    active_reservation = session.scalar(
+        select(Erreserba.id)
+        .where(
+            Erreserba.erabiltzailea_id == current_user.id,
+            Erreserba.egoera == "aktiboa",
+        )
+        .limit(1)
+    )
+    if active_reservation is not None:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "Dagoeneko baduzu erreserba aktibo bat. "
+                "Itzuli edo ezeztatu lehenago beste bat egiteko."
+            ),
+        )
 
     hasiera, amaiera = validate_reservation_window(
         data.hasiera_data_ordua,
@@ -154,8 +172,8 @@ def sortu_erreserba(
         powerbank_id=powerbank_id,
         hasiera_data_ordua=hasiera,
         amaiera_data_ordua=amaiera,
-        egikaritze_data_ordua=hasiera,
-        amaitze_data_ordua=amaiera,
+        egikaritze_data_ordua=None,
+        amaitze_data_ordua=None,
         hasierako_karga_postua=available_slot.id,
         egoera="aktiboa",
     )
@@ -193,6 +211,11 @@ def erreserben_egoera_kudeatu(
     if data.egoera == "ezeztatua":
         if erreserba.egoera != "aktiboa":
             raise HTTPException(status_code=409, detail="Erreserba hau ez dago aktibo")
+        if erreserba.egikaritze_data_ordua is not None:
+            raise HTTPException(
+                status_code=409,
+                detail="Erreserba hasita dago; itzuli powerbanka ezeztatu beharrean",
+            )
         if current_user.rola != "admin" and erreserba.hasiera_data_ordua <= now_local():
             raise HTTPException(
                 status_code=400,
@@ -217,41 +240,40 @@ def erreserben_egoera_kudeatu(
     return reservation_response(session, erreserba)
 
 
-@router.patch("/{id}/devolver", response_model=ErreserbakResponse, status_code=200)
-def devolver_powerbank(
+@router.patch("/{id}/recoger", response_model=ErreserbakResponse, status_code=200)
+def recoger_powerbank(
     session: SessionDep,
-    current_user: CurrentUser,
     id: int,
+    _admin: Erabiltzailea = Depends(require_admin),
 ):
+    """Marca la recogida real de la powerbank (la taquilla ha leído el QR)."""
+    expire_stale_reservations(session)
     erreserba = session.get(Erreserba, id)
     if not erreserba:
         raise HTTPException(status_code=404, detail="Erreserba ez da aurkitzen")
 
-    if not _can_manage(session, current_user, erreserba):
-        raise HTTPException(status_code=403, detail="Ez duzu erreserba hau aldatzeko baimenik")
+    pickup_reservation(session, erreserba)
+    session.commit()
+    session.refresh(erreserba)
+    return reservation_response(session, erreserba)
 
-    if erreserba.egoera != "aktiboa":
-        raise HTTPException(status_code=409, detail="Erreserba hau ez dago aktibo")
 
-    if now_local() < erreserba.hasiera_data_ordua:
-        raise HTTPException(
-            status_code=400,
-            detail="Erreserba hasi aurretik ezin da powerbanka itzuli",
-        )
+@router.patch("/{id}/devolver", response_model=ErreserbakResponse, status_code=200)
+def devolver_powerbank(
+    session: SessionDep,
+    id: int,
+    _admin: Erabiltzailea = Depends(require_admin),
+):
+    """Devolución de respaldo en la estación de recogida (solo admin)."""
+    erreserba = session.get(Erreserba, id)
+    if not erreserba:
+        raise HTTPException(status_code=404, detail="Erreserba ez da aurkitzen")
 
     return_slot = session.get(KargaPostua, erreserba.hasierako_karga_postua)
     if return_slot is None:
         raise HTTPException(status_code=404, detail="Itzultzeko karga-postua ez da aurkitzen")
 
-    powerbank = session.get(Powerbank, erreserba.powerbank_id)
-    if powerbank is not None:
-        powerbank.karga_postua_id = return_slot.id
-
-    return_slot.egoera = "kargatuta"
-    erreserba.bukaerako_karga_postua = return_slot.id
-    erreserba.amaitze_data_ordua = now_local()
-    erreserba.egoera = "amaitua"
-
+    return_reservation(session, erreserba, return_slot)
     session.commit()
     session.refresh(erreserba)
     return reservation_response(session, erreserba)
@@ -261,44 +283,24 @@ def devolver_powerbank(
 def itzuli_powerbank(
     session: SessionDep,
     data: ErreserbakItzuliUpdate,
-    current_user: CurrentUser,
     id: int,
+    _admin: Erabiltzailea = Depends(require_admin),
 ):
+    """Devolución indicando explícitamente la taquilla de destino (solo admin)."""
     erreserba = session.get(Erreserba, id)
     if not erreserba:
         raise HTTPException(status_code=404, detail="Erreserba ez da aurkitzen")
-
-    if not _can_manage(session, current_user, erreserba):
-        raise HTTPException(status_code=403, detail="Ez duzu erreserba hau aldatzeko baimenik")
-
-    if erreserba.egoera != "aktiboa":
-        raise HTTPException(status_code=409, detail="Erreserba hau ez dago aktibo")
 
     return_slot = session.get(KargaPostua, data.bukaerako_karga_postua)
     if return_slot is None:
         raise HTTPException(status_code=404, detail="Itzultzeko karga-postua ez da aurkitzen")
 
-    powerbank = session.get(Powerbank, erreserba.powerbank_id)
-    start_slot = session.get(KargaPostua, erreserba.hasierako_karga_postua)
-
-    if powerbank is not None:
-        powerbank.karga_postua_id = return_slot.id
-
-    return_slot.egoera = "kargatuta"
-
-    if start_slot is not None and start_slot.id != return_slot.id:
-        powerbank_left = session.scalar(
-            select(Powerbank.id)
-            .where(Powerbank.karga_postua_id == start_slot.id)
-            .limit(1)
-        )
-        if powerbank_left is None:
-            start_slot.egoera = "hutsa"
-
-    erreserba.bukaerako_karga_postua = return_slot.id
-    erreserba.amaitze_data_ordua = normalize_datetime(data.amaitze_data_ordua) or now_local()
-    erreserba.egoera = "amaitua"
-
+    return_reservation(
+        session,
+        erreserba,
+        return_slot,
+        data.amaitze_data_ordua,
+    )
     session.commit()
     session.refresh(erreserba)
     return reservation_response(session, erreserba)

@@ -2,7 +2,14 @@ from datetime import datetime, timedelta
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, ValidationInfo, field_validator, model_validator
 from typing import Optional, List
 
-ROLAK = {"user", "udalerri_admin", "admin"}
+from constants import (
+    ERRESERBA_EGOERAK,
+    KARGA_POSTU_TAMAINAK,
+    KARGA_POSTUA_EGOERAK,
+    KARGAGUNEA_EGOERAK,
+    POWERBANK_EGOERAK,
+    ROLAK,
+)
 
 class ErreserbakResponse(BaseModel):
     id: int
@@ -10,15 +17,21 @@ class ErreserbakResponse(BaseModel):
     powerbank_id: int
     hasiera_data_ordua: datetime
     amaiera_data_ordua: datetime
-    egikaritze_data_ordua: datetime
-    amaitze_data_ordua: datetime
+    egikaritze_data_ordua: Optional[datetime] = None
+    amaitze_data_ordua: Optional[datetime] = None
     hasierako_karga_postua: int
     bukaerako_karga_postua: Optional[int] = None
     egoera: str
+    qr_token: str = ""
+    berandu: bool = False
+    karga_extra: float = 0.0
 
     # Erabiltzailearen konturako laguntza-eremuak.
+    kargagunea_id: Optional[int] = None
     kargagunea_izena: Optional[str] = None
     karga_postua_izena: Optional[str] = None
+    bukaerako_kargagunea_izena: Optional[str] = None
+    bukaerako_karga_postua_izena: Optional[str] = None
     powerbank_karga_maila: Optional[float] = None
 
     model_config = ConfigDict(from_attributes=True)
@@ -42,6 +55,11 @@ class ErreserbakCreate(BaseModel):
         return self
 
 
+class QrScanRequest(BaseModel):
+    token: str = Field(min_length=8, max_length=64)
+    kargagunea_id: int = Field(gt=0)
+
+
 class ErreserbakUpdate(BaseModel):
     hasiera_data_ordua: Optional[datetime] = None
     amaiera_data_ordua: Optional[datetime] = None
@@ -54,10 +72,8 @@ class ErreserbakUpdate(BaseModel):
     @field_validator("egoera")
     @classmethod
     def egoera_balidatu(cls, value: str) -> str:
-        if value is not None:
-            kargagunea_egoera = {"aktiboa", "ezeztatua", "amaitua"}
-            if value not in kargagunea_egoera:
-                raise ValueError("Egoera hauetako bat izan behar da: aktiboa, ezeztatua, amaitua")
+        if value is not None and value not in ERRESERBA_EGOERAK:
+            raise ValueError("Egoera hauetako bat izan behar da: aktiboa, ezeztatua, amaitua")
         return value
 
 
@@ -67,8 +83,7 @@ class ErreserbakEgoeraUpdate(BaseModel):
     @field_validator("egoera")
     @classmethod
     def egoera_balidatu(cls, value: str) -> str:
-        kargagunea_egoera = {"aktiboa", "ezeztatua", "amaitua"}
-        if value not in kargagunea_egoera:
+        if value not in ERRESERBA_EGOERAK:
             raise ValueError("Egoera hauetako bat izan behar da: aktiboa, ezeztatua, amaitua")
         return value
 
@@ -172,10 +187,10 @@ class KargaguneaResponse(BaseModel):
 
 class KargaguneaCreate(BaseModel):
     izena: str = Field(min_length=1, max_length=100)
-    helbidea: str = Field(min_length=1, max_length=100)
-    irudia1: str = Field(min_length=1, max_length=100)
-    irudia2: str = Field(min_length=1, max_length=100)
-    irudia3: str = Field(min_length=1, max_length=100)
+    helbidea: str = Field(min_length=1, max_length=255)
+    irudia1: str = Field(min_length=1, max_length=1000)
+    irudia2: str = Field(min_length=1, max_length=1000)
+    irudia3: str = Field(min_length=1, max_length=1000)
     egoera: str = Field(min_length=1, max_length=100)
     udalerria_id: Optional[int] = Field(default=None, gt=0)
     latitud: Optional[float] = Field(default=None, ge=-90, le=90)
@@ -184,18 +199,17 @@ class KargaguneaCreate(BaseModel):
     @field_validator("egoera")
     @classmethod
     def egoera_balidatu(cls, value: str) -> str:
-        kargagunea_egoera = {"erabilgarri", "mantentze-lanetan", "zerbitzutik-kanpo"}
         normalized = value.strip().lower().replace(" ", "-")
-        if normalized not in kargagunea_egoera:
+        if normalized not in KARGAGUNEA_EGOERAK:
             raise ValueError("Egoera hauetako bat izan behar da: erabilgarri, mantentze-lanetan, zerbitzutik-kanpo")
         return normalized
 
 class KargaguneaUpdate(BaseModel):
     izena: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    helbidea: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    irudia1: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    irudia2: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    irudia3: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    helbidea: Optional[str] = Field(default=None, min_length=1, max_length=255)
+    irudia1: Optional[str] = Field(default=None, min_length=1, max_length=1000)
+    irudia2: Optional[str] = Field(default=None, min_length=1, max_length=1000)
+    irudia3: Optional[str] = Field(default=None, min_length=1, max_length=1000)
     egoera: Optional[str] = Field(default=None, min_length=1, max_length=100)
     udalerria_id: Optional[int] = Field(default=None, gt=0)
     latitud: Optional[float] = Field(default=None, ge=-90, le=90)
@@ -205,17 +219,16 @@ class KargaguneaUpdate(BaseModel):
     @classmethod
     def egoera_balidatu(cls, value: Optional[str]) -> Optional[str]:
         if value is not None:
-            kargagunea_egoera = {"erabilgarri", "mantentze-lanetan", "zerbitzutik-kanpo"}
             normalized = value.strip().lower().replace(" ", "-")
-            if normalized not in kargagunea_egoera:
+            if normalized not in KARGAGUNEA_EGOERAK:
                 raise ValueError("Egoera hauetako bat izan behar da: erabilgarri, mantentze-lanetan, zerbitzutik-kanpo")
             return normalized
         return value
 
 class KargaguneaIrudiaUpdate(BaseModel):
-    irudia1: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    irudia2: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    irudia3: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    irudia1: Optional[str] = Field(default=None, min_length=1, max_length=1000)
+    irudia2: Optional[str] = Field(default=None, min_length=1, max_length=1000)
+    irudia3: Optional[str] = Field(default=None, min_length=1, max_length=1000)
 
 
 
@@ -235,16 +248,35 @@ class KargaPostuaCreate(BaseModel):
     @field_validator("egoera")
     @classmethod
     def egoera_balidatu(cls, value: str) -> str:
-        kargagunea_egoera = {"hutsa", "kargatuta", "kargatzen"}
-        if value not in kargagunea_egoera:
+        normalized = value.strip().lower()
+        if normalized not in KARGA_POSTUA_EGOERAK:
             raise ValueError("Egoera hauetako bat izan behar da: hutsa, kargatuta, kargatzen")
-        return value
+        return normalized
+
+    @field_validator("tamaina")
+    @classmethod
+    def tamaina_balidatu(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if normalized not in KARGA_POSTU_TAMAINAK:
+            raise ValueError("Tamaina hauetako bat izan behar da: txikia, ertaina, handia, estandar")
+        return normalized
 
 class PowerbankBase(BaseModel):
     # id: int
-    karga_maila: float = Field(le=100)
+    karga_maila: float = Field(ge=0, le=100)
     egoera: str = Field(default="erabilgarri", min_length=1, max_length=100)
     karga_postua_id: int = Field(gt=0)
+
+    @field_validator("egoera")
+    @classmethod
+    def egoera_balidatu(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if normalized not in POWERBANK_EGOERAK:
+            raise ValueError(
+                "Egoera hauetako bat izan behar da: "
+                "erabilgarri, erreserbatua, erabiltzen, mantentze-lanetan, zerbitzutik-kanpo"
+            )
+        return normalized
     
 
 class PowerbankCreate(PowerbankBase):
@@ -253,8 +285,22 @@ class PowerbankCreate(PowerbankBase):
     pass
 
 class PowerbankUpdate(BaseModel):
+    karga_maila: Optional[float] = Field(default=None, ge=0, le=100)
     karga_postua_id: Optional[int] = Field(default=None, gt=0)
     egoera: Optional[str] = Field(default=None, min_length=1, max_length=100)
+
+    @field_validator("egoera")
+    @classmethod
+    def egoera_balidatu(cls, value: Optional[str]) -> Optional[str]:
+        if value is not None:
+            normalized = value.strip().lower()
+            if normalized not in POWERBANK_EGOERAK:
+                raise ValueError(
+                    "Egoera hauetako bat izan behar da: "
+                    "erabilgarri, erreserbatua, erabiltzen, mantentze-lanetan, zerbitzutik-kanpo"
+                )
+            return normalized
+        return value
 
 class PowerbankResponse(PowerbankBase):
     id: int

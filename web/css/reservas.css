@@ -759,3 +759,52 @@
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ---------- QR y pistas de uso ---------- */
+.reservation-hint {
+  display: inline-flex;
+  align-items: center;
+  max-width: 260px;
+  color: var(--pb-muted);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.qr-box {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.qr-box img,
+.qr-box canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+.qr-actions {
+  width: 100%;
+}
+
+@media (max-width: 575.98px) {
+  .reservation-hint {
+    max-width: 100%;
+    font-size: 0.8rem;
+  }
+
+  .qr-box {
+    min-width: 0;
+    min-height: 0;
+    padding: 0.4rem;
+  }
+
+  .qr-box canvas,
+  .qr-box img {
+    width: 220px !important;
+    max-width: 68vw;
+    height: auto !important;
+  }
+
+  .qr-actions .btn {
+    flex: 1 1 auto;
+  }
+}

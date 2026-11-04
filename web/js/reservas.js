@@ -42,21 +42,36 @@ function estadoReserva(reserva) {
   if (reserva.egoera === "ezeztatua") {
     return { key: "cancelled", label: "Cancelada", badge: "pb-badge-muted" };
   }
-  if (reserva.egoera === "amaitua") {
-    return { key: "finished", label: "Finalizada", badge: "pb-badge-success" };
-  }
 
   const now = new Date();
   const start = new Date(reserva.hasiera_data_ordua);
   const end = new Date(reserva.amaiera_data_ordua);
 
-  if (now >= start && now <= end) {
-    return { key: "active", label: "En curso", badge: "pb-badge-warning" };
+  if (reserva.egoera === "amaitua") {
+    if (!reserva.egikaritze_data_ordua) {
+      return { key: "finished", label: "Expirada · no recogida", badge: "pb-badge-muted" };
+    }
+    if (reserva.berandu) {
+      return { key: "finished", label: "Devuelta con retraso", badge: "pb-badge-warning" };
+    }
+    return { key: "finished", label: "Finalizada", badge: "pb-badge-success" };
   }
-  if (now > end) {
-    return { key: "active", label: "Pendiente de devolución", badge: "pb-badge-danger" };
+
+  if (reserva.egikaritze_data_ordua) {
+    if (now > end) {
+      return { key: "active", label: "En uso · devolución pendiente", badge: "pb-badge-danger" };
+    }
+    return { key: "active", label: "En uso", badge: "pb-badge-warning" };
   }
-  return { key: "active", label: "Activa", badge: "pb-badge-primary" };
+
+  if (now < start) {
+    return { key: "active", label: "Activa", badge: "pb-badge-primary" };
+  }
+  if (now <= end) {
+    return { key: "active", label: "Lista para recoger", badge: "pb-badge-warning" };
+  }
+
+  return { key: "finished", label: "Expirada · no recogida", badge: "pb-badge-muted" };
 }
 
 function formatearFechaHora(valor) {
@@ -242,13 +257,26 @@ function renderizarReservas() {
       main.appendChild(recogido);
     }
 
-    if (reserva.egoera === "amaitua" && reserva.amaitze_data_ordua) {
+    if (reserva.egoera === "amaitua" && reserva.amaitze_data_ordua && reserva.egikaritze_data_ordua) {
       const devuelto = crearElemento("div", "reservation-meta mt-1");
       devuelto.append(crearMeta("fa-circle-check", `Devuelto: ${formatearFechaHora(reserva.amaitze_data_ordua)}`));
       main.appendChild(devuelto);
+
+      if (reserva.bukaerako_kargagunea_izena) {
+        const lugar = crearElemento("div", "reservation-meta mt-1");
+        lugar.append(crearMeta("fa-location-dot", `Devuelto en: ${reserva.bukaerako_kargagunea_izena}`));
+        main.appendChild(lugar);
+      }
     }
 
-    if (estado.label === "En curso") {
+    if (reserva.egoera === "amaitua" && reserva.berandu) {
+      const extra = crearElemento("div", "reservation-meta mt-1");
+      const importe = Number(reserva.karga_extra || 0).toFixed(2).replace(".", ",");
+      extra.append(crearMeta("fa-triangle-exclamation", `Cargo extra: ${importe} €`));
+      main.appendChild(extra);
+    }
+
+    if (estado.label.startsWith("En uso")) {
       const start = new Date(reserva.hasiera_data_ordua).getTime();
       const end = new Date(reserva.amaiera_data_ordua).getTime();
       const progress = Math.min(100, Math.max(0, ((Date.now() - start) / (end - start)) * 100));
@@ -278,20 +306,12 @@ function renderizarReservas() {
       cancel.type = "button";
       cancel.addEventListener("click", () => cancelarReserva(reserva.id));
       actions.appendChild(cancel);
-    } else if (reserva.egoera === "aktiboa" && !reserva.egikaritze_data_ordua) {
-      const pickupButton = crearElemento("button", "btn btn-outline-primary btn-sm");
-      pickupButton.append(crearElemento("i", "fas fa-hand-holding"), document.createTextNode("Recoger"));
-      pickupButton.type = "button";
-      pickupButton.title = "Marcar la powerbank como recogida";
-      pickupButton.addEventListener("click", () => recogerReserva(reserva.id));
-      actions.appendChild(pickupButton);
     } else if (reserva.egoera === "aktiboa") {
-      const returnButton = crearElemento("button", "btn btn-outline-primary btn-sm");
-      returnButton.append(crearElemento("i", "fas fa-rotate-left"), document.createTextNode("Devolver"));
-      returnButton.type = "button";
-      returnButton.title = "Devolver la powerbank en la estación de recogida";
-      returnButton.addEventListener("click", () => devolverReserva(reserva.id));
-      actions.appendChild(returnButton);
+      const hint = crearElemento("span", "reservation-hint");
+      hint.innerHTML = reserva.egikaritze_data_ordua
+        ? '<i class="fas fa-qrcode me-1"></i>Devuélvela escaneando el QR en cualquier taquilla.'
+        : '<i class="fas fa-qrcode me-1"></i>Recógela escaneando el QR en la taquilla.';
+      actions.appendChild(hint);
     }
 
     card.append(icon, main, actions);
@@ -303,23 +323,91 @@ function mostrarQR(reserva) {
   const container = document.getElementById("qrCode");
   const info = document.getElementById("qrInfo");
   container.replaceChildren();
+  qrReservaActual = reserva;
+  qrUrlActual = "";
 
   if (typeof QRCode === "undefined") {
     info.textContent = "No se pudo cargar el generador de QR.";
+  } else if (!reserva.qr_token) {
+    info.textContent = "Esta reserva no tiene QR. Recarga la página o contacta con soporte.";
   } else {
-    const contenido = `POWERBANK|RESERVA|${reserva.id}|${reserva.powerbank_id}`;
+    qrUrlActual = new URL(
+      `locker.html?token=${encodeURIComponent(reserva.qr_token)}`,
+      window.location.href,
+    ).href;
+
     new QRCode(container, {
-      text: contenido,
-      width: 220,
-      height: 220,
+      text: qrUrlActual,
+      width: 240,
+      height: 240,
       colorDark: "#0f172a",
       colorLight: "#ffffff",
       correctLevel: QRCode.CorrectLevel.H,
     });
+
     info.textContent = `Reserva #${reserva.id} · ${reserva.kargagunea_izena || "Estación"} · ${formatearRango(reserva)}`;
   }
 
   bootstrap.Modal.getOrCreateInstance(document.getElementById("qrModal")).show();
+}
+
+function qrDataUrl() {
+  const container = document.getElementById("qrCode");
+  const canvas = container.querySelector("canvas");
+  if (canvas) return canvas.toDataURL("image/png");
+  return container.querySelector("img")?.src || "";
+}
+
+function descargarQR() {
+  const dataUrl = qrDataUrl();
+  if (!dataUrl) {
+    mostrarDialogo("No se pudo preparar el QR para descargar.", {
+      title: "Error al descargar",
+      type: "error",
+    });
+    return;
+  }
+
+  const link = document.createElement("a");
+  link.href = dataUrl;
+  link.download = `powerbank-reserva-${qrReservaActual?.id || "qr"}.png`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+
+function imprimirQR() {
+  const dataUrl = qrDataUrl();
+  if (!dataUrl) return;
+
+  const info = document.getElementById("qrInfo")?.textContent || "";
+  const win = window.open("", "_blank");
+  if (!win) return;
+
+  win.document.write(`
+    <!DOCTYPE html>
+    <html lang="es">
+      <head>
+        <meta charset="utf-8">
+        <title>QR de reserva</title>
+        <style>
+          body { font-family: system-ui, sans-serif; text-align: center; padding: 2rem; }
+          h1 { font-size: 1.4rem; }
+          img { width: 340px; max-width: 90vw; }
+          p { color: #334155; }
+        </style>
+      </head>
+      <body>
+        <h1>Powerbank · QR de reserva</h1>
+        <img src="${dataUrl}" alt="QR de la reserva">
+        <p>${info}</p>
+        <p>Escanea este QR en la taquilla para recoger y devolver la powerbank.</p>
+      </body>
+    </html>
+  `);
+  win.document.close();
+  win.focus();
+  win.print();
 }
 
 function abrirQrDesdeUrl() {
@@ -334,50 +422,6 @@ function abrirQrDesdeUrl() {
   params.delete("qr");
   const query = params.toString();
   history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
-}
-
-async function recogerReserva(reservaId) {
-  const confirmado = await confirmarDialogo(
-    "¿Has recogido ya la powerbank? Se registrará la fecha y hora de recogida.",
-    { title: "Recoger powerbank" },
-  );
-  if (!confirmado) return;
-
-  try {
-    await apiRequest(`/erreserbak/${reservaId}/recoger`, { method: "PATCH" });
-    await cargarReservas();
-    await mostrarDialogo("La recogida se ha registrado correctamente.", {
-      title: "Powerbank recogida",
-      type: "success",
-    });
-  } catch (error) {
-    await mostrarDialogo(`No se pudo registrar la recogida: ${error.message}`, {
-      title: "Error al recoger",
-      type: "error",
-    });
-  }
-}
-
-async function devolverReserva(reservaId) {
-  const confirmado = await confirmarDialogo(
-    "¿Has terminado de usar la powerbank? Se devolverá en la estación de recogida.",
-    { title: "Devolver powerbank" },
-  );
-  if (!confirmado) return;
-
-  try {
-    await apiRequest(`/erreserbak/${reservaId}/devolver`, { method: "PATCH" });
-    await cargarReservas();
-    await mostrarDialogo("La powerbank se ha devuelto correctamente.", {
-      title: "Devolución registrada",
-      type: "success",
-    });
-  } catch (error) {
-    await mostrarDialogo(`No se pudo registrar la devolución: ${error.message}`, {
-      title: "Error al devolver",
-      type: "error",
-    });
-  }
 }
 
 async function cancelarReserva(reservaId) {
