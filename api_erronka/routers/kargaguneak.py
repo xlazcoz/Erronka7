@@ -1,7 +1,10 @@
+import shutil
+import uuid
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -12,6 +15,9 @@ from services.auth import can_manage_municipality, require_manager
 from services.erreserbak import normalize_datetime, now_local
 
 router = APIRouter(prefix="/kargaguneak", tags=["Kargaguneak"])
+
+UPLOAD_DIR = Path(__file__).resolve().parent.parent / "uploads"
+UPLOAD_DIR.mkdir(exist_ok=True)
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
@@ -175,6 +181,35 @@ def aldatu_irudia(
     session.commit()
     session.refresh(kargagunea)
     return kargagunea
+
+
+@router.post("/{id}/irudia/upload", status_code=200)
+def igo_kargagunearen_irudia(
+    session: SessionDep,
+    request: Request,
+    id: int,
+    file: UploadFile = File(...),
+    current_user: Erabiltzailea = Depends(require_manager),
+):
+    kargagunea = session.get(Kargagunea, id)
+    if not kargagunea:
+        raise HTTPException(status_code=404, detail="Kargagunea ez da aurkitzen")
+
+    if not can_manage_municipality(current_user, kargagunea.udalerria_id):
+        raise HTTPException(status_code=403, detail="Ez duzu kargagune hau aldatzeko baimenik")
+
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Fitxategiak irudi bat izan behar du")
+
+    suffix = Path(file.filename or "").suffix.lower() or ".img"
+    filename = f"{uuid.uuid4().hex}{suffix}"
+    destination = UPLOAD_DIR / filename
+    with destination.open("wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    url = f"{str(request.base_url).rstrip('/')}/uploads/{filename}"
+    return {"irudia": url}
+
 
 @router.delete("/{id}", response_model=KargaguneaResponse, status_code=200)
 def ezabatu_kargagunea(

@@ -1,9 +1,14 @@
+import os
+
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 from media import IRUDIAK
 
-DATABASE_URL = ("postgresql+psycopg://postgres:@localhost:5432/alokairu_sistema")
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql+psycopg://postgres:@localhost:5432/alokairu_sistema",
+)
 
 engine = create_engine(DATABASE_URL, echo=False)
 
@@ -54,6 +59,18 @@ def ensure_schema():
         connection.execute(text(
             "ALTER TABLE erabiltzaileak ADD COLUMN IF NOT EXISTS udalerria_id "
             "INTEGER REFERENCES udalerriak(id)"
+        ))
+        connection.execute(text(
+            "ALTER TABLE erabiltzaileak ADD COLUMN IF NOT EXISTS aktiboa "
+            "BOOLEAN NOT NULL DEFAULT TRUE"
+        ))
+        connection.execute(text(
+            "ALTER TABLE karga_postuak ADD COLUMN IF NOT EXISTS tamaina "
+            "VARCHAR(100) NOT NULL DEFAULT 'estandar'"
+        ))
+        connection.execute(text(
+            "ALTER TABLE powerbanks ADD COLUMN IF NOT EXISTS egoera "
+            "VARCHAR(100) NOT NULL DEFAULT 'erabilgarri'"
         ))
 
         connection.execute(text(
@@ -121,6 +138,15 @@ def ensure_schema():
                 },
             )
 
+        # Aurreko bertsioetako rolak egungo rolen eredura egokitu.
+        connection.execute(text(
+            "UPDATE erabiltzaileak SET rola = 'admin' WHERE rola = 'superadmin'"
+        ))
+        connection.execute(text(
+            "UPDATE erabiltzaileak SET rola = 'udalerri_admin' "
+            "WHERE rola = 'admin' AND udalerria_id IS NOT NULL"
+        ))
+
         # Udalerri-administratzaile demoak.
         connection.execute(text(
             "UPDATE erabiltzaileak SET rola = 'udalerri_admin', udalerria_id = "
@@ -137,12 +163,27 @@ def ensure_schema():
 
         # Datu zaharrak estatu berrira normalizatu.
         connection.execute(text(
-            "UPDATE kargaguneak SET egoera = 'zerbitzutik-kanpo' "
-            "WHERE egoera = 'zerbitzutik kanpo'"
+            "UPDATE kargaguneak SET egoera = replace(lower(egoera), ' ', '-')"
+        ))
+
+        # Lehen faseko erreserba zaharren datuak zuzendu murrizketak gehitu aurretik.
+        connection.execute(text(
+            "UPDATE erreserbak SET amaiera_data_ordua = "
+            "hasiera_data_ordua + interval '1 hour' "
+            "WHERE amaiera_data_ordua <= hasiera_data_ordua"
         ))
         connection.execute(text(
-            "UPDATE kargaguneak SET egoera = 'mantentze-lanetan' "
-            "WHERE egoera = 'mantentze lanetan'"
+            "UPDATE erreserbak SET egikaritze_data_ordua = hasiera_data_ordua "
+            "WHERE egikaritze_data_ordua IS NOT NULL "
+            "AND egikaritze_data_ordua < hasiera_data_ordua"
+        ))
+        connection.execute(text(
+            "UPDATE erreserbak SET amaitze_data_ordua = "
+            "GREATEST(amaitze_data_ordua, hasiera_data_ordua, egikaritze_data_ordua) "
+            "WHERE amaitze_data_ordua IS NOT NULL "
+            "AND (amaitze_data_ordua < hasiera_data_ordua "
+            "OR (egikaritze_data_ordua IS NOT NULL "
+            "AND amaitze_data_ordua < egikaritze_data_ordua))"
         ))
 
         # Pasahitzen hash modernoek 100 karaktere baino gehiago izan ditzakete.

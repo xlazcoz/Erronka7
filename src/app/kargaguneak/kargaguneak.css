@@ -1,36 +1,6 @@
-.feature-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: none;
-            border-radius: 15px;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
+/* Estilos comunes en src/styles.css */
 
-        .icon-wrapper {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1rem;
-        }
-
-        .bg-soft-primary { background-color: #e8f1ff; }
-        .bg-soft-success { background-color: #e6f8f3; }
-        .bg-soft-warning { background-color: #fff8e9; }
-
-        .card-title {
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-        }
-
-        .section-heading {
-            font-weight: 700;
-            background: linear-gradient(120deg, #2563eb, #4f46e5);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+.kargagune-container {
+  max-width: 1560px;
+  margin-inline: auto;
+}

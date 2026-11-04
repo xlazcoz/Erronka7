@@ -100,6 +100,7 @@ class ErabiltzaileaResponse(BaseModel):
     abizena: str
     login_email: str
     rola: str
+    aktiboa: bool = True
     udalerria_id: Optional[int] = None
     udalerria_izena: Optional[str] = None
     erreserbak: List[ErreserbakResponse] = []
@@ -113,6 +114,7 @@ class ErabiltzaileaCreate(BaseModel):
     login_email: str = Field(min_length=1, max_length=100)
     login_pasahitza: str = Field(min_length=1, max_length=100)
     rola: str = Field(default="user", min_length=1, max_length=100)
+    aktiboa: bool = True
     udalerria_id: Optional[int] = Field(default=None, gt=0)
 
     @field_validator("rola")
@@ -129,6 +131,7 @@ class ErabiltzaileaUpdate(BaseModel):
     login_email: Optional[str] = None
     login_pasahitza: Optional[str] = None  
     rola: Optional[str] = None
+    aktiboa: Optional[bool] = None
     udalerria_id: Optional[int] = Field(default=None, gt=0)
 
     @field_validator("rola")
@@ -260,6 +263,32 @@ class KargaPostuaCreate(BaseModel):
         if normalized not in KARGA_POSTU_TAMAINAK:
             raise ValueError("Tamaina hauetako bat izan behar da: txikia, ertaina, handia, estandar")
         return normalized
+
+
+class KargaPostuaUpdate(BaseModel):
+    egoera: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    tamaina: Optional[str] = Field(default=None, min_length=1, max_length=100)
+
+    @field_validator("egoera")
+    @classmethod
+    def egoera_balidatu(cls, value: Optional[str]) -> Optional[str]:
+        if value is not None:
+            normalized = value.strip().lower()
+            if normalized not in KARGA_POSTUA_EGOERAK:
+                raise ValueError("Egoera hauetako bat izan behar da: hutsa, kargatuta, kargatzen")
+            return normalized
+        return value
+
+    @field_validator("tamaina")
+    @classmethod
+    def tamaina_balidatu(cls, value: Optional[str]) -> Optional[str]:
+        if value is not None:
+            normalized = value.strip().lower()
+            if normalized not in KARGA_POSTU_TAMAINAK:
+                raise ValueError("Tamaina hauetako bat izan behar da: txikia, ertaina, handia, estandar")
+            return normalized
+        return value
+
 
 class PowerbankBase(BaseModel):
     # id: int

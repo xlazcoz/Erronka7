@@ -2,6 +2,9 @@
   <div class="row justify-content-center">
     <div class="col-md-6 col-lg-4">
       <form (ngSubmit)="saioaHasi()">
+        @if (errorea) {
+          <div class="alert alert-danger" role="alert">{{ errorea }}</div>
+        }
         <div class="mb-3">
           <label for="emaila" class="form-label">Emaila</label>
           <input type="email" class="form-control" id="emaila" name="login_email" [(ngModel)]="login.login_email" required>
@@ -10,7 +13,9 @@
           <label for="pasahitza" class="form-label">Pasahitza</label>
           <input type="password" class="form-control" id="pasahitza" name="login_pasahitza" [(ngModel)]="login.login_pasahitza" required>
         </div>
-        <button type="submit" class="btn btn-primary w-100">Saioa hasi</button>
+        <button type="submit" class="btn btn-primary w-100" [disabled]="kargatzen">
+          {{ kargatzen ? 'Saioa hasten...' : 'Saioa hasi' }}
+        </button>
       </form>
     </div>
   </div>

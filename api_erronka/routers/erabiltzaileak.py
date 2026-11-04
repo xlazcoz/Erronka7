@@ -1,11 +1,11 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from database import get_session
-from models.models import Erabiltzailea, Udalerria
+from models.models import AuthSession, Erabiltzailea, Udalerria
 from schemas.schemas import (
     ErabiltzaileaCreate,
     ErabiltzaileaResponse,
@@ -84,6 +84,7 @@ def sortu_erabiltzailea(
         login_email=data.login_email.strip().lower(),
         login_pasahitza=hash_password(data.login_pasahitza),
         rola=data.rola,
+        aktiboa=data.aktiboa,
         udalerria_id=data.udalerria_id,
     )
     session.add(erabiltzailea)
@@ -105,6 +106,10 @@ def aldatu_erabiltzailea(
         raise HTTPException(status_code=404, detail="Erabiltzailea ez da aurkitzen")
 
     changes = data.model_dump(exclude_unset=True)
+
+    if _admin.id == id and changes.get("aktiboa") is False:
+        raise HTTPException(status_code=403, detail="Ezin duzu zeure burua desaktibatu")
+
     if "login_pasahitza" in changes:
         if changes["login_pasahitza"]:
             changes["login_pasahitza"] = hash_password(changes["login_pasahitza"])
@@ -166,6 +171,9 @@ def ezabatu_erabiltzailea(
             detail="Erabiltzaileak erreserbak ditu; ezin da ezabatu",
         )
 
+    session.execute(
+        delete(AuthSession).where(AuthSession.erabiltzailea_id == id)
+    )
     session.delete(erabiltzailea)
     session.commit()
     return erabiltzailea

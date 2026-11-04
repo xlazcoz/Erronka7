@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from database import get_session
-from models.models import Erabiltzailea, KargaPostua, Kargagunea, Powerbank
+from models.models import Erabiltzailea, Erreserba, KargaPostua, Kargagunea, Powerbank
 from schemas.schemas import PowerbankCreate, PowerbankResponse, PowerbankUpdate
 from services.auth import can_manage_municipality, require_manager
 
@@ -69,4 +69,30 @@ def powerbank_tokia_aldatu(
 
     session.commit()
     session.refresh(powerbank)
+    return powerbank
+
+
+@router.delete("/{id}", response_model=PowerbankResponse, status_code=200)
+def ezabatu_powerbank(
+    session: SessionDep,
+    id: int,
+    current_user: Erabiltzailea = Depends(require_manager),
+):
+    powerbank = session.get(Powerbank, id)
+    if not powerbank:
+        raise HTTPException(status_code=404, detail="Powerbank ez da aurkitzen")
+
+    _check_post_permission(session, current_user, powerbank.karga_postua_id)
+
+    erreserba = session.scalar(
+        select(Erreserba.id).where(Erreserba.powerbank_id == id).limit(1)
+    )
+    if erreserba is not None:
+        raise HTTPException(
+            status_code=409,
+            detail="Powerbank honek erreserbak ditu, ezin da ezabatu",
+        )
+
+    session.delete(powerbank)
+    session.commit()
     return powerbank

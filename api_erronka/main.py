@@ -1,6 +1,8 @@
 import os
+from pathlib import Path
 
 from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 from models.models import Base
 from database import engine, ensure_schema
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,6 +23,10 @@ Base.metadata.create_all(engine)
 ensure_schema()
 
 app = FastAPI()
+
+UPLOAD_DIR = Path(__file__).parent / "uploads"
+UPLOAD_DIR.mkdir(exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 
 @app.exception_handler(IntegrityError)

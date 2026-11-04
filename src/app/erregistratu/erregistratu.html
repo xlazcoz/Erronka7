@@ -2,6 +2,9 @@
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-4">
             <form (ngSubmit)="erregistratuErab()">
+                @if (errorea) {
+                    <div class="alert alert-danger" role="alert">{{ errorea }}</div>
+                }
                 <div class="mb-3">
                     <label for="izena" class="form-label">Izena</label>
                     <input type="text" class="form-control" id="izena" name="izena" [(ngModel)]="register.izena" required>
@@ -14,7 +17,9 @@
                     <label for="pasahitza" class="form-label">Pasahitza</label>
                     <input type="password" class="form-control" id="pasahitza" name="pasahitza" [(ngModel)]="register.login_pasahitza" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Erregistratu</button>
+                <button type="submit" class="btn btn-primary" [disabled]="kargatzen">
+                    {{ kargatzen ? 'Erregistratzen...' : 'Erregistratu' }}
+                </button>
             </form>
         </div>
     </div>

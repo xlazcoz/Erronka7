@@ -1,212 +1,520 @@
-<br>
-
-<div class="bg-light">
-    <div class="container py-5">
-        <div class="row g-4">
-            <div class="col-md-6">
-                <div class="card feature-card h-100 p-4">
-                    <div class="icon-wrapper bg-soft-primary">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
-                            class="text-primary">
-                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                        </svg>
-                    </div>
-                    <h3 class="card-title">Kargagunea sortu</h3>
-                    <p class="card-text text-muted">Get deep insights into your data with our advanced analytics tools.</p>
-                    <button type="button" (click)="kargaguneaSortu.showModal()" class="btn btn-primary">Sortu</button>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card feature-card h-100 p-4">
-                    <div class="icon-wrapper bg-soft-success">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
-                            class="text-success">
-                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                        </svg>
-                    </div>
-                    <h3 class="card-title">Kargaguneen datuak aldatu</h3>
-                    <p class="card-text text-muted">Monitor your systems in real-time with instant notifications.</p>
-                    <button type="button" (click)="kargaguneaAldatu.showModal()" class="btn btn-primary">Datuak aldatu</button>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card feature-card h-100 p-4">
-                    <div class="icon-wrapper bg-soft-warning">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
-                            class="text-warning">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                        </svg>
-                    </div>
-                    <h3 class="card-title">Kargaguneak ezabatu edo desaktibatu</h3>
-                    <p class="card-text text-muted">Enterprise-grade security to protect your valuable data.</p>
-                    <button type="button" class="btn btn-primary">Ezabatu</button>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card feature-card h-100 p-4">
-                    <div class="icon-wrapper bg-soft-warning">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
-                            class="text-warning">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                        </svg>
-                    </div>
-                    <h3 class="card-title">Kargaguneen irudiak igo eta aldatu</h3>
-                    <p class="card-text text-muted">Enterprise-grade security to protect your valuable data.</p>
-                    <button type="button" (click)="kargaguneaIrudia.showModal()" class="btn btn-primary">Irudiak kudeatu</button>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card feature-card h-100 p-4">
-                    <div class="icon-wrapper bg-soft-warning">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
-                            class="text-warning">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                        </svg>
-                    </div>
-                    <h3 class="card-title">Kargagune bakoitzeko takillak kudeatu</h3>
-                    <p class="card-text text-muted">Enterprise-grade security to protect your valuable data.</p>
-                    <button type="button" class="btn btn-primary">Takillak kudeatu</button>
-                </div>
-            </div>
-        </div>
+<div class="container-fluid py-4 px-2 kargagune-container">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+    <div>
+      <h2 class="section-heading mb-1">Kargaguneen kudeaketa</h2>
+      <p class="text-muted mb-0">
+        Kargaguneak sortu, aldatu eta ezabatu, irudiak eguneratu eta karga postuak kudeatu.
+      </p>
     </div>
+    <div class="d-flex gap-2">
+      <button type="button" class="btn btn-outline-secondary" (click)="kargaguneakKargatu()">
+        Berritu
+      </button>
+      <button type="button" class="btn btn-primary" (click)="irekiSortu()">
+        Kargagunea sortu
+      </button>
+    </div>
+  </div>
+
+  @if (feedback(); as alerta) {
+    <div
+      class="alert d-flex align-items-center justify-content-between"
+      [class.alert-success]="alerta.mota === 'ok'"
+      [class.alert-danger]="alerta.mota === 'error'"
+      role="alert"
+    >
+      <span>{{ alerta.testua }}</span>
+      <button type="button" class="btn-close" aria-label="Itxi" (click)="itxiFeedback()"></button>
+    </div>
+  }
+
+  <hub-table
+    [data]="kargaguneak()"
+    [headers]="headers"
+    [(page)]="currentPage"
+    [(perPage)]="perPage"
+    [loading]="isLoading()"
+    [searchable]="true"
+    [(searchTerm)]="searchTerm"
+    [(ordination)]="ordination"
+  >
+    <ng-template cellTpt header="irudiak" let-item="item">
+      @if (irudiBaliozkoa(item.irudia1)) {
+        <span class="irudi-thumb" [title]="item.irudia1">
+          <img [src]="item.irudia1" [alt]="item.izena + ' - 1'" />
+        </span>
+      } @else {
+        <span class="irudi-thumb irudi-thumb--falta" title="Irudia ez da baliozkoa">
+          <img src="icons/image-off.svg" alt="Irudirik ez" />
+        </span>
+      }
+      @if (irudiBaliozkoa(item.irudia2)) {
+        <span class="irudi-thumb" [title]="item.irudia2">
+          <img [src]="item.irudia2" [alt]="item.izena + ' - 2'" />
+        </span>
+      } @else {
+        <span class="irudi-thumb irudi-thumb--falta" title="Irudia ez da baliozkoa">
+          <img src="icons/image-off.svg" alt="Irudirik ez" />
+        </span>
+      }
+      @if (irudiBaliozkoa(item.irudia3)) {
+        <span class="irudi-thumb" [title]="item.irudia3">
+          <img [src]="item.irudia3" [alt]="item.izena + ' - 3'" />
+        </span>
+      } @else {
+        <span class="irudi-thumb irudi-thumb--falta" title="Irudia ez da baliozkoa">
+          <img src="icons/image-off.svg" alt="Irudirik ez" />
+        </span>
+      }
+    </ng-template>
+
+    <ng-template cellTpt header="ekintzak" let-item="item">
+      <span class="accion-icono" title="Datuak aldatu" (click)="irekiAldaketa(item)">
+        <img src="icons/edit.svg" alt="Datuak aldatu" />
+      </span>
+      <span class="accion-icono" title="Irudiak aldatu" (click)="irekiIrudiak(item)">
+        <img src="icons/image.svg" alt="Irudiak aldatu" />
+      </span>
+      <span class="accion-icono" title="Takillak kudeatu" (click)="irekiTakillak(item)">
+        <img src="icons/plug.svg" alt="Takillak kudeatu" />
+      </span>
+      <span
+        class="accion-icono accion-icono--peligro"
+        title="Ezabatu"
+        (click)="ezabatuKargagunea(item)"
+      >
+        <img src="icons/trash.svg" alt="Ezabatu" />
+      </span>
+    </ng-template>
+  </hub-table>
 </div>
 
-<dialog #kargaguneaSortu>
-    <form class="row g-3" method="dialog">
-        <div class="col-md-6">
-            <label for="izena" class="form-label">Izena</label>
-            <input type="text" class="form-control" id="izena" [(ngModel)]="kargagunea.izena" name="izena">
-        </div>
-        <div class="col-12">
-            <label for="helbidea" class="form-label">Helbidea</label>
-            <input type="text" class="form-control" id="helbidea" [(ngModel)]="kargagunea.helbidea" name="helbidea">
-        </div>
-        <div class="col-md-6">
-            <label for="irudia1" class="form-label">Irudia 1</label>
-            <input type="text" class="form-control" id="irudia1" [(ngModel)]="kargagunea.irudia1" name="irudia1">
-        </div>
-        <div class="col-md-6">
-            <label for="irudia2" class="form-label">Irudia 2</label>
-            <input type="text" class="form-control" id="irudia2" [(ngModel)]="kargagunea.irudia2" name="irudia2">
-        </div>
-        <div class="col-md-6">
-            <label for="irudia3" class="form-label">Irudia 3</label>
-            <input type="text" class="form-control" id="irudia3" [(ngModel)]="kargagunea.irudia3" name="irudia3">
-        </div>
-        <div class="col-md-4">
-            <label for="egoera" class="form-label">Egoera</label>
-            <select id="egoera" class="form-select" [(ngModel)]="kargagunea.egoera" name="egoera">
-                <option selected>Erabilgarri</option>
-                <option>Mantentze-lanetan</option>
-                <option>Zerbitzutik kanpo</option>
-            </select>
-        </div>
-        <div class="col-12 d-flex">
-            <button type="button" class="btn btn-success" (click)="sortuKargagunea(); kargaguneaSortu.close()">Gorde</button>
-            <button type="button" class="btn btn-danger ms-auto" (click)="kargaguneaSortu.close()">Irten</button>
-        </div>
-    </form>
-</dialog>
-
-<dialog #kargaguneaAldatu>
-    <form class="row g-3" method="dialog">
-        <div class="col-md-6">
-            <label for="izena" class="form-label">Izena</label>
-            <input type="text" class="form-control" id="izena">
-        </div>
-        <div class="col-12">
-            <label for="helbidea" class="form-label">Helbidea</label>
-            <input type="text" class="form-control" id="helbidea">
-        </div>
-        <div class="col-md-6">
-            <label for="irudia1" class="form-label">Irudia 1</label>
-            <input type="text" class="form-control" id="irudia1">
-        </div>
-        <div class="col-md-6">
-            <label for="irudia2" class="form-label">Irudia 2</label>
-            <input type="text" class="form-control" id="irudia2">
-        </div>
-        <div class="col-md-6">
-            <label for="irudia3" class="form-label">Irudia 3</label>
-            <input type="text" class="form-control" id="irudia3">
-        </div>
-        <div class="col-md-4">
-            <label for="egoera" class="form-label">Egoera</label>
-            <select id="egoera" class="form-select">
-                <option selected>Erabilgarri</option>
-                <option>Mantentze-lanetan</option>
-                <option>Zerbitzutik kanpo</option>
-            </select>
-        </div>
-        <div class="col-12 d-flex">
-            <button type="button" class="btn btn-success">Gorde</button>
-            <button type="button" class="btn btn-danger ms-auto">Irten</button>
-        </div>
-    </form>
-</dialog>
-
-<dialog #kargaguneaIrudia>
-    <form class="row g-3" method="dialog">
-        <div class="col-12">
-            <label for="irudia1" class="form-label">Irudia</label>
-            <input type="text" class="form-control" id="irudia1">
-        </div>
-        <div class="col-12">
-            <label for="irudia2" class="form-label">Irudia</label>
-            <input type="text" class="form-control" id="irudia2">
-        </div>
-        <div class="col-12">
-            <label for="irudia3" class="form-label">Irudia</label>
-            <input type="text" class="form-control" id="irudia3">
-        </div>
-        <div class="col-12 d-flex">
-            <button type="button" class="btn btn-success">Gorde</button>
-            <button type="button" class="btn btn-danger ms-auto">Irten</button>
-        </div>
-    </form>
-</dialog>
-
-<dialog #kargaguneTaula>
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">ID</th>
-                <th scope="col">Izena</th>
-                <th scope="col">Helbidea</th>
-                <th scope="col">Irudia1</th>
-                <th scope="col">Irudia2</th>
-                <th scope="col">Irudia3</th>
-                <th scope="col">Egoera</th>
-                <th scope="col">Karga postuak</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <th scope="row">1</th>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>@mdo</td>
-            </tr>
-            <tr>
-                <th scope="row">2</th>
-                <td>Jacob</td>
-                <td>Thornton</td>
-                <td>@fat</td>
-            </tr>
-            <tr>
-                <th scope="row">3</th>
-                <td>John</td>
-                <td>Doe</td>
-                <td>@social</td>
-            </tr>
-        </tbody>
-    </table>
-    <div class="col-12 d-flex">
-        <button type="button" class="btn btn-success">Gorde</button>
-        <button type="button" class="btn btn-danger ms-auto">Irten</button>
+<!-- Kargagunea sortu -->
+<dialog #kargaguneaSortu class="kargagune-dialog">
+  <form class="row g-3" (ngSubmit)="sortuKargagunea()">
+    <div class="col-12">
+      <h4 class="mb-0">Kargagune berria</h4>
     </div>
+
+    <div class="col-md-6">
+      <label for="sortu-izena" class="form-label">Izena</label>
+      <input
+        type="text"
+        class="form-control"
+        id="sortu-izena"
+        name="sortu-izena"
+        [(ngModel)]="kargaguneaBerria.izena"
+        required
+      />
+    </div>
+
+    <div class="col-md-6">
+      <label for="sortu-helbidea" class="form-label">Helbidea</label>
+      <input
+        type="text"
+        class="form-control"
+        id="sortu-helbidea"
+        name="sortu-helbidea"
+        [(ngModel)]="kargaguneaBerria.helbidea"
+        required
+      />
+    </div>
+
+    <div class="col-md-4">
+      <label for="sortu-udalerria" class="form-label">Udalerria</label>
+      <select
+        class="form-select"
+        id="sortu-udalerria"
+        name="sortu-udalerria"
+        [(ngModel)]="kargaguneaBerria.udalerria_id"
+        [disabled]="!auth.isSuperadmin()"
+        required
+      >
+        @for (udalerria of udalerriak(); track udalerria.id) {
+          <option [ngValue]="udalerria.id">{{ udalerria.izena }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label for="sortu-latitud" class="form-label">Latitudea</label>
+      <input
+        type="number"
+        class="form-control"
+        id="sortu-latitud"
+        name="sortu-latitud"
+        step="any"
+        min="-90"
+        max="90"
+        [(ngModel)]="kargaguneaBerria.latitud"
+      />
+    </div>
+
+    <div class="col-md-4">
+      <label for="sortu-longitud" class="form-label">Longitudea</label>
+      <input
+        type="number"
+        class="form-control"
+        id="sortu-longitud"
+        name="sortu-longitud"
+        step="any"
+        min="-180"
+        max="180"
+        [(ngModel)]="kargaguneaBerria.longitud"
+      />
+    </div>
+
+    <div class="col-md-4">
+      <label for="sortu-egoera" class="form-label">Egoera</label>
+      <select
+        class="form-select"
+        id="sortu-egoera"
+        name="sortu-egoera"
+        [(ngModel)]="kargaguneaBerria.egoera"
+      >
+        @for (egoera of egoerak; track egoera) {
+          <option [value]="egoera">{{ egoera }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-md-8">
+      <label for="sortu-irudia1" class="form-label">Irudia 1 (URL)</label>
+      <input
+        type="text"
+        class="form-control"
+        id="sortu-irudia1"
+        name="sortu-irudia1"
+        [(ngModel)]="kargaguneaBerria.irudia1"
+        required
+      />
+    </div>
+
+    <div class="col-md-6">
+      <label for="sortu-irudia2" class="form-label">Irudia 2 (URL)</label>
+      <input
+        type="text"
+        class="form-control"
+        id="sortu-irudia2"
+        name="sortu-irudia2"
+        [(ngModel)]="kargaguneaBerria.irudia2"
+        required
+      />
+    </div>
+
+    <div class="col-md-6">
+      <label for="sortu-irudia3" class="form-label">Irudia 3 (URL)</label>
+      <input
+        type="text"
+        class="form-control"
+        id="sortu-irudia3"
+        name="sortu-irudia3"
+        [(ngModel)]="kargaguneaBerria.irudia3"
+        required
+      />
+    </div>
+
+    <div class="col-12 d-flex">
+      <button type="submit" class="btn btn-success">Gorde</button>
+      <button type="button" class="btn btn-danger ms-auto" (click)="kargaguneaSortu.close()">
+        Irten
+      </button>
+    </div>
+  </form>
 </dialog>
 
+<!-- Datuak aldatu -->
+<dialog #kargaguneaAldatu class="kargagune-dialog">
+  <form class="row g-3" (ngSubmit)="gordeAldaketa()">
+    <div class="col-12">
+      <h4 class="mb-0">Kargagunearen datuak aldatu</h4>
+    </div>
+
+    <div class="col-md-6">
+      <label for="aldatu-izena" class="form-label">Izena</label>
+      <input
+        type="text"
+        class="form-control"
+        id="aldatu-izena"
+        name="aldatu-izena"
+        [(ngModel)]="kargaguneaEditatzen.izena"
+        required
+      />
+    </div>
+
+    <div class="col-md-6">
+      <label for="aldatu-helbidea" class="form-label">Helbidea</label>
+      <input
+        type="text"
+        class="form-control"
+        id="aldatu-helbidea"
+        name="aldatu-helbidea"
+        [(ngModel)]="kargaguneaEditatzen.helbidea"
+        required
+      />
+    </div>
+
+    <div class="col-md-4">
+      <label for="aldatu-udalerria" class="form-label">Udalerria</label>
+      <select
+        class="form-select"
+        id="aldatu-udalerria"
+        name="aldatu-udalerria"
+        [(ngModel)]="kargaguneaEditatzen.udalerria_id"
+        [disabled]="!auth.isSuperadmin()"
+        required
+      >
+        @for (udalerria of udalerriak(); track udalerria.id) {
+          <option [ngValue]="udalerria.id">{{ udalerria.izena }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label for="aldatu-latitud" class="form-label">Latitudea</label>
+      <input
+        type="number"
+        class="form-control"
+        id="aldatu-latitud"
+        name="aldatu-latitud"
+        step="any"
+        min="-90"
+        max="90"
+        [(ngModel)]="kargaguneaEditatzen.latitud"
+      />
+    </div>
+
+    <div class="col-md-4">
+      <label for="aldatu-longitud" class="form-label">Longitudea</label>
+      <input
+        type="number"
+        class="form-control"
+        id="aldatu-longitud"
+        name="aldatu-longitud"
+        step="any"
+        min="-180"
+        max="180"
+        [(ngModel)]="kargaguneaEditatzen.longitud"
+      />
+    </div>
+
+    <div class="col-md-4">
+      <label for="aldatu-egoera" class="form-label">Egoera</label>
+      <select
+        class="form-select"
+        id="aldatu-egoera"
+        name="aldatu-egoera"
+        [(ngModel)]="kargaguneaEditatzen.egoera"
+      >
+        @for (egoera of egoerak; track egoera) {
+          <option [value]="egoera">{{ egoera }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-12 d-flex gap-2">
+      <button type="submit" class="btn btn-success">Gorde</button>
+      <button type="button" class="btn btn-outline-warning" (click)="desaktibatuKargagunea()">
+        Desaktibatu
+      </button>
+      <button type="button" class="btn btn-danger ms-auto" (click)="kargaguneaAldatu.close()">
+        Irten
+      </button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Irudiak aldatu -->
+<dialog #kargaguneaIrudiak class="kargagune-dialog">
+  <form class="row g-3" (ngSubmit)="gordeIrudiak()">
+    <div class="col-12">
+      <h4 class="mb-0">Kargagunearen irudiak</h4>
+    </div>
+
+    <div class="col-md-8">
+      <label for="irudia1" class="form-label">Irudia 1 (URL)</label>
+      <input
+        type="text"
+        class="form-control"
+        id="irudia1"
+        name="irudia1"
+        [(ngModel)]="kargaguneaEditatzen.irudia1"
+        required
+      />
+      <input
+        type="file"
+        class="form-control mt-2"
+        accept="image/*"
+        (change)="igoIrudia($event, 1)"
+      />
+      @if (irudiaIgotzen() === 1) {
+        <small class="text-muted">Irudia igotzen...</small>
+      }
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+      @if (irudiBaliozkoa(kargaguneaEditatzen.irudia1)) {
+        <img
+          class="irudi-preview"
+          [src]="kargaguneaEditatzen.irudia1"
+          alt="1. irudia"
+        />
+      }
+    </div>
+
+    <div class="col-md-8">
+      <label for="irudia2" class="form-label">Irudia 2 (URL)</label>
+      <input
+        type="text"
+        class="form-control"
+        id="irudia2"
+        name="irudia2"
+        [(ngModel)]="kargaguneaEditatzen.irudia2"
+        required
+      />
+      <input
+        type="file"
+        class="form-control mt-2"
+        accept="image/*"
+        (change)="igoIrudia($event, 2)"
+      />
+      @if (irudiaIgotzen() === 2) {
+        <small class="text-muted">Irudia igotzen...</small>
+      }
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+      @if (irudiBaliozkoa(kargaguneaEditatzen.irudia2)) {
+        <img
+          class="irudi-preview"
+          [src]="kargaguneaEditatzen.irudia2"
+          alt="2. irudia"
+        />
+      }
+    </div>
+
+    <div class="col-md-8">
+      <label for="irudia3" class="form-label">Irudia 3 (URL)</label>
+      <input
+        type="text"
+        class="form-control"
+        id="irudia3"
+        name="irudia3"
+        [(ngModel)]="kargaguneaEditatzen.irudia3"
+        required
+      />
+      <input
+        type="file"
+        class="form-control mt-2"
+        accept="image/*"
+        (change)="igoIrudia($event, 3)"
+      />
+      @if (irudiaIgotzen() === 3) {
+        <small class="text-muted">Irudia igotzen...</small>
+      }
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+      @if (irudiBaliozkoa(kargaguneaEditatzen.irudia3)) {
+        <img
+          class="irudi-preview"
+          [src]="kargaguneaEditatzen.irudia3"
+          alt="3. irudia"
+        />
+      }
+    </div>
+
+    <div class="col-12 d-flex">
+      <button type="submit" class="btn btn-success">Gorde</button>
+      <button type="button" class="btn btn-danger ms-auto" (click)="kargaguneaIrudiak.close()">
+        Irten
+      </button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Karga postuak -->
+<dialog #kargaguneaTakillak class="kargagune-dialog kargagune-dialog-zabala">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">
+      Karga postuak
+      @if (kargaguneaHautatua; as hautatua) {
+        <span class="text-muted fs-6">- {{ hautatua.izena }}</span>
+      }
+    </h4>
+    <button type="button" class="btn-close" aria-label="Itxi" (click)="kargaguneaTakillak.close()"></button>
+  </div>
+
+  @if (kargaguneaHautatua; as hautatua) {
+    @if (hautatua.karga_postuak?.length) {
+      <div class="table-responsive mb-3">
+        <table class="table table-sm align-middle mb-0">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Egoera</th>
+              <th scope="col">QR</th>
+              <th scope="col" class="text-end">Ekintza</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (posta of hautatua.karga_postuak; track posta.id) {
+              <tr>
+                <td>{{ posta.id }}</td>
+                <td>
+                  <select
+                    class="form-select form-select-sm"
+                    [value]="posta.egoera"
+                    (change)="aldatuPostuEgoera(posta, $any($event.target).value)"
+                  >
+                    @for (egoera of postuEgoerak; track egoera) {
+                      <option [value]="egoera">{{ egoera }}</option>
+                    }
+                  </select>
+                </td>
+                <td>
+                  <img
+                    [src]="qrUrl(posta)"
+                    width="56"
+                    height="56"
+                    alt="Karga postuaren QR kodea"
+                  />
+                </td>
+                <td class="text-end">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger"
+                    (click)="ezabatuKargaPostua(posta)"
+                  >
+                    Ezabatu
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <p class="text-muted">Kargagune honek ez dauka karga posturik.</p>
+    }
+
+    <form class="row g-2 align-items-end" (ngSubmit)="sortuKargaPostua()">
+      <div class="col-sm-6">
+        <label for="posta-egoera" class="form-label">Karga postu berriaren egoera</label>
+        <select
+          class="form-select"
+          id="posta-egoera"
+          name="posta-egoera"
+          [(ngModel)]="kargaPostuaBerria.egoera"
+        >
+          @for (egoera of postuEgoerak; track egoera) {
+            <option [value]="egoera">{{ egoera }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-sm-6 d-flex gap-2 justify-content-sm-end">
+        <button type="submit" class="btn btn-success">Gehitu</button>
+        <button type="button" class="btn btn-danger" (click)="kargaguneaTakillak.close()">
+          Irten
+        </button>
+      </div>
+    </form>
+  }
+</dialog>

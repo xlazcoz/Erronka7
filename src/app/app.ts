@@ -1,18 +1,23 @@
-import { Component, signal } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
-import { Erabiltzaileak } from './erabiltzaileak/erabiltzaileak';
-import { Kargaguneak } from './kargaguneak/kargaguneak';
-import { Powerbanks } from './powerbanks/powerbanks';
-import { Erreserbak } from './erreserbak/erreserbak';
-import { Taula } from './taula/taula';
-import { Desplegable } from './desplegable/desplegable';
+import { Component, inject, signal } from '@angular/core';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { AuthService } from './services/auth';
 
 @Component({
-  imports: [RouterOutlet, RouterLink, Erabiltzaileak, Kargaguneak, Powerbanks, Erreserbak, Taula, Desplegable],
+  imports: [RouterOutlet, RouterLink],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',
 })
 export class App {
   protected readonly title = signal('administrazio-atala');
+  protected readonly auth = inject(AuthService);
+
+  private router = inject(Router);
+
+  saioaItxi(): void {
+    this.auth.logout().subscribe({
+      next: () => this.router.navigate(['/saioa-hasi']),
+      error: () => this.router.navigate(['/saioa-hasi']),
+    });
+  }
 }

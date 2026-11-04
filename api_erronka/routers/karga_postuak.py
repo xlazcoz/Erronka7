@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from database import get_session
 from models.models import Erabiltzailea, KargaPostua, Kargagunea
-from schemas.schemas import KargaPostuaResponse, KargaPostuaCreate
+from schemas.schemas import KargaPostuaResponse, KargaPostuaCreate, KargaPostuaUpdate
 from services.auth import can_manage_municipality, require_manager
 
 router = APIRouter(prefix="/kargapostuak", tags=["Karga postuak"])
@@ -44,6 +44,29 @@ def sortu_karga_postua(
     session.refresh(karga_postua)
 
     return karga_postua
+
+
+@router.patch("/{id}", response_model=KargaPostuaResponse, status_code=200)
+def aldatu_karga_postua(
+    session: SessionDep,
+    data: KargaPostuaUpdate,
+    id: int,
+    current_user: Erabiltzailea = Depends(require_manager),
+):
+    karga_postua = session.get(KargaPostua, id)
+
+    if not karga_postua:
+        raise HTTPException(status_code=404, detail="Karga postua ez da aurkitzen")
+
+    _check_station_permission(session, current_user, karga_postua.kargagunea_id)
+
+    for field, value in data.model_dump(exclude_unset=True).items():
+        setattr(karga_postua, field, value)
+
+    session.commit()
+    session.refresh(karga_postua)
+    return karga_postua
+
 
 @router.delete("/{id}", response_model=KargaPostuaResponse, status_code=200)
 def ezabatu_karga_postua(
