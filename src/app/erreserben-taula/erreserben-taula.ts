@@ -17,13 +17,14 @@ import {
   PaginableTableHeader,
   PaginableTableOrdination,
 } from 'ng-hub-ui-paginable';
-import { forkJoin } from 'rxjs';
-import { Api, Erabiltzailea, Erreserba, KargaPostua, Kargagunea } from '../services/api';
+import { catchError, forkJoin, of } from 'rxjs';
+import { Api, Erabiltzailea, Erreserba, KargaPostua, Kargagunea, Udalerria } from '../services/api';
 import { AuthService } from '../services/auth';
 
 type ErreserbaTaulan = Erreserba & {
   erabiltzailea_izena: string;
   kargagunea_izena: string;
+  udalerria_izena: string;
 };
 
 @Component({
@@ -50,6 +51,7 @@ export class ErreserbenTaula implements OnInit {
   erreserbak = signal<ErreserbaTaulan[]>([]);
   postuak = signal<KargaPostua[]>([]);
   guneak = signal<Kargagunea[]>([]);
+  udalerriak = signal<Udalerria[]>([]);
   erreserbaEzeztatzeko: ErreserbaTaulan | null = null;
   erreserbaItzultzeko: ErreserbaTaulan | null = null;
   itzuliPostuaId: number | null = null;
@@ -61,7 +63,7 @@ export class ErreserbenTaula implements OnInit {
   ordination = signal<PaginableTableOrdination | undefined>(undefined);
   feedback = signal<{ mota: 'ok' | 'error'; testua: string } | null>(null);
 
-  headers: PaginableTableHeader[] = this.buildHeaders([], []);
+  headers: PaginableTableHeader[] = this.buildHeaders([], [], []);
 
   ngOnInit(): void {
     this.kargatu();
@@ -72,18 +74,24 @@ export class ErreserbenTaula implements OnInit {
 
     forkJoin({
       erreserbak: this.apiService.getErreserbak(),
-      erabiltzaileak: this.apiService.getErabiltzaileak(),
+      erabiltzaileak: (
+        this.auth.isSuperadmin()
+          ? this.apiService.getErabiltzaileak()
+          : of([] as Erabiltzailea[])
+      ).pipe(catchError(() => of([] as Erabiltzailea[]))),
       postuak: this.apiService.getKargaPostuak(),
       guneak: this.apiService.getKargaguneak(),
+      udalerriak: this.apiService.getUdalerriak().pipe(catchError(() => of([]))),
     }).subscribe({
-      next: ({ erreserbak, erabiltzaileak, postuak, guneak }) => {
+      next: ({ erreserbak, erabiltzaileak, postuak, guneak, udalerriak }) => {
         const prestatuak = erreserbak.map((erreserba) =>
-          this.erreserbaPrestatu(erreserba, erabiltzaileak, postuak, guneak),
+          this.erreserbaPrestatu(erreserba, erabiltzaileak, postuak, guneak, udalerriak),
         );
 
         this.postuak.set(postuak);
         this.guneak.set(guneak);
-        this.headers = this.buildHeaders(erabiltzaileak, guneak);
+        this.udalerriak.set(udalerriak);
+        this.headers = this.buildHeaders(erabiltzaileak, guneak, udalerriak);
         this.erreserbak.set(prestatuak);
         this.isLoading.set(false);
         this.cdr.detectChanges();
@@ -215,23 +223,29 @@ export class ErreserbenTaula implements OnInit {
     erabiltzaileak: Erabiltzailea[],
     postuak: KargaPostua[],
     guneak: Kargagunea[],
+    udalerriak: Udalerria[],
   ): ErreserbaTaulan {
     const erabiltzailea = erabiltzaileak.find(
       (item) => item.id === erreserba.erabiltzailea_id,
     );
     const postua = postuak.find((item) => item.id === erreserba.hasierako_karga_postua);
     const gunea = postua ? guneak.find((item) => item.id === postua.kargagunea_id) : undefined;
+    const udalerria = gunea
+      ? udalerriak.find((item) => item.id === gunea.udalerria_id)
+      : undefined;
 
     return {
       ...erreserba,
       erabiltzailea_izena: erabiltzailea?.login_email ?? `#${erreserba.erabiltzailea_id}`,
       kargagunea_izena: gunea?.izena ?? '-',
+      udalerria_izena: udalerria?.izena ?? '-',
     };
   }
 
   private buildHeaders(
     erabiltzaileak: Erabiltzailea[],
     guneak: Kargagunea[],
+    udalerriak: Udalerria[],
   ): PaginableTableHeader[] {
     const erabiltzaileAukerak = Array.from(
       new Set(
@@ -241,6 +255,14 @@ export class ErreserbenTaula implements OnInit {
       ),
     );
     const guneAukerak = Array.from(new Set(guneak.map((gunea) => gunea.izena)));
+    const udalerriAukerak = Array.from(
+      new Set(
+        (this.auth.isSuperadmin()
+          ? udalerriak
+          : udalerriak.filter((udalerria) => udalerria.id === this.auth.udalerriaId())
+        ).map((udalerria) => udalerria.izena),
+      ),
+    );
 
     return [
       { property: 'id', title: 'ID', sortable: true, width: 90 },
@@ -268,6 +290,19 @@ export class ErreserbenTaula implements OnInit {
           mode: 'menu',
           options: guneAukerak,
           placeholder: 'Kargagunea',
+        },
+      },
+      {
+        property: 'udalerria_izena',
+        title: 'Udalerria',
+        sortable: true,
+        width: 150,
+        wrapping: 'nowrap',
+        filter: {
+          type: 'dropdown',
+          mode: 'menu',
+          options: udalerriAukerak,
+          placeholder: 'Udalerria',
         },
       },
       {

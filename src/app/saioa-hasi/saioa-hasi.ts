@@ -29,14 +29,28 @@ export class SaioaHasi implements OnInit {
 
     this.auth.ensureSession().subscribe({
       next: (erabiltzailea) => {
+        const motivos = params.get('motivo');
+
         if (!erabiltzailea) {
-          if (params.get('motivo') === 'admin') {
+          if (['admin', 'superadmin'].includes(motivos ?? '')) {
             this.errorea = 'Ez duzu administratzaile baimenik panel honetara sartzeko.';
           }
           return;
         }
 
-        if (erabiltzailea.rola === 'admin') {
+        const administratzailea = ['admin', 'superadmin'].includes(erabiltzailea.rola);
+
+        if (motivos === 'superadmin' && erabiltzailea.rola !== 'superadmin') {
+          this.errorea = 'Atal hau administratzaile orokorrentzat da.';
+          if (administratzailea) {
+            this.router.navigateByUrl('/kargaguneak');
+          } else {
+            this.auth.logout().subscribe();
+          }
+          return;
+        }
+
+        if (administratzailea) {
           this.router.navigateByUrl(this.returnUrl);
           return;
         }
@@ -58,7 +72,7 @@ export class SaioaHasi implements OnInit {
       next: (erabiltzailea) => {
         this.kargatzen = false;
 
-        if (erabiltzailea.rola !== 'admin') {
+        if (!['admin', 'superadmin'].includes(erabiltzailea.rola)) {
           this.errorea = 'Ez duzu administratzaile baimenik panel honetara sartzeko.';
           this.auth.logout().subscribe();
           return;

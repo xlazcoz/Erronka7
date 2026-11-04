@@ -2,6 +2,16 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { Observable, catchError, of, shareReplay, switchMap, tap } from 'rxjs';
 import { Api, Erabiltzailea, Login, Register } from './api';
 
+export const ROL_ETIKETAK: Record<string, string> = {
+  user: 'Erabiltzaile arrunta',
+  admin: 'Udalerriko administratzailea',
+  superadmin: 'Administratzaile orokorra',
+};
+
+export function rolaEtiketa(rola?: string | null): string {
+  return rola ? (ROL_ETIKETAK[rola] ?? rola) : '-';
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private apiService = inject(Api);
@@ -10,7 +20,15 @@ export class AuthService {
   currentUser = signal<Erabiltzailea | null>(null);
   sessionReady = signal(false);
   isLoggedIn = computed(() => this.currentUser() !== null);
-  isAdmin = computed(() => this.currentUser()?.rola === 'admin');
+  isAdmin = computed(() =>
+    ['admin', 'superadmin'].includes(this.currentUser()?.rola ?? ''),
+  );
+  isSuperadmin = computed(() => this.currentUser()?.rola === 'superadmin');
+  udalerriaId = computed(() => this.currentUser()?.udalerria_id ?? null);
+
+  rolaEtiketa(rola?: string | null): string {
+    return rolaEtiketa(rola);
+  }
 
   constructor() {
     this.ensureSession().subscribe();

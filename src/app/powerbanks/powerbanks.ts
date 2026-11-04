@@ -16,12 +16,14 @@ import {
   PaginableTableHeader,
   PaginableTableOrdination,
 } from 'ng-hub-ui-paginable';
-import { forkJoin } from 'rxjs';
-import { Api, KargaPostua, Kargagunea, Powerbank } from '../services/api';
+import { catchError, forkJoin, of } from 'rxjs';
+import { Api, KargaPostua, Kargagunea, Powerbank, Udalerria } from '../services/api';
+import { AuthService } from '../services/auth';
 
 type PowerbankTaulan = Powerbank & {
   id: number;
   tokia_etiketa: string;
+  udalerria_izena: string;
 };
 
 @Component({
@@ -34,6 +36,7 @@ type PowerbankTaulan = Powerbank & {
 export class Powerbanks implements OnInit {
   private apiService = inject(Api);
   private cdr = inject(ChangeDetectorRef);
+  private auth = inject(AuthService);
 
   private powerbankSortuDialog = viewChild<ElementRef<HTMLDialogElement>>('powerbankSortu');
   private powerbankAldatuDialog = viewChild<ElementRef<HTMLDialogElement>>('powerbankAldatu');
@@ -41,6 +44,7 @@ export class Powerbanks implements OnInit {
   powerbanks = signal<PowerbankTaulan[]>([]);
   postuak = signal<KargaPostua[]>([]);
   guneak = signal<Kargagunea[]>([]);
+  udalerriak = signal<Udalerria[]>([]);
   isLoading = signal<boolean>(false);
   currentPage = signal<number>(1);
   perPage = signal<number>(10);
@@ -48,20 +52,7 @@ export class Powerbanks implements OnInit {
   ordination = signal<PaginableTableOrdination | undefined>(undefined);
   feedback = signal<{ mota: 'ok' | 'error'; testua: string } | null>(null);
 
-  headers: PaginableTableHeader[] = [
-    { property: 'id', title: 'ID', sortable: true, width: 90 },
-    { property: 'karga_maila', title: 'Karga maila', sortable: true, width: 170 },
-    { property: 'karga_postua_id', title: 'Takilla ID', sortable: true, width: 130 },
-    { property: 'tokia_etiketa', title: 'Kokapena', sortable: true },
-    {
-      property: 'ekintzak',
-      title: 'Ekintzak',
-      onlyButtons: true,
-      align: 'end',
-      sticky: 'end',
-      width: 140,
-    },
-  ];
+  headers: PaginableTableHeader[] = this.buildHeaders([]);
 
   powerbankBerria = {
     karga_maila: 100,
@@ -86,15 +77,19 @@ export class Powerbanks implements OnInit {
       powerbanks: this.apiService.getPowerbanks(),
       postuak: this.apiService.getKargaPostuak(),
       guneak: this.apiService.getKargaguneak(),
+      udalerriak: this.apiService.getUdalerriak().pipe(catchError(() => of([]))),
     }).subscribe({
-      next: ({ powerbanks, postuak, guneak }) => {
+      next: ({ powerbanks, postuak, guneak, udalerriak }) => {
         this.postuak.set(postuak);
         this.guneak.set(guneak);
+        this.udalerriak.set(udalerriak);
+        this.headers = this.buildHeaders(udalerriak);
 
         const prestatuak = powerbanks.map((powerbank) => ({
           ...powerbank,
           id: powerbank.id ?? 0,
           tokia_etiketa: this.tokiaEtiketa(powerbank.karga_postua_id, postuak, guneak),
+          udalerria_izena: this.udalerriaIzena(powerbank.karga_postua_id, postuak, guneak, udalerriak),
         }));
 
         this.powerbanks.set(prestatuak);
@@ -187,6 +182,55 @@ export class Powerbanks implements OnInit {
 
   itxiFeedback(): void {
     this.feedback.set(null);
+  }
+
+  private buildHeaders(udalerriak: Udalerria[]): PaginableTableHeader[] {
+    const udalerriAukerak = this.auth.isSuperadmin()
+      ? udalerriak
+      : udalerriak.filter((udalerria) => udalerria.id === this.auth.udalerriaId());
+
+    return [
+      { property: 'id', title: 'ID', sortable: true, width: 90 },
+      { property: 'karga_maila', title: 'Karga maila', sortable: true, width: 170 },
+      { property: 'karga_postua_id', title: 'Takilla ID', sortable: true, width: 130 },
+      {
+        property: 'udalerria_izena',
+        title: 'Udalerria',
+        sortable: true,
+        width: 150,
+        filter: {
+          type: 'dropdown',
+          mode: 'menu',
+          options: udalerriAukerak.map((udalerria) => udalerria.izena),
+          placeholder: 'Udalerria',
+        },
+      },
+      { property: 'tokia_etiketa', title: 'Kokapena', sortable: true },
+      {
+        property: 'ekintzak',
+        title: 'Ekintzak',
+        onlyButtons: true,
+        align: 'end',
+        sticky: 'end',
+        width: 140,
+      },
+    ];
+  }
+
+  udalerriaIzena(
+    kargaPostuaId: number,
+    postuak: KargaPostua[],
+    guneak: Kargagunea[],
+    udalerriak: Udalerria[],
+  ): string {
+    const postua = postuak.find((item) => item.id === kargaPostuaId);
+    const gunea = postua
+      ? guneak.find((item) => item.id === postua.kargagunea_id)
+      : undefined;
+    const udalerria = gunea
+      ? udalerriak.find((item) => item.id === gunea.udalerria_id)
+      : undefined;
+    return udalerria?.izena ?? '-';
   }
 
   tokiaEtiketa(

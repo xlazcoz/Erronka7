@@ -9,7 +9,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from database import get_session
-from models.models import Erabiltzailea, Erreserba, KargaPostua, Kargagunea, Powerbank
+from models.models import Erabiltzailea, Erreserba, KargaPostua, Kargagunea, Powerbank, Udalerria
 from schemas.schemas import (
     KargaguneaCreate,
     KargaguneaIrudiaUpdate,
@@ -17,7 +17,12 @@ from schemas.schemas import (
     KargaguneaUpdate,
     KargaPostuaResponse,
 )
-from services.auth import require_admin
+from services.auth import (
+    get_optional_current_user,
+    is_municipal_admin,
+    is_superadmin,
+    require_admin,
+)
 
 router = APIRouter(prefix="/kargaguneak", tags=["Kargaguneak"])
 
@@ -46,13 +51,61 @@ def station_response(session: Session, station: Kargagunea) -> dict:
         "irudia2": station.irudia2,
         "irudia3": station.irudia3,
         "egoera": station.egoera,
+        "udalerria_id": station.udalerria_id,
+        "latitude": station.latitude,
+        "longitude": station.longitude,
         "libres": available_count,
         "karga_postuak": station.karga_postuak,
     }
 
+
+def udalerria_balidatu(session: Session, udalerria_id: int) -> Udalerria:
+    udalerria = session.get(Udalerria, udalerria_id)
+    if udalerria is None:
+        raise HTTPException(status_code=404, detail="Udalerria ez da aurkitzen")
+    return udalerria
+
+
+def egiaztatu_kargagunea_baimena(current_user: Erabiltzailea, kargagunea: Kargagunea) -> None:
+    if is_superadmin(current_user):
+        return
+
+    if is_municipal_admin(current_user) and kargagunea.udalerria_id == current_user.udalerria_id:
+        return
+
+    raise HTTPException(
+        status_code=403,
+        detail="Beste udalerri bateko kargaguneak ezin dituzu kudeatu",
+    )
+
+
 @router.get("", response_model=list[KargaguneaResponse], status_code=200)
-def get_kargaguneak(session: SessionDep):
+def get_kargaguneak(
+    session: SessionDep,
+    udalerria_id: int | None = None,
+    current_user: Erabiltzailea | None = Depends(get_optional_current_user),
+):
     stmt = select(Kargagunea).order_by(Kargagunea.id)
+
+    if current_user and is_municipal_admin(current_user):
+        if current_user.udalerria_id is None:
+            return []
+        if udalerria_id is not None and udalerria_id != current_user.udalerria_id:
+            raise HTTPException(
+                status_code=403,
+                detail="Beste udalerri bateko kargaguneak ezin dituzu ikusi",
+            )
+        stmt = stmt.where(Kargagunea.udalerria_id == current_user.udalerria_id)
+    elif current_user and is_superadmin(current_user):
+        if udalerria_id is not None:
+            stmt = stmt.where(Kargagunea.udalerria_id == udalerria_id)
+    else:
+        stmt = stmt.join(Udalerria, Udalerria.id == Kargagunea.udalerria_id).where(
+            Udalerria.aktiboa.is_(True)
+        )
+        if udalerria_id is not None:
+            stmt = stmt.where(Kargagunea.udalerria_id == udalerria_id)
+
     return [station_response(session, station) for station in session.scalars(stmt).all()]
 
 @router.get("/{id}", response_model=KargaguneaResponse, status_code=200)
@@ -107,50 +160,84 @@ def kargagune_erabilgarritasuna(
 def sortu_kargagunea(
     session: SessionDep,
     data: KargaguneaCreate,
-    _admin: Erabiltzailea = Depends(require_admin),
+    current_user: Erabiltzailea = Depends(require_admin),
 ):
+    udalerria_id = data.udalerria_id
+
+    if is_municipal_admin(current_user):
+        if current_user.udalerria_id is None:
+            raise HTTPException(
+                status_code=403,
+                detail="Administratzaileari udalerri bat esleitu behar zaio",
+            )
+        if udalerria_id != current_user.udalerria_id:
+            raise HTTPException(
+                status_code=403,
+                detail="Beste udalerri bateko kargaguneak ezin dituzu sortu",
+            )
+        udalerria_id = current_user.udalerria_id
+
+    udalerria_balidatu(session, udalerria_id)
+
     kargagunea = Kargagunea(
         izena=data.izena, 
         helbidea=data.helbidea, 
         irudia1=data.irudia1, 
         irudia2=data.irudia2,
         irudia3=data.irudia3, 
-        egoera=data.egoera
+        egoera=data.egoera,
+        udalerria_id=udalerria_id,
+        latitude=data.latitude,
+        longitude=data.longitude,
     )
     session.add(kargagunea)
     session.commit()
     session.refresh(kargagunea)
-    return kargagunea
+    return station_response(session, kargagunea)
 
 @router.patch("/{id}", response_model=KargaguneaResponse, status_code=200)
 def aldatu_kargagunea(
     session: SessionDep,
     data: KargaguneaUpdate,
     id: int,
-    _admin: Erabiltzailea = Depends(require_admin),
+    current_user: Erabiltzailea = Depends(require_admin),
 ):
     kargagunea = session.get(Kargagunea, id)
     if not kargagunea:
         raise HTTPException(status_code=404, detail="Kargagunea ez da aurkitzen")
 
+    egiaztatu_kargagunea_baimena(current_user, kargagunea)
+
     changes = data.model_dump(exclude_unset=True)
+
+    new_udalerria_id = changes.get("udalerria_id")
+    if new_udalerria_id is not None:
+        if is_municipal_admin(current_user) and new_udalerria_id != kargagunea.udalerria_id:
+            raise HTTPException(
+                status_code=403,
+                detail="Ezin duzu kargagunea beste udalerri batera aldatu",
+            )
+        udalerria_balidatu(session, new_udalerria_id)
+
     for field, value in changes.items():
         setattr(kargagunea, field, value)
 
     session.commit()
     session.refresh(kargagunea)
-    return kargagunea
+    return station_response(session, kargagunea)
 
 @router.patch("/{id}/irudia", response_model=KargaguneaResponse, status_code=200)
 def aldatu_irudia(
     session: SessionDep,
     data: KargaguneaIrudiaUpdate,
     id: int,
-    _admin: Erabiltzailea = Depends(require_admin),
+    current_user: Erabiltzailea = Depends(require_admin),
 ):
     kargagunea = session.get(Kargagunea, id)
     if not kargagunea:
         raise HTTPException(status_code=404, detail="Kargagunea ez da aurkitzen")
+
+    egiaztatu_kargagunea_baimena(current_user, kargagunea)
 
     changes = data.model_dump(exclude_unset=True)
     for field, value in changes.items():
@@ -158,7 +245,7 @@ def aldatu_irudia(
 
     session.commit()
     session.refresh(kargagunea)
-    return kargagunea
+    return station_response(session, kargagunea)
 
 @router.post("/{id}/irudia/upload", status_code=200)
 def igo_kargagunearen_irudia(
@@ -166,11 +253,13 @@ def igo_kargagunearen_irudia(
     request: Request,
     id: int,
     file: UploadFile = File(...),
-    _admin: Erabiltzailea = Depends(require_admin),
+    current_user: Erabiltzailea = Depends(require_admin),
 ):
     kargagunea = session.get(Kargagunea, id)
     if not kargagunea:
         raise HTTPException(status_code=404, detail="Kargagunea ez da aurkitzen")
+
+    egiaztatu_kargagunea_baimena(current_user, kargagunea)
 
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Fitxategiak irudi bat izan behar du")
@@ -189,12 +278,14 @@ def igo_kargagunearen_irudia(
 def ezabatu_kargagunea(
     session: SessionDep,
     id: int,
-    _admin: Erabiltzailea = Depends(require_admin),
+    current_user: Erabiltzailea = Depends(require_admin),
 ):
     kargagunea = session.get(Kargagunea, id)
 
     if not kargagunea:
         raise HTTPException(status_code=404, detail="Kargagunea ez da aurkitzen")
+
+    egiaztatu_kargagunea_baimena(current_user, kargagunea)
 
     if kargagunea.karga_postuak:
         raise HTTPException(

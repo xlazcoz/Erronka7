@@ -31,9 +31,41 @@ def get_current_user(session_id: str | None = Cookie(default=None), session: Ses
 
     return auth_session.erabiltzailea
 
+
+def get_optional_current_user(
+    session_id: str | None = Cookie(default=None),
+    session: Session = Depends(get_session),
+) -> Erabiltzailea | None:
+    if session_id is None:
+        return None
+
+    auth_session = session.get(AuthSession, session_id)
+    if auth_session is None or not auth_session.erabiltzailea.aktiboa:
+        return None
+
+    return auth_session.erabiltzailea
+
+
+def is_superadmin(current_user: Erabiltzailea) -> bool:
+    return current_user.rola == "superadmin"
+
+
+def is_municipal_admin(current_user: Erabiltzailea) -> bool:
+    return current_user.rola == "admin"
+
+
 def require_admin(current_user: Erabiltzailea = Depends(get_current_user)) -> Erabiltzailea:
-    if current_user.rola != "admin":
+    if current_user.rola not in ("admin", "superadmin"):
         raise HTTPException(
             status_code=403, detail="Ez zara administratzailea",)
+
+    return current_user
+
+
+def require_superadmin(current_user: Erabiltzailea = Depends(get_current_user)) -> Erabiltzailea:
+    if current_user.rola != "superadmin":
+        raise HTTPException(
+            status_code=403, detail="Administratzaile orokorra behar da",
+        )
 
     return current_user

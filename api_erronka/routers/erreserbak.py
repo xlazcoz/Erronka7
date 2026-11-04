@@ -2,30 +2,53 @@ from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from database import get_session
-from models.models import Erabiltzailea, Erreserba, KargaPostua, Kargagunea, Powerbank
+from models.models import Erabiltzailea, Erreserba, KargaPostua, Kargagunea, Powerbank, Udalerria
 from schemas.schemas import (
     ErreserbakCreate,
     ErreserbakEgoeraUpdate,
     ErreserbakItzuliUpdate,
     ErreserbakResponse,
 )
-from services.auth import get_current_user
+from services.auth import get_current_user, is_municipal_admin, is_superadmin
 
 router = APIRouter(prefix="/erreserbak", tags=["Erreserbak"])
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
 
-def egiaztatu_erreserba_baimena(current_user: Erabiltzailea, erreserba: Erreserba) -> None:
-    if current_user.rola != "admin" and erreserba.erabiltzailea_id != current_user.id:
-        raise HTTPException(
-            status_code=403,
-            detail="Beste erabiltzaile baten erreserbak ezin dituzu kudeatu",
-        )
+def erreserbaren_udalerria_id(session: Session, erreserba: Erreserba) -> int | None:
+    karga_postua = session.get(KargaPostua, erreserba.hasierako_karga_postua)
+    if karga_postua is None:
+        return None
+
+    kargagunea = session.get(Kargagunea, karga_postua.kargagunea_id)
+    return kargagunea.udalerria_id if kargagunea is not None else None
+
+
+def egiaztatu_erreserba_baimena(
+    session: Session,
+    current_user: Erabiltzailea,
+    erreserba: Erreserba,
+) -> None:
+    if is_superadmin(current_user):
+        return
+
+    if erreserba.erabiltzailea_id == current_user.id:
+        return
+
+    if is_municipal_admin(current_user):
+        udalerria_id = erreserbaren_udalerria_id(session, erreserba)
+        if udalerria_id is not None and udalerria_id == current_user.udalerria_id:
+            return
+
+    raise HTTPException(
+        status_code=403,
+        detail="Beste udalerri edo erabiltzaile baten erreserbak ezin dituzu kudeatu",
+    )
 
 
 def oraina(data: datetime) -> datetime:
@@ -38,8 +61,24 @@ def get_erreserbak(
     current_user: Erabiltzailea = Depends(get_current_user),
 ):
     stmt = select(Erreserba).order_by(Erreserba.id)
-    if current_user.rola != "admin":
+
+    if is_superadmin(current_user):
+        return session.scalars(stmt).all()
+
+    if is_municipal_admin(current_user) and current_user.udalerria_id is not None:
+        stmt = (
+            stmt.join(KargaPostua, KargaPostua.id == Erreserba.hasierako_karga_postua)
+            .join(Kargagunea, Kargagunea.id == KargaPostua.kargagunea_id)
+            .where(
+                or_(
+                    Kargagunea.udalerria_id == current_user.udalerria_id,
+                    Erreserba.erabiltzailea_id == current_user.id,
+                )
+            )
+        )
+    else:
         stmt = stmt.where(Erreserba.erabiltzailea_id == current_user.id)
+
     return session.scalars(stmt).all()
 
 
@@ -52,7 +91,7 @@ def get_erreserba_by_id(
     erreserba = session.get(Erreserba, id)
     if not erreserba:
         raise HTTPException(status_code=404, detail="Erreserba ez da aurkitzen")
-    egiaztatu_erreserba_baimena(current_user, erreserba)
+    egiaztatu_erreserba_baimena(session, current_user, erreserba)
     return erreserba
 
 
@@ -66,9 +105,11 @@ def sortu_erreserba(
         select(KargaPostua, Powerbank.id)
         .join(Powerbank, Powerbank.karga_postua_id == KargaPostua.id)
         .join(Kargagunea, Kargagunea.id == KargaPostua.kargagunea_id)
+        .join(Udalerria, Udalerria.id == Kargagunea.udalerria_id)
         .where(
             KargaPostua.kargagunea_id == data.kargagunea_id,
             func.lower(Kargagunea.egoera) == "erabilgarri",
+            Udalerria.aktiboa.is_(True),
             KargaPostua.egoera == "kargatuta",
             ~select(Erreserba.id)
             .where(
@@ -122,9 +163,9 @@ def erreserben_egoera_kudeatu(
     if not erreserba:
         raise HTTPException(status_code=404, detail="Erreserba ez da aurkitzen")
 
-    egiaztatu_erreserba_baimena(current_user, erreserba)
+    egiaztatu_erreserba_baimena(session, current_user, erreserba)
 
-    if current_user.rola != "admin" and erreserba.hasiera_data_ordua < oraina(
+    if current_user.rola == "user" and erreserba.hasiera_data_ordua < oraina(
         erreserba.hasiera_data_ordua
     ):
         raise HTTPException(
@@ -154,7 +195,7 @@ def itzuli_powerbank(
     if not erreserba:
         raise HTTPException(status_code=404, detail="Erreserba ez da aurkitzen")
 
-    egiaztatu_erreserba_baimena(current_user, erreserba)
+    egiaztatu_erreserba_baimena(session, current_user, erreserba)
 
     slot = session.get(KargaPostua, data.bukaerako_karga_postua)
     if slot is not None:
@@ -183,7 +224,7 @@ def borrar_erreserba(
     if not erreserba:
         raise HTTPException(status_code=404, detail="Erreserba ez da aurkitzen")
 
-    egiaztatu_erreserba_baimena(current_user, erreserba)
+    egiaztatu_erreserba_baimena(db, current_user, erreserba)
 
     if erreserba.egoera == "aktiboa":
         slot = db.get(KargaPostua, erreserba.hasierako_karga_postua)

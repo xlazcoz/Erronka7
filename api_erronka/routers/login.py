@@ -54,7 +54,8 @@ def login(data: LoginRequest, response: Response, session: Session = Depends(get
             "id": erabiltzailea.id,
             "izena": erabiltzailea.izena,
             "email": erabiltzailea.login_email,
-            "rola": erabiltzailea.rola
+            "rola": erabiltzailea.rola,
+            "udalerria_id": erabiltzailea.udalerria_id,
         }
     }
 

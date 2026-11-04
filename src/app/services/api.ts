@@ -6,6 +6,13 @@ const API_HOST =
     typeof window !== 'undefined' ? window.location.hostname || '127.0.0.1' : '127.0.0.1';
 const API_BASE = `http://${API_HOST}:8000`;
 
+export interface Udalerria{
+    id?: number
+    izena: string
+    aktiboa: boolean
+    kargagune_kopurua?: number
+}
+
 export interface Erabiltzailea{
     id?: number
     izena: string
@@ -14,6 +21,7 @@ export interface Erabiltzailea{
     login_pasahitza: string
     rola: string
     aktiboa?: boolean
+    udalerria_id?: number | null
     erreserben_historikoa?: string
     erreserbak?: Erreserba[]
 }
@@ -37,6 +45,9 @@ export interface Kargagunea{
     irudia2: string
     irudia3: string
     egoera: string
+    udalerria_id?: number
+    latitude?: number | null
+    longitude?: number | null
     libres?: number
     karga_postuak?: KargaPostua[]
 }
@@ -79,6 +90,10 @@ export class Api {
     private apiErabiltzaileakEzabatu = `${API_BASE}/erabiltzaileak/{id}`;
     private apiErabiltzaileakRolak = `${API_BASE}/erabiltzaileak/{id}/rola`;
     private apiErabiltzaileakErreserbak = `${API_BASE}/erabiltzaileak/{id}/erreserbak`;
+
+    private apiUdalerriakGet = `${API_BASE}/udalerriak`;
+    private apiUdalerriakSortu = `${API_BASE}/udalerriak`;
+    private apiUdalerriakAldatu = `${API_BASE}/udalerriak/{id}`;
 
     private apiKargaguneakGet = `${API_BASE}/kargaguneak`;
     private apiKargaguneakSortu = `${API_BASE}/kargaguneak`;
@@ -138,9 +153,26 @@ export class Api {
         return this.http.delete<Erabiltzailea>(url);
     }
 
+    // UDALERRIAK DEIAK
+    getUdalerriak(): Observable<Udalerria[]>{
+        return this.http.get<Udalerria[]>(this.apiUdalerriakGet);
+    }
+
+    sortuUdalerria(udalerria: Udalerria): Observable<Udalerria>{
+        return this.http.post<Udalerria>(this.apiUdalerriakSortu, udalerria);
+    }
+
+    aldatuUdalerria(id: number, partialData: Partial<Udalerria>): Observable<Udalerria>{
+        const url = this.apiUdalerriakAldatu.replace('{id}', id.toString());
+        return this.http.patch<Udalerria>(url, partialData);
+    }
+
     // KARGAGUNEAK DEIAK
-    getKargaguneak(): Observable<Kargagunea[]>{
-        return this.http.get<Kargagunea[]>(this.apiKargaguneakGet);
+    getKargaguneak(udalerriaId?: number): Observable<Kargagunea[]>{
+        const params = udalerriaId
+            ? { udalerria_id: udalerriaId.toString() }
+            : undefined;
+        return this.http.get<Kargagunea[]>(this.apiKargaguneakGet, { params });
     }
 
     sortuKargaguneak(kargagunea: Kargagunea): Observable<Kargagunea>{

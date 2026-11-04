@@ -31,7 +31,7 @@
   <div class="card mb-3">
     <div class="card-body">
       <div class="row g-3 align-items-end">
-        <div class="col-md-6">
+        <div class="col-md-4">
           <label for="erabiltzaileaHautatu" class="form-label">Erabiltzailea aukeratu</label>
           <select
             class="form-select"
@@ -58,11 +58,27 @@
               (ngModelChange)="rolaHautatua = $event"
             >
               @for (rola of rolak; track rola) {
-                <option [value]="rola">{{ rola }}</option>
+                <option [value]="rola">{{ rolaEtiketa(rola) }}</option>
               }
             </select>
           </div>
-          <div class="col-md-3">
+          @if (rolaHautatua === 'admin') {
+            <div class="col-md-3">
+              <label for="udalerriaHautatu" class="form-label">Udalerria</label>
+              <select
+                class="form-select"
+                id="udalerriaHautatu"
+                [ngModel]="udalerriaHautatua"
+                (ngModelChange)="udalerriaHautatua = $event"
+              >
+                <option [ngValue]="null">-- Aukeratu udalerri bat --</option>
+                @for (udalerria of udalerriak(); track udalerria.id) {
+                  <option [ngValue]="udalerria.id">{{ udalerria.izena }}</option>
+                }
+              </select>
+            </div>
+          }
+          <div class="col-md-2">
             <button type="button" class="btn btn-primary w-100" (click)="gordeRola()">
               Rola gorde
             </button>
@@ -121,7 +137,7 @@
     [(ordination)]="ordination"
   >
     <ng-template cellTpt header="rola" let-item="item">
-      <span class="badge" [ngClass]="rolaKlasa(item.rola)">{{ item.rola }}</span>
+      <span class="badge" [ngClass]="rolaKlasa(item.rola)">{{ rolaEtiketa(item.rola) }}</span>
     </ng-template>
 
     <ng-template cellTpt header="aktiboa" let-item="item">
@@ -216,10 +232,27 @@
         [(ngModel)]="erabiltzaileaBerria.rola"
       >
         @for (rola of rolak; track rola) {
-          <option [value]="rola">{{ rola }}</option>
+          <option [value]="rola">{{ rolaEtiketa(rola) }}</option>
         }
       </select>
     </div>
+
+    @if (erabiltzaileaBerria.rola === 'admin') {
+      <div class="col-md-6">
+        <label for="sortu-udalerria" class="form-label">Udalerria</label>
+        <select
+          class="form-select"
+          id="sortu-udalerria"
+          name="sortu-udalerria"
+          [(ngModel)]="erabiltzaileaBerria.udalerria_id"
+        >
+          <option [ngValue]="null">-- Aukeratu udalerri bat --</option>
+          @for (udalerria of udalerriak(); track udalerria.id) {
+            <option [ngValue]="udalerria.id">{{ udalerria.izena }}</option>
+          }
+        </select>
+      </div>
+    }
 
     <div class="col-md-6 d-flex align-items-end">
       <div class="form-check">
@@ -305,10 +338,27 @@
         [(ngModel)]="erabiltzaileaEditatzen.rola"
       >
         @for (rola of rolak; track rola) {
-          <option [value]="rola">{{ rola }}</option>
+          <option [value]="rola">{{ rolaEtiketa(rola) }}</option>
         }
       </select>
     </div>
+
+    @if (erabiltzaileaEditatzen.rola === 'admin') {
+      <div class="col-md-6">
+        <label for="aldatu-udalerria" class="form-label">Udalerria</label>
+        <select
+          class="form-select"
+          id="aldatu-udalerria"
+          name="aldatu-udalerria"
+          [(ngModel)]="erabiltzaileaEditatzen.udalerria_id"
+        >
+          <option [ngValue]="null">-- Aukeratu udalerri bat --</option>
+          @for (udalerria of udalerriak(); track udalerria.id) {
+            <option [ngValue]="udalerria.id">{{ udalerria.izena }}</option>
+          }
+        </select>
+      </div>
+    }
 
     <div class="col-md-6 d-flex align-items-end">
       <div class="form-check">

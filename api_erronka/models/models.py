@@ -1,11 +1,22 @@
 from datetime import datetime
 from typing import Optional
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import Float, ForeignKey, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class Base(DeclarativeBase):
     pass
+
+
+class Udalerria(Base):
+    __tablename__ = "udalerriak"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    izena: Mapped[str] = mapped_column(String(100), unique=True)
+    aktiboa: Mapped[bool] = mapped_column(default=True)
+
+    kargaguneak: Mapped[list["Kargagunea"]] = relationship(back_populates="udalerria")
+    erabiltzaileak: Mapped[list["Erabiltzailea"]] = relationship(back_populates="udalerria")
 
 
 class Erabiltzailea(Base):
@@ -18,7 +29,11 @@ class Erabiltzailea(Base):
     login_pasahitza: Mapped[str] = mapped_column(String(100))
     rola: Mapped[str] = mapped_column(String(100), default="user")
     aktiboa: Mapped[bool] = mapped_column(default=True)
+    udalerria_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("udalerriak.id"), nullable=True
+    )
 
+    udalerria: Mapped[Optional["Udalerria"]] = relationship(back_populates="erabiltzaileak")
     erreserbak: Mapped[list["Erreserba"]] = relationship(back_populates="erabiltzailea")
     auth_sessions: Mapped[list["AuthSession"]] = relationship(
         back_populates="erabiltzailea",
@@ -35,7 +50,11 @@ class Kargagunea(Base):
     irudia2: Mapped[str] = mapped_column(String(1000))
     irudia3: Mapped[str] = mapped_column(String(1000))
     egoera: Mapped[str] = mapped_column(String(100))
+    udalerria_id: Mapped[int] = mapped_column(ForeignKey("udalerriak.id"))
+    latitude: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    longitude: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
 
+    udalerria: Mapped["Udalerria"] = relationship(back_populates="kargaguneak")
     karga_postuak: Mapped[list["KargaPostua"]] = relationship(back_populates="kargagunea")
 
 class KargaPostua(Base):

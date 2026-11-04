@@ -16,11 +16,14 @@ import {
   PaginableTableHeader,
   PaginableTableOrdination,
 } from 'ng-hub-ui-paginable';
-import { Api, Kargagunea, KargaPostua } from '../services/api';
+import { catchError, forkJoin, of } from 'rxjs';
+import { Api, Kargagunea, KargaPostua, Udalerria } from '../services/api';
+import { AuthService } from '../services/auth';
 
 type KargaguneaTaulan = Kargagunea & {
   egoera_etiketa: string;
   karga_postuak_kopurua: number;
+  udalerria_izena: string;
 };
 
 @Component({
@@ -33,6 +36,7 @@ type KargaguneaTaulan = Kargagunea & {
 export class Kargaguneak implements OnInit {
   private apiService = inject(Api);
   private cdr = inject(ChangeDetectorRef);
+  protected auth = inject(AuthService);
 
   private kargaguneaSortuDialog = viewChild<ElementRef<HTMLDialogElement>>('kargaguneaSortu');
   private kargaguneaAldatuDialog = viewChild<ElementRef<HTMLDialogElement>>('kargaguneaAldatu');
@@ -43,6 +47,7 @@ export class Kargaguneak implements OnInit {
   readonly postuEgoerak = ['hutsa', 'kargatuta', 'kargatzen'];
 
   kargaguneak = signal<KargaguneaTaulan[]>([]);
+  udalerriak = signal<Udalerria[]>([]);
   isLoading = signal<boolean>(false);
   currentPage = signal<number>(1);
   perPage = signal<number>(10);
@@ -52,29 +57,7 @@ export class Kargaguneak implements OnInit {
   feedback = signal<{ mota: 'ok' | 'error'; testua: string } | null>(null);
   irudiaIgotzen = signal<number | null>(null);
 
-  headers: PaginableTableHeader[] = [
-    { property: 'id', title: 'ID', sortable: true, width: 90 },
-    { property: 'izena', title: 'Izena', sortable: true },
-    { property: 'helbidea', title: 'Helbidea', sortable: true },
-    { property: 'egoera_etiketa', title: 'Egoera', sortable: true },
-    { property: 'libres', title: 'Powerbank libreak', sortable: true, align: 'center', width: 170 },
-    {
-      property: 'karga_postuak_kopurua',
-      title: 'Karga postuak',
-      sortable: true,
-      align: 'center',
-      width: 155,
-    },
-    { property: 'irudiak', title: 'Irudiak', align: 'center', width: 190 },
-    {
-      property: 'ekintzak',
-      title: 'Ekintzak',
-      onlyButtons: true,
-      align: 'end',
-      sticky: 'end',
-      width: 190,
-    },
-  ];
+  headers: PaginableTableHeader[] = this.buildHeaders([]);
 
   kargaguneaBerria: Kargagunea = this.kargaguneHutsa();
   kargaguneaEditatzen: Kargagunea = this.kargaguneHutsa();
@@ -89,9 +72,17 @@ export class Kargaguneak implements OnInit {
 
   kargaguneakKargatu(): void {
     this.isLoading.set(true);
-    this.apiService.getKargaguneak().subscribe({
-      next: (data) => {
-        const prestatuak = data.map((kargagunea) => this.taularakoPrestatu(kargagunea));
+    forkJoin({
+      kargaguneak: this.apiService.getKargaguneak(),
+      udalerriak: this.apiService.getUdalerriak().pipe(catchError(() => of([]))),
+    }).subscribe({
+      next: ({ kargaguneak, udalerriak }) => {
+        this.udalerriak.set(udalerriak);
+        this.headers = this.buildHeaders(udalerriak);
+
+        const prestatuak = kargaguneak.map((kargagunea) =>
+          this.taularakoPrestatu(kargagunea, udalerriak),
+        );
         this.kargaguneak.set(prestatuak);
 
         if (this.kargaguneaHautatua) {
@@ -112,6 +103,9 @@ export class Kargaguneak implements OnInit {
 
   irekiSortu(): void {
     this.kargaguneaBerria = this.kargaguneHutsa();
+    if (!this.kargaguneaBerria.udalerria_id) {
+      this.kargaguneaBerria.udalerria_id = this.udalerriak()[0]?.id;
+    }
     this.kargaguneaSortuDialog()?.nativeElement.showModal();
   }
 
@@ -138,6 +132,9 @@ export class Kargaguneak implements OnInit {
       irudia2: kargagunea.irudia2,
       irudia3: kargagunea.irudia3,
       egoera: this.egoeraNormalizatu(kargagunea.egoera),
+      udalerria_id: kargagunea.udalerria_id,
+      latitude: kargagunea.latitude ?? null,
+      longitude: kargagunea.longitude ?? null,
     };
     this.kargaguneaAldatuDialog()?.nativeElement.showModal();
   }
@@ -151,6 +148,9 @@ export class Kargaguneak implements OnInit {
       izena: this.kargaguneaEditatzen.izena,
       helbidea: this.kargaguneaEditatzen.helbidea,
       egoera: this.kargaguneaEditatzen.egoera,
+      udalerria_id: this.kargaguneaEditatzen.udalerria_id,
+      latitude: this.kargaguneaEditatzen.latitude,
+      longitude: this.kargaguneaEditatzen.longitude,
     };
 
     this.apiService.aldatuKargaguneak(this.editatuId, datuak).subscribe({
@@ -356,11 +356,58 @@ export class Kargaguneak implements OnInit {
     this.feedback.set(null);
   }
 
-  private taularakoPrestatu(kargagunea: Kargagunea): KargaguneaTaulan {
+  private buildHeaders(udalerriak: Udalerria[]): PaginableTableHeader[] {
+    const udalerriAukerak = this.auth.isSuperadmin()
+      ? udalerriak
+      : udalerriak.filter((udalerria) => udalerria.id === this.auth.udalerriaId());
+
+    return [
+      { property: 'id', title: 'ID', sortable: true, width: 90 },
+      { property: 'izena', title: 'Izena', sortable: true },
+      { property: 'helbidea', title: 'Helbidea', sortable: true },
+      {
+        property: 'udalerria_izena',
+        title: 'Udalerria',
+        sortable: true,
+        width: 150,
+        filter: {
+          type: 'dropdown',
+          mode: 'menu',
+          options: udalerriAukerak.map((udalerria) => udalerria.izena),
+          placeholder: 'Udalerria',
+        },
+      },
+      { property: 'egoera_etiketa', title: 'Egoera', sortable: true },
+      { property: 'libres', title: 'Powerbank libreak', sortable: true, align: 'center', width: 170 },
+      {
+        property: 'karga_postuak_kopurua',
+        title: 'Karga postuak',
+        sortable: true,
+        align: 'center',
+        width: 155,
+      },
+      { property: 'irudiak', title: 'Irudiak', align: 'center', width: 190 },
+      {
+        property: 'ekintzak',
+        title: 'Ekintzak',
+        onlyButtons: true,
+        align: 'end',
+        sticky: 'end',
+        width: 190,
+      },
+    ];
+  }
+
+  private taularakoPrestatu(
+    kargagunea: Kargagunea,
+    udalerriak: Udalerria[],
+  ): KargaguneaTaulan {
+    const udalerria = udalerriak.find((item) => item.id === kargagunea.udalerria_id);
     return {
       ...kargagunea,
       egoera_etiketa: this.egoeraNormalizatu(kargagunea.egoera),
       karga_postuak_kopurua: kargagunea.karga_postuak?.length ?? 0,
+      udalerria_izena: udalerria?.izena ?? '-',
     };
   }
 
@@ -372,6 +419,9 @@ export class Kargaguneak implements OnInit {
       irudia2: '',
       irudia3: '',
       egoera: 'Erabilgarri',
+      udalerria_id: this.auth.udalerriaId() ?? undefined,
+      latitude: null,
+      longitude: null,
     };
   }
 

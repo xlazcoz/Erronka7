@@ -3,8 +3,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from database import get_session
-from models.models import Erabiltzailea, Erreserba
-from services.auth import get_current_user, hash_password, require_admin
+from models.models import Erabiltzailea, Erreserba, Udalerria
+from services.auth import (
+    get_current_user,
+    hash_password,
+    is_superadmin,
+    require_superadmin,
+)
 from schemas.schemas import (
     ErabiltzaileaCreate, 
     ErabiltzaileaResponse, 
@@ -17,19 +22,46 @@ router = APIRouter(prefix="/erabiltzaileak", tags=["Erabiltzaileak"])
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
+ROLAK = {"user", "admin", "superadmin"}
+
 
 def egiaztatu_baimena(current_user: Erabiltzailea, id: int) -> None:
-    if current_user.rola != "admin" and current_user.id != id:
+    if not is_superadmin(current_user) and current_user.id != id:
         raise HTTPException(
             status_code=403,
-            detail="Ezin duzu beste erabiltzaile baten datuetan sartu",
+            detail="Beste erabiltzaile baten datuetan ezin duzu sartu",
         )
+
+
+def balidatu_rola_udalerria(
+    session: Session,
+    rola: str,
+    udalerria_id: int | None,
+) -> int | None:
+    if rola not in ROLAK:
+        raise HTTPException(
+            status_code=422,
+            detail="Rolak hauetako bat izan behar du: user, admin, superadmin",
+        )
+
+    if rola == "admin":
+        if udalerria_id is None:
+            raise HTTPException(
+                status_code=422,
+                detail="Administratzaile udalerri bati lotuta egon behar da",
+            )
+        udalerri = session.get(Udalerria, udalerria_id)
+        if udalerri is None:
+            raise HTTPException(status_code=404, detail="Udalerria ez da aurkitzen")
+        return udalerria_id
+
+    return None
 
 
 @router.get("", response_model=list[ErabiltzaileaResponse], status_code=200)
 def get_erabiltzaileak(
     session: SessionDep,
-    _admin: Erabiltzailea = Depends(require_admin),
+    _superadmin: Erabiltzailea = Depends(require_superadmin),
 ):
     stmt = select(Erabiltzailea).order_by(Erabiltzailea.id)
     return session.scalars(stmt).all()
@@ -62,13 +94,15 @@ def erreserbak_kontsultatu(
 def sortu_erabiltzailea(
     session: SessionDep,
     data: ErabiltzaileaCreate,
-    _admin: Erabiltzailea = Depends(require_admin),
+    _superadmin: Erabiltzailea = Depends(require_superadmin),
 ):
     existing_user = session.scalar(
         select(Erabiltzailea).where(Erabiltzailea.login_email == data.login_email)
     )
     if existing_user is not None:
         raise HTTPException(status_code=409, detail="Emaila existitzen da")
+
+    udalerria_id = balidatu_rola_udalerria(session, data.rola, data.udalerria_id)
 
     erabiltzailea = Erabiltzailea(
         izena=data.izena, 
@@ -77,6 +111,7 @@ def sortu_erabiltzailea(
         login_pasahitza=hash_password(data.login_pasahitza), 
         rola=data.rola,
         aktiboa=data.aktiboa,
+        udalerria_id=udalerria_id,
     )
     session.add(erabiltzailea)
     session.commit()
@@ -99,10 +134,12 @@ def aldatu_erabiltzailea(
 
     changes = data.model_dump(exclude_unset=True)
 
-    if current_user.rola != "admin" and ("rola" in changes or "aktiboa" in changes):
+    if not is_superadmin(current_user) and (
+        "rola" in changes or "aktiboa" in changes or "udalerria_id" in changes
+    ):
         raise HTTPException(
             status_code=403,
-            detail="Ezin duzu zure rola edo egoera aldatu",
+            detail="Ezin duzu zure rola, udalerria edo egoera aldatu",
         )
 
     if current_user.id == id and changes.get("aktiboa") is False:
@@ -111,11 +148,21 @@ def aldatu_erabiltzailea(
             detail="Ezin duzu zeure burua desaktibatu",
         )
 
-    if current_user.id == id and changes.get("rola") not in (None, "admin"):
-        raise HTTPException(
-            status_code=403,
-            detail="Ezin duzu zeure administrari rola kendu",
+    if current_user.id == id:
+        new_rola = changes.get("rola", erabiltzailea.rola)
+        if erabiltzailea.rola == "superadmin" and new_rola != "superadmin":
+            raise HTTPException(
+                status_code=403,
+                detail="Ezin duzu zeure administratzaile orokor rola kendu",
+            )
+
+    if is_superadmin(current_user) and ("rola" in changes or "udalerria_id" in changes):
+        new_rola = changes.get("rola", erabiltzailea.rola)
+        new_udalerria = changes.get("udalerria_id", erabiltzailea.udalerria_id)
+        changes["udalerria_id"] = balidatu_rola_udalerria(
+            session, new_rola, new_udalerria
         )
+        changes["rola"] = new_rola
 
     new_email = changes.get("login_email")
     if new_email is not None:
@@ -148,19 +195,24 @@ def aldatu_rolak(
     session: SessionDep,
     data: ErabiltzaileaRolaUpdate,
     id: int,
-    current_user: Erabiltzailea = Depends(require_admin),
+    current_user: Erabiltzailea = Depends(require_superadmin),
 ):
     erabiltzailea = session.get(Erabiltzailea, id)
     if not erabiltzailea:
         raise HTTPException(status_code=404, detail="Erabiltzailea ez da aurkitzen")
 
-    if current_user.id == id and data.rola != "admin":
+    if current_user.id == id and erabiltzailea.rola == "superadmin" and data.rola != "superadmin":
         raise HTTPException(
             status_code=403,
-            detail="Ezin duzu zeure administrari rola kendu",
+            detail="Ezin duzu zeure administratzaile orokor rola kendu",
         )
 
+    udalerria_id = balidatu_rola_udalerria(
+        session, data.rola, erabiltzailea.udalerria_id
+    )
+
     erabiltzailea.rola = data.rola
+    erabiltzailea.udalerria_id = udalerria_id
 
     session.commit()
     session.refresh(erabiltzailea)
@@ -170,7 +222,7 @@ def aldatu_rolak(
 def ezabatu_erabiltzailea(
     session: SessionDep,
     id: int,
-    _admin: Erabiltzailea = Depends(require_admin),
+    _superadmin: Erabiltzailea = Depends(require_superadmin),
 ):
     erabiltzailea = session.get(Erabiltzailea, id)
 

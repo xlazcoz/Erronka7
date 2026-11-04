@@ -10,3 +10,5 @@ Frontend-a VS Code Live Server erabiliz ireki `index.html` fitxategitik
 `localhost:5432` portuan martxan izatea behar du.
 
 Demo erabiltzailea: alex@example.com / 1234
+Admin municipal: ane@example.com / 1234 (Donostia), gorka@example.com / 1234 (Bilbo)
+Admin orokorra: superadmin@example.com / 1234

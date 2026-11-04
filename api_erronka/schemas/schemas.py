@@ -2,6 +2,26 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 from typing import Optional, List
 
+
+class UdalerriaResponse(BaseModel):
+    id: int
+    izena: str
+    aktiboa: bool = True
+    kargagune_kopurua: int = 0
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UdalerriaCreate(BaseModel):
+    izena: str = Field(min_length=1, max_length=100)
+    aktiboa: bool = True
+
+
+class UdalerriaUpdate(BaseModel):
+    izena: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    aktiboa: Optional[bool] = None
+
+
 class ErreserbakResponse(BaseModel):
     id: int
     erabiltzailea_id: int
@@ -84,6 +104,7 @@ class ErabiltzaileaResponse(BaseModel):
     login_email: str
     rola: str
     aktiboa: bool = True
+    udalerria_id: Optional[int] = None
     erreserbak: List[ErreserbakResponse] = []
 
     model_config = ConfigDict(from_attributes=True)
@@ -96,6 +117,7 @@ class ErabiltzaileaCreate(BaseModel):
     login_pasahitza: str = Field(min_length=1, max_length=100)
     rola: str = Field(default="user", min_length=1, max_length=100)
     aktiboa: bool = True
+    udalerria_id: Optional[int] = Field(default=None, gt=0)
 
 
 class ErabiltzaileaUpdate(BaseModel):
@@ -105,6 +127,7 @@ class ErabiltzaileaUpdate(BaseModel):
     login_pasahitza: Optional[str] = None  
     rola: Optional[str] = None
     aktiboa: Optional[bool] = None
+    udalerria_id: Optional[int] = Field(default=None, gt=0)
 
 
 class ErabiltzaileaRolaUpdate(BaseModel):
@@ -118,6 +141,9 @@ class KargaguneaResponse(BaseModel):
     irudia2: str
     irudia3: str
     egoera: str
+    udalerria_id: int
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     libres: int = 0
     karga_postuak: List[KargaPostuaResponse] = []
 
@@ -130,6 +156,9 @@ class KargaguneaCreate(BaseModel):
     irudia2: str = Field(min_length=1, max_length=1000)
     irudia3: str = Field(min_length=1, max_length=1000)
     egoera: str = Field(min_length=1, max_length=100)
+    udalerria_id: int = Field(gt=0)
+    latitude: Optional[float] = Field(default=None, ge=-90, le=90)
+    longitude: Optional[float] = Field(default=None, ge=-180, le=180)
 
     @field_validator("egoera")
     @classmethod
@@ -146,6 +175,9 @@ class KargaguneaUpdate(BaseModel):
     irudia2: Optional[str] = Field(default=None, min_length=1, max_length=1000)
     irudia3: Optional[str] = Field(default=None, min_length=1, max_length=1000)
     egoera: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    udalerria_id: Optional[int] = Field(default=None, gt=0)
+    latitude: Optional[float] = Field(default=None, ge=-90, le=90)
+    longitude: Optional[float] = Field(default=None, ge=-180, le=180)
 
     @field_validator("egoera")
     @classmethod

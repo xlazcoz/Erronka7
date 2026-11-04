@@ -121,6 +121,50 @@
     </div>
 
     <div class="col-md-4">
+      <label for="sortu-udalerria" class="form-label">Udalerria</label>
+      <select
+        class="form-select"
+        id="sortu-udalerria"
+        name="sortu-udalerria"
+        [(ngModel)]="kargaguneaBerria.udalerria_id"
+        [disabled]="!auth.isSuperadmin()"
+        required
+      >
+        @for (udalerria of udalerriak(); track udalerria.id) {
+          <option [ngValue]="udalerria.id">{{ udalerria.izena }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label for="sortu-latitude" class="form-label">Latitudea</label>
+      <input
+        type="number"
+        class="form-control"
+        id="sortu-latitude"
+        name="sortu-latitude"
+        step="any"
+        min="-90"
+        max="90"
+        [(ngModel)]="kargaguneaBerria.latitude"
+      />
+    </div>
+
+    <div class="col-md-4">
+      <label for="sortu-longitude" class="form-label">Longitudea</label>
+      <input
+        type="number"
+        class="form-control"
+        id="sortu-longitude"
+        name="sortu-longitude"
+        step="any"
+        min="-180"
+        max="180"
+        [(ngModel)]="kargaguneaBerria.longitude"
+      />
+    </div>
+
+    <div class="col-md-4">
       <label for="sortu-egoera" class="form-label">Egoera</label>
       <select
         class="form-select"
@@ -207,6 +251,50 @@
         name="aldatu-helbidea"
         [(ngModel)]="kargaguneaEditatzen.helbidea"
         required
+      />
+    </div>
+
+    <div class="col-md-4">
+      <label for="aldatu-udalerria" class="form-label">Udalerria</label>
+      <select
+        class="form-select"
+        id="aldatu-udalerria"
+        name="aldatu-udalerria"
+        [(ngModel)]="kargaguneaEditatzen.udalerria_id"
+        [disabled]="!auth.isSuperadmin()"
+        required
+      >
+        @for (udalerria of udalerriak(); track udalerria.id) {
+          <option [ngValue]="udalerria.id">{{ udalerria.izena }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-md-4">
+      <label for="aldatu-latitude" class="form-label">Latitudea</label>
+      <input
+        type="number"
+        class="form-control"
+        id="aldatu-latitude"
+        name="aldatu-latitude"
+        step="any"
+        min="-90"
+        max="90"
+        [(ngModel)]="kargaguneaEditatzen.latitude"
+      />
+    </div>
+
+    <div class="col-md-4">
+      <label for="aldatu-longitude" class="form-label">Longitudea</label>
+      <input
+        type="number"
+        class="form-control"
+        id="aldatu-longitude"
+        name="aldatu-longitude"
+        step="any"
+        min="-180"
+        max="180"
+        [(ngModel)]="kargaguneaEditatzen.longitude"
       />
     </div>
 
