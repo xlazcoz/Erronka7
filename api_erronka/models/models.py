@@ -19,7 +19,10 @@ class Erabiltzailea(Base):
     rola: Mapped[str] = mapped_column(String(100), default="user")
 
     erreserbak: Mapped[list["Erreserba"]] = relationship(back_populates="erabiltzailea")
-    auth_sessions: Mapped[list["AuthSession"]] = relationship(back_populates="erabiltzailea")
+    auth_sessions: Mapped[list["AuthSession"]] = relationship(
+        back_populates="erabiltzailea",
+        cascade="all, delete-orphan",
+    )
 
 class Kargagunea(Base):
     __tablename__ = "kargaguneak"
