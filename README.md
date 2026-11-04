@@ -1,59 +1,89 @@
-# AdministrazioAtala
+# Powerbank · Alokairu Sistema
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.5.
+Powerbank-en alokairua kudeatzeko sistema osoa: erabiltzaileentzako web aplikazioa, administrazio-panel angularra, FastAPI bidezko API bat eta PostgreSQL datu-basea.
 
-## Development server
+Sistemak bi udalerri (Donostia eta Zarautz), hamar kargagune, karga-postuak, powerbankak, erreserbak eta QR bidezko taquilla-fluxua kudeatzen ditu.
 
-To start a local development server, run:
+## Arkitektura
 
-```bash
-ng serve
-```
+| Osagaia | Karpeta | Teknologia |
+|---|---|---|
+| Erabiltzailearen web aplikazioa | `web/` | HTML, CSS, JavaScript, Bootstrap, Leaflet |
+| Administrazio-panela | `src/` | Angular 22 |
+| APIa | `api_erronka/` | FastAPI, SQLAlchemy, Pydantic |
+| Datu-basea | — | PostgreSQL |
+| Taquilla / QR irakurgailua | `web/locker.html` | html5-qrcode, qrcodejs |
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Abiarazte azkarra
 
-## Code scaffolding
+### 1. Datu-basea
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+PostgreSQL `localhost:5432` portuan martxan egon behar du, eta `alokairu_sistema` datu-basea sortuta egon behar da.
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+### 2. APIa
 
 ```bash
-ng build
+cd api_erronka
+uv run python -m fastapi dev main.py
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+APIa `http://127.0.0.1:8000` helbidean egongo da. Swagger dokumentazioa: `http://127.0.0.1:8000/docs`.
 
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+### 3. Demo datuak
 
 ```bash
-ng test
+cd api_erronka
+uv run python seed.py
 ```
 
-## Running end-to-end tests
+> **Kontuz:** `seed.py` datu-baseko taula guztiak ezabatzen ditu eta berriro sortzen ditu.
 
-For end-to-end (e2e) testing, run:
+### 4. Web aplikazioa
+
+Ireki `web/index.html` VS Code Live Server-ekin (`http://localhost:5500`). APIa martxan egon behar da.
+
+### 5. Administrazio-panela
 
 ```bash
-ng e2e
+npm install
+npm start
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Angular aplikazioa `http://localhost:4200` helbidean egongo da.
 
-## Additional Resources
+## Demo erabiltzaileak
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+| Rola | Emaila | Pasahitza |
+|---|---|---|
+| Erabiltzailea | `alex@example.com` | `1234` |
+| Administratzaile orokorra | `ane@example.com` | `1234` |
+| Donostiako udalerri-administratzailea | `demo03@example.com` | `1234` |
+| Zarauzko udalerri-administratzailea | `demo04@example.com` | `1234` |
+| Administratzaile orokorra | `xabier@gmail.com` | `123` |
+
+## Erreserben arau nagusiak
+
+- Erreserba gaurko egunean bakarrik egin daiteke.
+- Gehienez 6 ordu aurretik egin daiteke erreserba.
+- Iraupena: gutxienez 15 minutu, gehienez 6 ordu.
+- Erabiltzaile bakoitzak erreserba aktibo bakarra izan dezake.
+- Erreserba hasi aurretik soilik ezeztatu daiteke.
+- Atzerapena: 5 € hasitako ordu bakoitzeko.
+
+## Dokumentazioa
+
+Dokumentazio teknikoa PDF formatuan:
+
+- [`docs/Powerbank_Dokumentazio_Teknikoa.pdf`](docs/Powerbank_Dokumentazio_Teknikoa.pdf)
+- Iturria: [`docs/dokumentazioa.md`](docs/dokumentazioa.md)
+- Hirugarrenen baliabideak: [`docs/THIRD_PARTY_NOTICES.md`](docs/THIRD_PARTY_NOTICES.md)
+
+## Lizentzia
+
+Proiektu hau **PolyForm Noncommercial License 1.0.0** lizentziapean dago.
+
+- Erabilera ez-komertziala doakoa da.
+- Erabilera komertzialak (dirua irabazteko erabilera barne) **lizentzia komertzial ordaindua** behar du.
+- Lizentzia komertziala eskuratzeko: `hola@powerbank.eus`.
+
+Xehetasunak: [`LICENSE`](LICENSE).

@@ -1,5 +1,5 @@
 APIa abiarazteko, `api_erronka` karpetan:
-uv run python -m fastapi dev main.py
+uv run python -m uvicorn main:app --host 0.0.0.0 --port 8000
 
 Demo datuak kargatzeko, behin bakarrik eta `api_erronka` karpetan:
 uv run python seed.py
@@ -10,8 +10,18 @@ Frontend-a VS Code Live Server erabiliz ireki `index.html` fitxategitik
 
 Demo erabiltzailea: alex@example.com / 1234
 Demo administratzaile orokorra: ane@example.com / 1234
+Xabier (admin): xabier@gmail.com / 123
 Demo Donostiako udalerri-administratzailea: demo03@example.com / 1234
 Demo Zarauzko udalerri-administratzailea: demo04@example.com / 1234
+
+QR / taquilla:
+- Erabiltzaileak "Mis reservas" atalean QR-a deskargatu edo inprimatu dezake.
+- Adminak `locker.html` ireki behar du (admin saioa hasita), estazioa konfiguratu
+  eta QR-a irakurri. QR-a ez du estazioak sortzen: erabiltzaileak eramaten du.
+- QR-a URL bat da: `locker.html?token=...`. Gailu beretik edo kameraren bidez
+  ireki daiteke.
+- Tokian bertan HTTP bidezko kamerak ez du funtzionatzen; erabili kameraren
+  aplikazioa edo sartu kodea eskuz. HTTPS-rekin kamerak barruan funtzionatzen du.
 
 Testak exekutatzeko, `api_erronka` karpetan:
 uv run python -m unittest discover -s tests -p "test_*.py"
@@ -22,3 +32,5 @@ Erreserben arauak:
 - Erreserbak gutxienez 15 minutu eta gehienez 6 ordu iraun dezake.
 - Karga-postu berean ezin dira ordutegi gainjarriko erreserbak egin.
 - Etorkizuneko erreserba batek ez du gaurko erabilgarritasuna blokeatzen.
+- Erabiltzaile bakoitzak erreserba aktibo bakarra izan dezake.
+- Atzerapena: 5 euro hasitako ordu bakoitzeko.

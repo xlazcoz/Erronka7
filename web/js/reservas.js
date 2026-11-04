@@ -322,9 +322,11 @@ function renderizarReservas() {
 function mostrarQR(reserva) {
   const container = document.getElementById("qrCode");
   const info = document.getElementById("qrInfo");
+  const tokenInfo = document.getElementById("qrToken");
   container.replaceChildren();
   qrReservaActual = reserva;
   qrUrlActual = "";
+  if (tokenInfo) tokenInfo.textContent = "";
 
   if (typeof QRCode === "undefined") {
     info.textContent = "No se pudo cargar el generador de QR.";
@@ -346,6 +348,7 @@ function mostrarQR(reserva) {
     });
 
     info.textContent = `Reserva #${reserva.id} · ${reserva.kargagunea_izena || "Estación"} · ${formatearRango(reserva)}`;
+    if (tokenInfo) tokenInfo.textContent = `Código manual: ${reserva.qr_token}`;
   }
 
   bootstrap.Modal.getOrCreateInstance(document.getElementById("qrModal")).show();

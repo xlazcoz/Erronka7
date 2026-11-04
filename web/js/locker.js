@@ -10,7 +10,7 @@ let pendingToken = null;
 const STATUS_META = {
   idle: { icon: "fa-qrcode", title: "Esperando un QR…", kind: "idle" },
   loading: { icon: "fa-spinner fa-spin", title: "Validando QR…", kind: "idle" },
-  in_use: { icon: "fa-lock-open", title: "Taquilla abierta", kind: "success" },
+  in_use: { icon: "fa-lock-open", title: "Reserva en uso", kind: "success" },
   closed: { icon: "fa-lock", title: "Taquilla cerrada", kind: "success" },
   returned: { icon: "fa-circle-check", title: "Powerbank entregada", kind: "success" },
   returned_late: {
@@ -260,7 +260,7 @@ function mostrarResultado(data) {
     if (reserva.hasiera_data_ordua) {
       result.appendChild(crearDetalle("Horario", formatearRango(reserva)));
     }
-    if (reserva.berandu) {
+    if (reserva.berandu && data?.status !== "returned_late") {
       const importe = Number(reserva.karga_extra || 0)
         .toFixed(2)
         .replace(".", ",");
