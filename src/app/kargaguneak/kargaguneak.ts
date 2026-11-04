@@ -363,13 +363,13 @@ export class Kargaguneak implements OnInit {
 
     return [
       { property: 'id', title: 'ID', sortable: true, width: 90 },
-      { property: 'izena', title: 'Izena', sortable: true },
-      { property: 'helbidea', title: 'Helbidea', sortable: true },
+      { property: 'izena', title: 'Izena', sortable: true, width: 180, },
+      { property: 'helbidea', title: 'Helbidea', sortable: true, width: 180 },
       {
         property: 'udalerria_izena',
         title: 'Udalerria',
         sortable: true,
-        width: 150,
+        width: 180,
         filter: {
           type: 'dropdown',
           mode: 'menu',
@@ -377,7 +377,7 @@ export class Kargaguneak implements OnInit {
           placeholder: 'Udalerria',
         },
       },
-      { property: 'egoera_etiketa', title: 'Egoera', sortable: true },
+      { property: 'egoera_etiketa', title: 'Egoera', sortable: true, width: 180 },
       { property: 'libres', title: 'Powerbank libreak', sortable: true, align: 'center', width: 170 },
       {
         property: 'karga_postuak_kopurua',

@@ -296,7 +296,7 @@ export class ErreserbenTaula implements OnInit {
         property: 'udalerria_izena',
         title: 'Udalerria',
         sortable: true,
-        width: 150,
+        width: 180,
         wrapping: 'nowrap',
         filter: {
           type: 'dropdown',
@@ -317,9 +317,10 @@ export class ErreserbenTaula implements OnInit {
         property: 'hasiera_data_ordua',
         title: 'Hasiera',
         sortable: true,
+        width: 180,
         filter: { type: 'date-range', mode: 'menu', placeholder: 'Data tartea' },
       },
-      { property: 'amaiera_data_ordua', title: 'Amaiera', sortable: true },
+      { property: 'amaiera_data_ordua', title: 'Amaiera', sortable: true, width: 180, },
       {
         property: 'egoera',
         title: 'Egoera',

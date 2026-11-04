@@ -57,7 +57,7 @@ export class Udalerriak implements OnInit {
       title: 'Kargaguneak',
       sortable: true,
       align: 'center',
-      width: 150,
+      width: 160,
     },
     { property: 'aktiboa', title: 'Egoera', sortable: true, align: 'center', width: 130 },
     {

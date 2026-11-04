@@ -192,12 +192,12 @@ export class Powerbanks implements OnInit {
     return [
       { property: 'id', title: 'ID', sortable: true, width: 90 },
       { property: 'karga_maila', title: 'Karga maila', sortable: true, width: 170 },
-      { property: 'karga_postua_id', title: 'Takilla ID', sortable: true, width: 130 },
+      { property: 'karga_postua_id', title: 'Karga postua ID', sortable: true, width: 130 },
       {
         property: 'udalerria_izena',
         title: 'Udalerria',
         sortable: true,
-        width: 150,
+        width: 180,
         filter: {
           type: 'dropdown',
           mode: 'menu',

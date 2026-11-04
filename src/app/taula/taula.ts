@@ -379,13 +379,14 @@ export class Taula implements OnInit {
         property: 'login_email',
         title: 'Emaila',
         sortable: true,
+        width: 180,
         filter: { type: 'text', mode: 'row', placeholder: 'Emaila...' },
       },
       {
         property: 'rola',
         title: 'Rola',
         sortable: true,
-        width: 150,
+        width: 200,
         filter: {
           type: 'dropdown',
           mode: 'menu',
@@ -397,7 +398,7 @@ export class Taula implements OnInit {
         property: 'udalerria_izena',
         title: 'Udalerria',
         sortable: true,
-        width: 150,
+        width: 180,
         filter: {
           type: 'dropdown',
           mode: 'menu',
