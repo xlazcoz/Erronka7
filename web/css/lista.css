@@ -129,7 +129,6 @@
 
 .hero-actions .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.4);
 }
 
 .hero-actions .btn-outline-primary:hover {
@@ -406,7 +405,6 @@
   color: #fff;
   border-color: transparent;
   background: linear-gradient(135deg, var(--pb-primary), #0891b2);
-  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.32);
 }
 
 .filter-toggle[aria-pressed="true"] .filter-toggle-dot {
