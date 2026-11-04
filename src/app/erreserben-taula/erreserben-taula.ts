@@ -274,7 +274,7 @@ export class ErreserbenTaula implements OnInit {
         wrapping: 'nowrap',
         filter: {
           type: 'dropdown',
-          mode: 'menu',
+          mode: 'row',
           options: erabiltzaileAukerak,
           placeholder: 'Erabiltzailea',
         },
@@ -287,7 +287,7 @@ export class ErreserbenTaula implements OnInit {
         wrapping: 'nowrap',
         filter: {
           type: 'dropdown',
-          mode: 'menu',
+          mode: 'row',
           options: guneAukerak,
           placeholder: 'Kargagunea',
         },
@@ -300,7 +300,7 @@ export class ErreserbenTaula implements OnInit {
         wrapping: 'nowrap',
         filter: {
           type: 'dropdown',
-          mode: 'menu',
+          mode: 'row',
           options: udalerriAukerak,
           placeholder: 'Udalerria',
         },
@@ -318,7 +318,7 @@ export class ErreserbenTaula implements OnInit {
         title: 'Hasiera',
         sortable: true,
         width: 180,
-        filter: { type: 'date-range', mode: 'menu', placeholder: 'Data tartea' },
+        filter: { type: 'date-range', mode: 'row', placeholder: 'Data tartea' },
       },
       { property: 'amaiera_data_ordua', title: 'Amaiera', sortable: true, width: 180, },
       {
@@ -329,7 +329,7 @@ export class ErreserbenTaula implements OnInit {
         wrapping: 'nowrap',
         filter: {
           type: 'dropdown',
-          mode: 'menu',
+          mode: 'row',
           options: ['aktiboa', 'ezeztatua', 'amaitua'],
           placeholder: 'Egoera',
         },

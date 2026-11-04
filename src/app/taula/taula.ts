@@ -389,7 +389,7 @@ export class Taula implements OnInit {
         width: 200,
         filter: {
           type: 'dropdown',
-          mode: 'menu',
+          mode: 'row',
           options: ['user', 'admin', 'superadmin'],
           placeholder: 'Rola',
         },
@@ -401,7 +401,7 @@ export class Taula implements OnInit {
         width: 180,
         filter: {
           type: 'dropdown',
-          mode: 'menu',
+          mode: 'row',
           options: udalerriak.map((udalerria) => udalerria.izena),
           placeholder: 'Udalerria',
         },

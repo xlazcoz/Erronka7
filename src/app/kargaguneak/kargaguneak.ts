@@ -372,7 +372,7 @@ export class Kargaguneak implements OnInit {
         width: 180,
         filter: {
           type: 'dropdown',
-          mode: 'menu',
+          mode: 'row',
           options: udalerriAukerak.map((udalerria) => udalerria.izena),
           placeholder: 'Udalerria',
         },
