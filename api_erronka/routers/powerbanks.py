@@ -5,8 +5,13 @@ from sqlalchemy.orm import Session
 from database import get_session
 from models.models import Erreserba, Powerbank
 from schemas.schemas import PowerbankCreate, PowerbankResponse, PowerbankUpdate
+from services.auth import require_admin
 
-router = APIRouter(prefix="/powerbanks", tags=["Powerbanks"])
+router = APIRouter(
+    prefix="/powerbanks",
+    tags=["Powerbanks"],
+    dependencies=[Depends(require_admin)],
+)
 
 SessionDep = Annotated[Session, Depends(get_session)]
 

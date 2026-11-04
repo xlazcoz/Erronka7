@@ -4,36 +4,40 @@ import { Kargaguneak } from './kargaguneak/kargaguneak';
 import { Powerbanks } from './powerbanks/powerbanks';
 import { Erreserbak } from './erreserbak/erreserbak';
 import { SaioaHasi } from './saioa-hasi/saioa-hasi';
-import { Erregistratu } from './erregistratu/erregistratu';
+import { adminGuard } from './admin.guard';
 
 export const routes: Routes = [
     {
         path: '',
-        redirectTo: 'kargaguneak',
+        redirectTo: 'saioa-hasi',
         pathMatch: 'full'
     },
     {
         path: 'erabiltzaileak',
-        component: Erabiltzaileak
+        component: Erabiltzaileak,
+        canActivate: [adminGuard]
     },
     {
         path: 'kargaguneak',
-        component: Kargaguneak
+        component: Kargaguneak,
+        canActivate: [adminGuard]
     },
     {
         path: 'powerbanks',
-        component: Powerbanks
+        component: Powerbanks,
+        canActivate: [adminGuard]
     },
     {
         path: 'erreserbak',
-        component: Erreserbak
+        component: Erreserbak,
+        canActivate: [adminGuard]
     },
     {
         path: 'saioa-hasi',
         component: SaioaHasi
     },
     {
-        path: 'erregistratu',
-        component: Erregistratu
+        path: '**',
+        redirectTo: 'saioa-hasi'
     }
 ];

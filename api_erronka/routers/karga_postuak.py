@@ -5,8 +5,13 @@ from sqlalchemy.orm import Session
 from database import get_session
 from models.models import KargaPostua, Powerbank
 from schemas.schemas import KargaPostuaResponse, KargaPostuaCreate
+from services.auth import require_admin
 
-router = APIRouter(prefix="/kargapostuak", tags=["Karga postuak"])
+router = APIRouter(
+    prefix="/kargapostuak",
+    tags=["Karga postuak"],
+    dependencies=[Depends(require_admin)],
+)
 
 SessionDep = Annotated[Session, Depends(get_session)]
 

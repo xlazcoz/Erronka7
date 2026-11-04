@@ -3,8 +3,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 from database import get_session
-from models.models import Erreserba, KargaPostua, Kargagunea, Powerbank
+from models.models import Erabiltzailea, Erreserba, KargaPostua, Kargagunea, Powerbank
 from schemas.schemas import KargaguneaCreate, KargaguneaResponse, KargaguneaUpdate, KargaguneaIrudiaUpdate
+from services.auth import require_admin
 
 router = APIRouter(prefix="/kargaguneak", tags=["Kargaguneak"])
 
@@ -47,7 +48,11 @@ def get_kargaguneak_id(session: SessionDep, id: int):
     return station_response(session, kargagunea)
 
 @router.post("", response_model=KargaguneaResponse, status_code=201)
-def sortu_kargagunea(session: SessionDep, data: KargaguneaCreate):
+def sortu_kargagunea(
+    session: SessionDep,
+    data: KargaguneaCreate,
+    _admin: Erabiltzailea = Depends(require_admin),
+):
     kargagunea = Kargagunea(
         izena=data.izena, 
         helbidea=data.helbidea, 
@@ -62,7 +67,12 @@ def sortu_kargagunea(session: SessionDep, data: KargaguneaCreate):
     return kargagunea
 
 @router.patch("/{id}", response_model=KargaguneaResponse, status_code=200)
-def aldatu_kargagunea(session: SessionDep, data: KargaguneaUpdate, id: int):
+def aldatu_kargagunea(
+    session: SessionDep,
+    data: KargaguneaUpdate,
+    id: int,
+    _admin: Erabiltzailea = Depends(require_admin),
+):
     kargagunea = session.get(Kargagunea, id)
     if not kargagunea:
         raise HTTPException(status_code=404, detail="Kargagunea ez da aurkitzen")
@@ -76,7 +86,12 @@ def aldatu_kargagunea(session: SessionDep, data: KargaguneaUpdate, id: int):
     return kargagunea
 
 @router.patch("/{id}/irudia", response_model=KargaguneaResponse, status_code=200)
-def aldatu_irudia(session: SessionDep, data: KargaguneaIrudiaUpdate, id: int):
+def aldatu_irudia(
+    session: SessionDep,
+    data: KargaguneaIrudiaUpdate,
+    id: int,
+    _admin: Erabiltzailea = Depends(require_admin),
+):
     kargagunea = session.get(Kargagunea, id)
     if not kargagunea:
         raise HTTPException(status_code=404, detail="Kargagunea ez da aurkitzen")
@@ -90,7 +105,11 @@ def aldatu_irudia(session: SessionDep, data: KargaguneaIrudiaUpdate, id: int):
     return kargagunea
 
 @router.delete("/{id}", response_model=KargaguneaResponse, status_code=200)
-def ezabatu_kargagunea(session: SessionDep, id: int):
+def ezabatu_kargagunea(
+    session: SessionDep,
+    id: int,
+    _admin: Erabiltzailea = Depends(require_admin),
+):
     kargagunea = session.get(Kargagunea, id)
 
     if not kargagunea:

@@ -1,6 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../services/auth';
 
 @Component({
@@ -9,9 +9,10 @@ import { AuthService } from '../services/auth';
   styleUrl: './saioa-hasi.css',
   templateUrl: './saioa-hasi.html',
 })
-export class SaioaHasi {
+export class SaioaHasi implements OnInit {
   private auth = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   login = {
     login_email: '',
@@ -20,15 +21,50 @@ export class SaioaHasi {
 
   errorea = '';
   kargatzen = false;
+  private returnUrl = '/kargaguneak';
+
+  ngOnInit(): void {
+    const params = this.route.snapshot.queryParamMap;
+    this.returnUrl = params.get('returnUrl') || '/kargaguneak';
+
+    this.auth.ensureSession().subscribe({
+      next: (erabiltzailea) => {
+        if (!erabiltzailea) {
+          if (params.get('motivo') === 'admin') {
+            this.errorea = 'Ez duzu administratzaile baimenik panel honetara sartzeko.';
+          }
+          return;
+        }
+
+        if (erabiltzailea.rola === 'admin') {
+          this.router.navigateByUrl(this.returnUrl);
+          return;
+        }
+
+        this.errorea = 'Ez duzu administratzaile baimenik panel honetara sartzeko.';
+        this.auth.logout().subscribe();
+      },
+      error: () => {
+        this.errorea = 'Errorea gertatu da saioa egiaztatzean.';
+      },
+    });
+  }
 
   saioaHasi(): void {
     this.errorea = '';
     this.kargatzen = true;
 
     this.auth.login(this.login).subscribe({
-      next: () => {
+      next: (erabiltzailea) => {
         this.kargatzen = false;
-        this.router.navigate(['/kargaguneak']);
+
+        if (erabiltzailea.rola !== 'admin') {
+          this.errorea = 'Ez duzu administratzaile baimenik panel honetara sartzeko.';
+          this.auth.logout().subscribe();
+          return;
+        }
+
+        this.router.navigateByUrl(this.returnUrl);
       },
       error: (err) => {
         this.kargatzen = false;
