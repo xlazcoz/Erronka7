@@ -114,9 +114,9 @@ class KargaguneaResponse(BaseModel):
 class KargaguneaCreate(BaseModel):
     izena: str = Field(min_length=1, max_length=100)
     helbidea: str = Field(min_length=1, max_length=100)
-    irudia1: str = Field(min_length=1, max_length=100)
-    irudia2: str = Field(min_length=1, max_length=100)
-    irudia3: str = Field(min_length=1, max_length=100)
+    irudia1: str = Field(min_length=1, max_length=1000)
+    irudia2: str = Field(min_length=1, max_length=1000)
+    irudia3: str = Field(min_length=1, max_length=1000)
     egoera: str = Field(min_length=1, max_length=100)
 
     @field_validator("egoera")
@@ -130,9 +130,9 @@ class KargaguneaCreate(BaseModel):
 class KargaguneaUpdate(BaseModel):
     izena: Optional[str] = Field(default=None, min_length=1, max_length=100)
     helbidea: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    irudia1: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    irudia2: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    irudia3: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    irudia1: Optional[str] = Field(default=None, min_length=1, max_length=1000)
+    irudia2: Optional[str] = Field(default=None, min_length=1, max_length=1000)
+    irudia3: Optional[str] = Field(default=None, min_length=1, max_length=1000)
     egoera: Optional[str] = Field(default=None, min_length=1, max_length=100)
 
     @field_validator("egoera")
@@ -145,9 +145,9 @@ class KargaguneaUpdate(BaseModel):
         return value
 
 class KargaguneaIrudiaUpdate(BaseModel):
-    irudia1: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    irudia2: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    irudia3: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    irudia1: Optional[str] = Field(default=None, min_length=1, max_length=1000)
+    irudia2: Optional[str] = Field(default=None, min_length=1, max_length=1000)
+    irudia3: Optional[str] = Field(default=None, min_length=1, max_length=1000)
 
 
 
@@ -172,7 +172,7 @@ class KargaPostuaCreate(BaseModel):
 
 class PowerbankBase(BaseModel):
     # id: int
-    karga_maila: float = Field(le=100)
+    karga_maila: float = Field(ge=0, le=100)
     karga_postua_id: int = Field(gt=0)
     
 
@@ -182,6 +182,7 @@ class PowerbankCreate(PowerbankBase):
     pass
 
 class PowerbankUpdate(BaseModel):
+    karga_maila: Optional[float] = Field(default=None, ge=0, le=100)
     karga_postua_id: Optional[int] = Field(default=None, gt=0)
 
 class PowerbankResponse(PowerbankBase):

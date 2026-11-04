@@ -8,6 +8,11 @@ import { Erregistratu } from './erregistratu/erregistratu';
 
 export const routes: Routes = [
     {
+        path: '',
+        redirectTo: 'kargaguneak',
+        pathMatch: 'full'
+    },
+    {
         path: 'erabiltzaileak',
         component: Erabiltzaileak
     },

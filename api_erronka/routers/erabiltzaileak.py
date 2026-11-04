@@ -3,7 +3,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from database import get_session
-from models.models import Erabiltzailea
+from models.models import Erabiltzailea, Erreserba
+from services.auth import hash_password
 from schemas.schemas import (
     ErabiltzaileaCreate, 
     ErabiltzaileaResponse, 
@@ -37,11 +38,17 @@ def erreserbak_kontsultatu(session: SessionDep, id: int):
 
 @router.post("", response_model=ErabiltzaileaResponse, status_code=201)
 def sortu_erabiltzailea(session: SessionDep, data: ErabiltzaileaCreate):
+    existing_user = session.scalar(
+        select(Erabiltzailea).where(Erabiltzailea.login_email == data.login_email)
+    )
+    if existing_user is not None:
+        raise HTTPException(status_code=409, detail="Emaila existitzen da")
+
     erabiltzailea = Erabiltzailea(
         izena=data.izena, 
         abizena=data.abizena, 
         login_email=data.login_email, 
-        login_pasahitza=data.login_pasahitza, 
+        login_pasahitza=hash_password(data.login_pasahitza), 
         rola=data.rola
     )
     session.add(erabiltzailea)
@@ -57,6 +64,25 @@ def aldatu_erabiltzailea(session: SessionDep, data: ErabiltzaileaUpdate, id: int
         raise HTTPException(status_code=404, detail="Erabiltzailea ez da aurkitzen")
 
     changes = data.model_dump(exclude_unset=True)
+
+    new_email = changes.get("login_email")
+    if new_email is not None:
+        duplicate = session.scalar(
+            select(Erabiltzailea).where(
+                Erabiltzailea.login_email == new_email,
+                Erabiltzailea.id != id,
+            )
+        )
+        if duplicate is not None:
+            raise HTTPException(status_code=409, detail="Emaila existitzen da")
+
+    new_password = changes.get("login_pasahitza")
+    if new_password is not None:
+        if new_password:
+            changes["login_pasahitza"] = hash_password(new_password)
+        else:
+            changes.pop("login_pasahitza")
+
     for field, value in changes.items():
         setattr(erabiltzailea, field, value)
 
@@ -83,7 +109,16 @@ def ezabatu_erabiltzailea(session: SessionDep, id: int):
 
     if not erabiltzailea:
         raise HTTPException(status_code=404, detail="Erabiltzailea ez da aurkitzen")
-    
+
+    erreserba = session.scalar(
+        select(Erreserba.id).where(Erreserba.erabiltzailea_id == id).limit(1)
+    )
+    if erreserba is not None:
+        raise HTTPException(
+            status_code=409,
+            detail="Erabiltzaile honek erreserbak ditu, ezin da ezabatu",
+        )
+
     session.delete(erabiltzailea)
     session.commit()    
     return erabiltzailea

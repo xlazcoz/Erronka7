@@ -1,1 +1,71 @@
-<p>erreserben-taula works!</p>
+<div class="container py-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+    <div>
+      <h2 class="section-heading mb-1">Erreserben kudeaketa</h2>
+      <p class="text-muted mb-0">
+        Erreserbak ikusi, ezeztatu eta powerbank-en itzulerak kudeatu.
+      </p>
+    </div>
+    <button type="button" class="btn btn-outline-secondary" (click)="kargatu()">
+      Berritu
+    </button>
+  </div>
+
+  @if (!auth.isLoggedIn()) {
+    <div class="alert alert-warning d-flex flex-wrap align-items-center gap-2">
+      <span>Erreserbak ikusteko saioa hasi behar duzu.</span>
+      <a class="btn btn-sm btn-primary" routerLink="/saioa-hasi">Saioa hasi</a>
+    </div>
+  }
+
+  @if (feedback(); as alerta) {
+    <div
+      class="alert d-flex align-items-center justify-content-between"
+      [class.alert-success]="alerta.mota === 'ok'"
+      [class.alert-danger]="alerta.mota === 'error'"
+      role="alert"
+    >
+      <span>{{ alerta.testua }}</span>
+      <button type="button" class="btn-close" aria-label="Itxi" (click)="itxiFeedback()"></button>
+    </div>
+  }
+
+  <hub-table
+    [data]="erreserbak()"
+    [headers]="headers"
+    [totalItems]="totalItems()"
+    [(page)]="currentPage"
+    [(perPage)]="perPage"
+    [loading]="isLoading()"
+    [searchable]="true"
+    [(searchTerm)]="searchTerm"
+    [(ordination)]="ordination"
+  >
+    <ng-template cellTpt header="hasiera_data_ordua" let-item="item">
+      {{ dataFormatua(item.hasiera_data_ordua) }}
+    </ng-template>
+
+    <ng-template cellTpt header="amaiera_data_ordua" let-item="item">
+      {{ dataFormatua(item.amaiera_data_ordua) }}
+    </ng-template>
+
+    <ng-template cellTpt header="egoera" let-item="item">
+      <span class="badge" [ngClass]="egoeraKlasa(item.egoera)">{{ item.egoera }}</span>
+    </ng-template>
+
+    <ng-template cellTpt header="ekintzak" let-item="item">
+      @if (item.egoera === 'aktiboa') {
+        <span class="accion-icono" title="Powerbank-a itzuli" (click)="itzuli(item)">
+          <img src="icons/return.svg" alt="Powerbank-a itzuli" />
+        </span>
+        <span
+          class="accion-icono accion-icono--peligro"
+          title="Erreserba ezeztatu"
+          (click)="ezeztatu(item)"
+        >
+          <img src="icons/cancel.svg" alt="Erreserba ezeztatu" />
+        </span>
+      }
+    </ng-template>
+  </hub-table>
+</div>

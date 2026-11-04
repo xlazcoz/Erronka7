@@ -1,6 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 from database import get_session
 from models.models import Erreserba, KargaPostua, Kargagunea, Powerbank
@@ -81,8 +81,9 @@ def aldatu_irudia(session: SessionDep, data: KargaguneaIrudiaUpdate, id: int):
     if not kargagunea:
         raise HTTPException(status_code=404, detail="Kargagunea ez da aurkitzen")
 
-    if data.irudia:
-        kargagunea.irudia1 = data.irudia
+    changes = data.model_dump(exclude_unset=True)
+    for field, value in changes.items():
+        setattr(kargagunea, field, value)
 
     session.commit()
     session.refresh(kargagunea)
@@ -94,6 +95,45 @@ def ezabatu_kargagunea(session: SessionDep, id: int):
 
     if not kargagunea:
         raise HTTPException(status_code=404, detail="Kargagunea ez da aurkitzen")
+
+    postu_ids = [postua.id for postua in kargagunea.karga_postuak]
+    powerbank_ids = []
+    if postu_ids:
+        powerbank_ids = list(
+            session.scalars(
+                select(Powerbank.id).where(Powerbank.karga_postua_id.in_(postu_ids))
+            ).all()
+        )
+
+    erreserba = None
+    if powerbank_ids:
+        erreserba = session.scalar(
+            select(Erreserba.id).where(Erreserba.powerbank_id.in_(powerbank_ids)).limit(1)
+        )
+    if erreserba is None and postu_ids:
+        erreserba = session.scalar(
+            select(Erreserba.id)
+            .where(
+                or_(
+                    Erreserba.hasierako_karga_postua.in_(postu_ids),
+                    Erreserba.bukaerako_karga_postua.in_(postu_ids),
+                )
+            )
+            .limit(1)
+        )
+    if erreserba is not None:
+        raise HTTPException(
+            status_code=409,
+            detail="Kargagune honek erreserbak ditu, ezin da ezabatu",
+        )
+
+    if powerbank_ids:
+        for powerbank in session.scalars(
+            select(Powerbank).where(Powerbank.id.in_(powerbank_ids))
+        ).all():
+            session.delete(powerbank)
+    for postua in kargagunea.karga_postuak:
+        session.delete(postua)
 
     session.delete(kargagunea)
     session.commit()

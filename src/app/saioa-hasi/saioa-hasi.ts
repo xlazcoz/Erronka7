@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
-import { Api } from '../services/api';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../services/auth';
 
 @Component({
   imports: [FormsModule],
@@ -9,26 +10,33 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './saioa-hasi.html',
 })
 export class SaioaHasi {
-  login = {
-    login_email: "",
-    login_pasahitza: ""
-  }
+  private auth = inject(AuthService);
+  private router = inject(Router);
 
-  constructor(private apiService: Api){}
-  
-  saioaHasi(){
-    this.apiService.login(this.login).subscribe({
-      next: (response) => {
-        console.log("Saioa hasita", response);
-        alert("Saioa hasita");
-      }, error: (err) => {
-        console.error('Errorea', err);
-        if (err.status == 401) {
-          alert('Email edo pasahitza okerra da');
-        } else {
-          alert('Errorea');
-        }
-      }
-    })
+  login = {
+    login_email: '',
+    login_pasahitza: '',
+  };
+
+  errorea = '';
+  kargatzen = false;
+
+  saioaHasi(): void {
+    this.errorea = '';
+    this.kargatzen = true;
+
+    this.auth.login(this.login).subscribe({
+      next: () => {
+        this.kargatzen = false;
+        this.router.navigate(['/kargaguneak']);
+      },
+      error: (err) => {
+        this.kargatzen = false;
+        this.errorea =
+          err.status === 401
+            ? 'Emaila edo pasahitza ez da zuzena.'
+            : 'Errorea gertatu da saioa hastean.';
+      },
+    });
   }
 }

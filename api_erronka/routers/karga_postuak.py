@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from database import get_session
-from models.models import KargaPostua
+from models.models import KargaPostua, Powerbank
 from schemas.schemas import KargaPostuaResponse, KargaPostuaCreate
 
 router = APIRouter(prefix="/kargapostuak", tags=["Karga postuak"])
@@ -30,7 +30,16 @@ def ezabatu_karga_postua(session: SessionDep, id: int):
 
     if not karga_postua:
         raise HTTPException(status_code=404, detail="Karga postua ez da aurkitzen")
-    
+
+    powerbank = session.scalar(
+        select(Powerbank.id).where(Powerbank.karga_postua_id == id).limit(1)
+    )
+    if powerbank is not None:
+        raise HTTPException(
+            status_code=409,
+            detail="Karga postu honek powerbank-ak ditu, ezin da ezabatu",
+        )
+
     session.delete(karga_postua)
     session.commit()
     return karga_postua

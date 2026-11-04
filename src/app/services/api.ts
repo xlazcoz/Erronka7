@@ -1,31 +1,52 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, Service } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-interface Erabiltzailea{
+const API_HOST =
+    typeof window !== 'undefined' ? window.location.hostname || '127.0.0.1' : '127.0.0.1';
+const API_BASE = `http://${API_HOST}:8000`;
+
+export interface Erabiltzailea{
+    id?: number
     izena: string
     abizena: string
     login_email: string
     login_pasahitza: string
     rola: string
-    erreserben_historikoa: string
+    erreserben_historikoa?: string
+    erreserbak?: Erreserba[]
 }
 
-interface Kargagunea{
+export interface KargaPostua{
+    id: number
+    egoera: string
+    kargagunea_id: number
+}
+
+export interface KargaPostuaCreate{
+    egoera: string
+    kargagunea_id: number
+}
+
+export interface Kargagunea{
+    id?: number
     izena: string
     helbidea: string
     irudia1: string
     irudia2: string
     irudia3: string
     egoera: string
+    libres?: number
+    karga_postuak?: KargaPostua[]
 }
 
-interface Powerbank{
+export interface Powerbank{
+    id?: number
     karga_maila: number
     karga_postua_id: number
 }
 
-interface Erreserba{
+export interface Erreserba{
     id: number
     erabiltzailea_id: number,
     powerbank_id: number,
@@ -38,45 +59,56 @@ interface Erreserba{
     egoera: string
 }
 
-interface Register{
+export interface Register{
     izena: string
     login_email: string
     login_pasahitza: string
 }
 
-interface Login{
+export interface Login{
     login_email: string
     login_pasahitza: string
 }
 
 @Injectable({ providedIn: 'root' })
 export class Api {
-    private apiErabiltzaileakGet = "http://127.0.0.1:8000/erabiltzaileak";
-    private apiErabiltzaileakSortu = "http://127.0.0.1:8000/erabiltzaileak";
-    private apiErabiltzaileakAldatu = "http://127.0.0.1:8000/erabiltzaileak/{id}";
-    private apiErabiltzaileakRolak = "http://127.0.0.1:8000/erabiltzaileak/{id}/rola";
-    private apiErabiltzaileakErreserbak = "http://127.0.0.1:8000/erabiltzaileak/{id}/erreserben_historikoa";
+    private apiErabiltzaileakGet = `${API_BASE}/erabiltzaileak`;
+    private apiErabiltzaileakSortu = `${API_BASE}/erabiltzaileak`;
+    private apiErabiltzaileakAldatu = `${API_BASE}/erabiltzaileak/{id}`;
+    private apiErabiltzaileakEzabatu = `${API_BASE}/erabiltzaileak/{id}`;
+    private apiErabiltzaileakRolak = `${API_BASE}/erabiltzaileak/{id}/rola`;
+    private apiErabiltzaileakErreserbak = `${API_BASE}/erabiltzaileak/{id}/erreserbak`;
 
-    private apiKargaguneakSortu = "http://127.0.0.1:8000/kargaguneak";
-    private apiKargaguneakAldatu = "http://127.0.0.1:8000/kargaguneak/{id}";
-    private apiKargaguneakEzabatu = "http://127.0.0.1:8000/kargaguneak/{id}";
-    private apiKargaguneakIrudiak = "http://127.0.0.1:8000/kargaguneak/{id}/irudia";
+    private apiKargaguneakGet = `${API_BASE}/kargaguneak`;
+    private apiKargaguneakSortu = `${API_BASE}/kargaguneak`;
+    private apiKargaguneakAldatu = `${API_BASE}/kargaguneak/{id}`;
+    private apiKargaguneakEzabatu = `${API_BASE}/kargaguneak/{id}`;
+    private apiKargaguneakIrudiak = `${API_BASE}/kargaguneak/{id}/irudia`;
 
-    private apiPowerbankSortu = "http://127.0.0.1:8000/powerbanks";
-    private apiPowerbankTokiaAldatu= "http://127.0.0.1:8000/powerbanks/{id}";
+    private apiKargaPostuakGet = `${API_BASE}/kargapostuak`;
+    private apiKargaPostuakSortu = `${API_BASE}/kargapostuak`;
+    private apiKargaPostuakEzabatu = `${API_BASE}/kargapostuak/{id}`;
 
-    private apiErreserbakGet = "http://127.0.0.1:8000/erreserbak";
-    private apiErreserbakEgoeraAldatu = "http://127.0.0.1:8000/erreserbak/{id}/egoera";
+    private apiPowerbanksGet = `${API_BASE}/powerbanks`;
+    private apiPowerbankSortu = `${API_BASE}/powerbanks`;
+    private apiPowerbankAldatu = `${API_BASE}/powerbanks/{id}`;
+    private apiPowerbankEzabatu = `${API_BASE}/powerbanks/{id}`;
 
-    private apiErregistratu = "http://127.0.0.1:8000/login/register"
-    private apiLogin = "http://127.0.0.1:8000/login" 
+    private apiErreserbakGet = `${API_BASE}/erreserbak`;
+    private apiErreserbakEgoeraAldatu = `${API_BASE}/erreserbak/{id}/egoera`;
+    private apiErreserbakItzuli = `${API_BASE}/erreserbak/{id}/itzuli`;
+
+    private apiErregistratu = `${API_BASE}/login/register`;
+    private apiLogin = `${API_BASE}/login`;
+    private apiLogout = `${API_BASE}/login/logout`;
+    private apiMe = `${API_BASE}/login/me`;
 
     constructor(private http: HttpClient){}
 
     // ERABILTZAILEAK DEIAK
-    getErabiltzaileak(): Observable<any>{
+    getErabiltzaileak(): Observable<Erabiltzailea[]>{
         const url = this.apiErabiltzaileakGet;
-        return this.http.get(url);
+        return this.http.get<Erabiltzailea[]>(url);
     }
 
     sortuErabiltzaileak(erabiltzailea: Erabiltzailea): Observable<Erabiltzailea>{
@@ -94,12 +126,21 @@ export class Api {
         return this.http.patch<Erabiltzailea>(url, partialData);
     }
 
-    getErabiltzaileakErreserbak(id: number): Observable<any>{
+    getErabiltzaileakErreserbak(id: number): Observable<Erreserba[]>{
         const url = this.apiErabiltzaileakErreserbak.replace('{id}', id.toString());
-        return this.http.get(url);
+        return this.http.get<Erreserba[]>(url);
+    }
+
+    ezabatuErabiltzailea(id: number): Observable<Erabiltzailea>{
+        const url = this.apiErabiltzaileakEzabatu.replace('{id}', id.toString());
+        return this.http.delete<Erabiltzailea>(url);
     }
 
     // KARGAGUNEAK DEIAK
+    getKargaguneak(): Observable<Kargagunea[]>{
+        return this.http.get<Kargagunea[]>(this.apiKargaguneakGet);
+    }
+
     sortuKargaguneak(kargagunea: Kargagunea): Observable<Kargagunea>{
         const url = this.apiKargaguneakSortu;
         return this.http.post<Kargagunea>(url, kargagunea);
@@ -120,21 +161,48 @@ export class Api {
         return this.http.patch<Kargagunea>(url, partialData);
     }
 
+    // KARGA POSTUAK DEIAK
+    getKargaPostuak(): Observable<KargaPostua[]>{
+        return this.http.get<KargaPostua[]>(this.apiKargaPostuakGet);
+    }
+
+    sortuKargaPostua(kargaPostua: KargaPostuaCreate): Observable<KargaPostua>{
+        return this.http.post<KargaPostua>(this.apiKargaPostuakSortu, kargaPostua);
+    }
+
+    ezabatuKargaPostua(id: number): Observable<KargaPostua>{
+        const url = this.apiKargaPostuakEzabatu.replace('{id}', id.toString());
+        return this.http.delete<KargaPostua>(url);
+    }
+
     // POWERBANK DEIAK
+    getPowerbanks(): Observable<Powerbank[]>{
+        return this.http.get<Powerbank[]>(this.apiPowerbanksGet);
+    }
+
     sortuPowerbank(powerbank: Powerbank): Observable<Powerbank>{
         const url = this.apiPowerbankSortu;
         return this.http.post<Powerbank>(url, powerbank);
     }
 
-    aldatuPowerbankTokia(id: number, partialData: Partial<Powerbank>): Observable<Powerbank>{
-        const url = this.apiPowerbankTokiaAldatu.replace('{id}', id.toString());
+    aldatuPowerbank(id: number, partialData: Partial<Powerbank>): Observable<Powerbank>{
+        const url = this.apiPowerbankAldatu.replace('{id}', id.toString());
         return this.http.patch<Powerbank>(url, partialData);
     }
 
+    aldatuPowerbankTokia(id: number, partialData: Partial<Powerbank>): Observable<Powerbank>{
+        return this.aldatuPowerbank(id, partialData);
+    }
+
+    ezabatuPowerbank(id: number): Observable<Powerbank>{
+        const url = this.apiPowerbankEzabatu.replace('{id}', id.toString());
+        return this.http.delete<Powerbank>(url);
+    }
+
     // ERRESERBAK DEIAK
-    getErreserbak(): Observable<any>{
+    getErreserbak(): Observable<Erreserba[]>{
         const url = this.apiErreserbakGet;
-        return this.http.get(url);
+        return this.http.get<Erreserba[]>(url);
     }
 
     aldatuErreserbenEgoera(id: number, partialData: Partial<Erreserba>): Observable<Erreserba>{
@@ -142,15 +210,32 @@ export class Api {
         return this.http.patch<Erreserba>(url, partialData);
     }
 
+    itzuliErreserba(id: number, partialData: { bukaerako_karga_postua: number }): Observable<Erreserba>{
+        const url = this.apiErreserbakItzuli.replace('{id}', id.toString());
+        return this.http.patch<Erreserba>(url, {
+            ...partialData,
+            amaitze_data_ordua: new Date().toISOString(),
+            egoera: 'amaitua',
+        });
+    }
+
     // ERREGISTRATU DEIA
-    erregistratu(register: Register): Observable<Register>{
+    erregistratu(register: Register): Observable<any>{
         const url = this.apiErregistratu;
-        return this.http.post<Register>(url, register);
+        return this.http.post(url, register);
     }
 
     // LOGIN DEIA
-    login(login: Login): Observable<Login>{
+    login(login: Login): Observable<any>{
         const url = this.apiLogin;
-        return this.http.post<Login>(url, login);
+        return this.http.post(url, login);
+    }
+
+    logout(): Observable<any>{
+        return this.http.post(this.apiLogout, {});
+    }
+
+    getMe(): Observable<Erabiltzailea>{
+        return this.http.get<Erabiltzailea>(this.apiMe);
     }
 }

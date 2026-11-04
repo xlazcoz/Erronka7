@@ -1,67 +1,150 @@
-
-<div class="bg-light">
-    <div class="container py-5">
-        <div class="row g-4">
-            <div class="col-md-6">
-                <div class="card feature-card h-100 p-4">
-                    <div class="icon-wrapper bg-soft-primary">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
-                            class="text-primary">
-                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                        </svg>
-                    </div>
-                    <h3 class="card-title">Powerbank berriak sortu</h3>
-                    <p class="card-text text-muted">Get deep insights into your data with our advanced analytics tools.</p>
-                    <button type="button" (click)="powerbankSortu.showModal()" class="btn btn-primary">Sortu</button>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card feature-card h-100 p-4">
-                    <div class="icon-wrapper bg-soft-success">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
-                            class="text-success">
-                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                        </svg>
-                    </div>
-                    <h3 class="card-title">Powerbank-aren tokia aldatu</h3>
-                    <p class="card-text text-muted">Monitor your systems in real-time with instant notifications.</p>
-                    <button type="button" class="btn btn-primary" (click)="powerbankAldatu.showModal()">Tokia aldatu</button>
-            </div>
-        </div>
+<div class="container py-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+    <div>
+      <h2 class="section-heading mb-1">Powerbank-en kudeaketa</h2>
+      <p class="text-muted mb-0">
+        Powerbank-ak sortu, karga maila aldatu, takillaz mugitu eta ezabatu.
+      </p>
     </div>
+    <div class="d-flex gap-2">
+      <button type="button" class="btn btn-outline-secondary" (click)="kargatu()">
+        Berritu
+      </button>
+      <button type="button" class="btn btn-primary" (click)="irekiSortu()">
+        Powerbank-a sortu
+      </button>
+    </div>
+  </div>
+
+  @if (feedback(); as alerta) {
+    <div
+      class="alert d-flex align-items-center justify-content-between"
+      [class.alert-success]="alerta.mota === 'ok'"
+      [class.alert-danger]="alerta.mota === 'error'"
+      role="alert"
+    >
+      <span>{{ alerta.testua }}</span>
+      <button type="button" class="btn-close" aria-label="Itxi" (click)="itxiFeedback()"></button>
+    </div>
+  }
+
+  <hub-table
+    [data]="powerbanks()"
+    [headers]="headers"
+    [totalItems]="totalItems()"
+    [(page)]="currentPage"
+    [(perPage)]="perPage"
+    [loading]="isLoading()"
+    [searchable]="true"
+    [(searchTerm)]="searchTerm"
+    [(ordination)]="ordination"
+  >
+    <ng-template cellTpt header="karga_maila" let-item="item">
+      <span class="badge" [ngClass]="kargaMailaKlasa(item.karga_maila)">
+        {{ item.karga_maila }}%
+      </span>
+    </ng-template>
+
+    <ng-template cellTpt header="ekintzak" let-item="item">
+      <span class="accion-icono" title="Aldatu" (click)="irekiAldaketa(item)">
+        <img src="icons/edit.svg" alt="Aldatu" />
+      </span>
+      <span
+        class="accion-icono accion-icono--peligro"
+        title="Ezabatu"
+        (click)="ezabatuPowerbanka(item)"
+      >
+        <img src="icons/trash.svg" alt="Ezabatu" />
+      </span>
+    </ng-template>
+  </hub-table>
 </div>
 
-<dialog #powerbankSortu>
-    <form class="row g-3" method="dialog">
-        <div class="col-md-6">
-            <label for="karga_maila" class="form-label">Karga maila</label>
-            <input type="text" class="form-control" id="karga_maila" [(ngModel)]="powerbank.karga_maila" name="karga_maila">
-        </div>
-        <div class="col-md-6">
-            <label for="karga_postua_id" class="form-label">Takillaren ID-a</label>
-            <input type="text" class="form-control" id="karga_postua_id" [(ngModel)]="powerbank.karga_postua_id" name="karga_postua_id">
-        </div>
-        <div class="col-12 d-flex">
-            <button type="button" class="btn btn-success" (click)="sortuPowerbanka(); powerbankSortu.close()">Gorde</button>
-            <button type="button" class="btn btn-danger ms-auto" (click)="powerbankSortu.close()">Irten</button>
-        </div>
-    </form>
+<dialog #powerbankSortu class="kargagune-dialog">
+  <form class="row g-3" (ngSubmit)="sortuPowerbanka()">
+    <div class="col-12">
+      <h4 class="mb-0">Powerbank berria</h4>
+    </div>
+
+    <div class="col-md-6">
+      <label for="sortu-karga-maila" class="form-label">Karga maila (%)</label>
+      <input
+        type="number"
+        class="form-control"
+        id="sortu-karga-maila"
+        name="sortu-karga-maila"
+        min="0"
+        max="100"
+        [(ngModel)]="powerbankBerria.karga_maila"
+        required
+      />
+    </div>
+
+    <div class="col-md-6">
+      <label for="sortu-karga-postua" class="form-label">Karga postua</label>
+      <select
+        class="form-select"
+        id="sortu-karga-postua"
+        name="sortu-karga-postua"
+        [(ngModel)]="powerbankBerria.karga_postua_id"
+        required
+      >
+        <option [ngValue]="0" disabled>Hautatu takilla bat</option>
+        @for (postua of postuak(); track postua.id) {
+          <option [ngValue]="postua.id">{{ tokiaEtiketa(postua.id, postuak(), guneak()) }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-12 d-flex">
+      <button type="submit" class="btn btn-success">Gorde</button>
+      <button type="button" class="btn btn-danger ms-auto" (click)="powerbankSortu.close()">
+        Irten
+      </button>
+    </div>
+  </form>
 </dialog>
 
-<dialog #powerbankAldatu>
-    <form class="row g-3" method="dialog">
-        <div class="col-md-6">
-            <label for="powerbank_id" class="form-label">Powerbank ID</label>
-            <input type="number" class="form-control" id="powerbank_id" [(ngModel)]="powerbank.id" name="powerbank_id">
-        </div>
-        <div class="col-md-6">
-            <label for="karga_postua_id_berria" class="form-label">Takillaren ID berria</label>
-            <input type="number" class="form-control" id="karga_postua_id_berria" [(ngModel)]="powerbank.karga_postua_id" name="karga_postua_id_berria">
-        </div>
-        <div class="col-12 d-flex">
-            <button type="button" class="btn btn-success" (click)="powerbankTokiaAldatu(powerbank.id); powerbankAldatu.close()">Gorde</button>
-            <button type="button" class="btn btn-danger ms-auto" (click)="powerbankAldatu.close()">Irten</button>
-        </div>
-    </form>
+<dialog #powerbankAldatu class="kargagune-dialog">
+  <form class="row g-3" (ngSubmit)="gordeAldaketa()">
+    <div class="col-12">
+      <h4 class="mb-0">Powerbank-a aldatu</h4>
+    </div>
+
+    <div class="col-md-6">
+      <label for="aldatu-karga-maila" class="form-label">Karga maila (%)</label>
+      <input
+        type="number"
+        class="form-control"
+        id="aldatu-karga-maila"
+        name="aldatu-karga-maila"
+        min="0"
+        max="100"
+        [(ngModel)]="powerbankEditatzen.karga_maila"
+        required
+      />
+    </div>
+
+    <div class="col-md-6">
+      <label for="aldatu-karga-postua" class="form-label">Karga postua</label>
+      <select
+        class="form-select"
+        id="aldatu-karga-postua"
+        name="aldatu-karga-postua"
+        [(ngModel)]="powerbankEditatzen.karga_postua_id"
+        required
+      >
+        @for (postua of postuak(); track postua.id) {
+          <option [ngValue]="postua.id">{{ tokiaEtiketa(postua.id, postuak(), guneak()) }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="col-12 d-flex">
+      <button type="submit" class="btn btn-success">Gorde</button>
+      <button type="button" class="btn btn-danger ms-auto" (click)="powerbankAldatu.close()">
+        Irten
+      </button>
+    </div>
+  </form>
 </dialog>

@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from database import get_session
-from models.models import Powerbank
+from models.models import Erreserba, Powerbank
 from schemas.schemas import PowerbankCreate, PowerbankResponse, PowerbankUpdate
 
 router = APIRouter(prefix="/powerbanks", tags=["Powerbanks"])
@@ -39,4 +39,24 @@ def powerbank_tokia_aldatu(session: SessionDep, data: PowerbankUpdate, id: int):
 
     session.commit()
     session.refresh(powerbank)
+    return powerbank
+
+@router.delete("/{id}", response_model=PowerbankResponse, status_code=200)
+def ezabatu_powerbank(session: SessionDep, id: int):
+    powerbank = session.get(Powerbank, id)
+
+    if not powerbank:
+        raise HTTPException(status_code=404, detail="Powerbank ez da aurkitzen")
+
+    erreserba = session.scalar(
+        select(Erreserba.id).where(Erreserba.powerbank_id == id).limit(1)
+    )
+    if erreserba is not None:
+        raise HTTPException(
+            status_code=409,
+            detail="Powerbank honek erreserbak ditu, ezin da ezabatu",
+        )
+
+    session.delete(powerbank)
+    session.commit()
     return powerbank

@@ -21,7 +21,9 @@ def get_erreserbak(
     session: SessionDep,
     current_user: Erabiltzailea = Depends(get_current_user),
 ):
-    stmt = select(Erreserba).where(Erreserba.erabiltzailea_id == current_user.id)
+    stmt = select(Erreserba).order_by(Erreserba.id)
+    if current_user.rola != "admin":
+        stmt = stmt.where(Erreserba.erabiltzailea_id == current_user.id)
     return session.scalars(stmt).all()
 
 @router.get("/{id}", response_model=ErreserbakResponse, status_code=200)
@@ -96,6 +98,14 @@ def itzuli_powerbank(session: SessionDep, data: ErreserbakItzuliUpdate, id: int)
     erreserba = session.get(Erreserba, id)
     if not erreserba:
         raise HTTPException(status_code=404, detail="Erreserba ez da aurkitzen")
+
+    slot = session.get(KargaPostua, data.bukaerako_karga_postua)
+    if slot is not None:
+        slot.egoera = "kargatuta"
+
+    powerbank = session.get(Powerbank, erreserba.powerbank_id)
+    if powerbank is not None:
+        powerbank.karga_postua_id = data.bukaerako_karga_postua
 
     erreserba.bukaerako_karga_postua = data.bukaerako_karga_postua
     erreserba.amaitze_data_ordua = data.amaitze_data_ordua

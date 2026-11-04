@@ -1,156 +1,227 @@
-import { ChangeDetectorRef, Component, effect, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HubTableComponent, PaginableTableOrdination, PaginableActionButton, HubTranslationService } from 'ng-hub-ui-paginable';
-import { Api } from '../services/api';
+import {
+  HubPaginableTableCellDirective,
+  HubTableComponent,
+  HubTranslationService,
+  PaginableTableHeader,
+  PaginableTableOrdination,
+} from 'ng-hub-ui-paginable';
+import { Api, Erabiltzailea } from '../services/api';
+
+type ErabiltzaileaTaulan = Erabiltzailea & {
+  erreserba_kopurua: number;
+};
 
 @Component({
   selector: 'app-taula',
   standalone: true,
-  imports: [HubTableComponent, FormsModule],
+  imports: [CommonModule, FormsModule, HubTableComponent, HubPaginableTableCellDirective],
   providers: [HubTranslationService],
   templateUrl: './taula.html',
 })
-export class Taula implements OnInit{
-  users = signal<any[]>([]);
+export class Taula implements OnInit {
+  private apiService = inject(Api);
+  private cdr = inject(ChangeDetectorRef);
+
+  private erabiltzaileaSortuDialog =
+    viewChild<ElementRef<HTMLDialogElement>>('erabiltzaileaSortu');
+  private erabiltzaileaAldatuDialog =
+    viewChild<ElementRef<HTMLDialogElement>>('erabiltzaileaAldatu');
+
+  users = signal<ErabiltzaileaTaulan[]>([]);
   totalItems = signal<number>(0);
   isLoading = signal<boolean>(false);
   currentPage = signal<number>(1);
   perPage = signal<number>(10);
   searchTerm = signal<string>('');
   ordination = signal<PaginableTableOrdination | undefined>(undefined);
-  // selectedUsers = signal<any[]>([]);
-  selectedUsers = signal<any | null>(null);
+  feedback = signal<{ mota: 'ok' | 'error'; testua: string } | null>(null);
 
-  headers = [
-    { property: 'id', title: 'ID', sortable: true },
+  readonly rolak = ['user', 'admin'];
+
+  headers: PaginableTableHeader[] = [
+    { property: 'id', title: 'ID', sortable: true, width: 70 },
     { property: 'izena', title: 'Izena', sortable: true },
     { property: 'abizena', title: 'Abizena', sortable: true },
-    { property: 'login_email', title: 'Email', sortable: true },
-    { property: 'rola', title: 'Rola', sortable: true },
-    { property: 'erreserbak', title: 'Erreserbak', sortable: true }
+    { property: 'login_email', title: 'Emaila', sortable: true },
+    { property: 'rola', title: 'Rola', sortable: true, width: 110 },
+    {
+      property: 'erreserba_kopurua',
+      title: 'Erreserbak',
+      sortable: true,
+      align: 'center',
+      width: 120,
+    },
+    {
+      property: 'ekintzak',
+      title: 'Ekintzak',
+      onlyButtons: true,
+      align: 'end',
+      sticky: 'end',
+      width: 100,
+    },
   ];
 
-  private mockDatabase = this.generateMockData(50);
+  erabiltzaileaBerria: Erabiltzailea = {
+    izena: '',
+    abizena: '',
+    login_email: '',
+    login_pasahitza: '',
+    rola: 'user',
+  };
 
-  private apiService = inject(Api);
-  private cdr: ChangeDetectorRef;
-  
-  constructor(cdr1: ChangeDetectorRef) {
-    this.cdr = cdr1;
-  }
-  
-  erabiltzaileak: any;
+  erabiltzaileaEditatzen: Erabiltzailea = {
+    izena: '',
+    abizena: '',
+    login_email: '',
+    login_pasahitza: '',
+    rola: 'user',
+  };
+
+  editatuId: number | null = null;
+
   ngOnInit(): void {
-      this.isLoading.set(true);
-      this.apiService.getErabiltzaileak().subscribe({
-          next: (data) => {
-              console.log(data)
-              this.users.set(data)
-              this.totalItems.set(data.length)
-              this.cdr.detectChanges();
-              this.isLoading.set(false);
-          }, error: (err) => console.error('Errorea', err)
-      })
+    this.kargatu();
   }
 
-  private loadServerData(page: number, perPage: number, search: string, sort: PaginableTableOrdination | undefined): void {
+  kargatu(): void {
     this.isLoading.set(true);
 
-    setTimeout(() => {
-      let filteredData = [...this.mockDatabase];
+    this.apiService.getErabiltzaileak().subscribe({
+      next: (data) => {
+        const prestatuak = data.map((erabiltzailea) => ({
+          ...erabiltzailea,
+          erreserba_kopurua: erabiltzailea.erreserbak?.length ?? 0,
+        }));
 
-      if (search) {
-        const searchLower = search.toLowerCase();
-        filteredData = filteredData.filter(
-          (user) =>
-            user.name.toLowerCase().includes(searchLower) ||
-            user.email.toLowerCase().includes(searchLower) ||
-            user.role.toLowerCase().includes(searchLower)
-        );
-      }
-
-      if (sort?.property) {
-        filteredData.sort((a, b) => {
-          const aVal = a[sort.property];
-          const bVal = b[sort.property];
-          const comparison = aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
-          return sort.direction === 'ASC' ? comparison : -comparison;
-        });
-      }
-
-      const startIndex = (page - 1) * perPage;
-      const endIndex = startIndex + perPage;
-      const paginatedData = filteredData.slice(startIndex, endIndex);
-
-      this.totalItems.set(filteredData.length);
-      this.users.set(paginatedData);
-      this.isLoading.set(false);
-    }, 500);
+        this.users.set(prestatuak);
+        this.totalItems.set(prestatuak.length);
+        this.isLoading.set(false);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.erakutsiErrorea(err);
+        this.cdr.detectChanges();
+      },
+    });
   }
 
-  private generateMockData(count: number): any[] {
-    // const names = ['John', 'Jane', 'Bob', 'Alice', 'Charlie'];
-    const names = [this.erabiltzaileak];
-    const surnames = ['Doe', 'Smith', 'Johnson', 'Brown', 'Wilson'];
-    const roles = ['Admin', 'Editor', 'User', 'Moderator'];
-    const statuses = ['Active', 'Inactive', 'Pending'];
-
-    return Array.from({ length: count }, (_, i) => ({
-      id: i + 1,
-      name: `${names[i % names.length]} ${surnames[i % surnames.length]}`,
-      email: `user${i + 1}@example.com`,
-      role: roles[i % roles.length],
-      status: statuses[i % statuses.length],
-    }));
+  irekiSortu(): void {
+    this.erabiltzaileaBerria = {
+      izena: '',
+      abizena: '',
+      login_email: '',
+      login_pasahitza: '',
+      rola: 'user',
+    };
+    this.erabiltzaileaSortuDialog()?.nativeElement.showModal();
   }
 
-  erabiltzailea = {
-    izena: "",
-    abizena: "",
-    login_email: "",
-    login_pasahitza: "",
-    rola: "",
-    erreserben_historikoa: ""
+  sortuErabiltzailea(): void {
+    this.apiService.sortuErabiltzaileak(this.erabiltzaileaBerria).subscribe({
+      next: () => {
+        this.erabiltzaileaSortuDialog()?.nativeElement.close();
+        this.feedback.set({ mota: 'ok', testua: 'Erabiltzailea ongi sortu da.' });
+        this.kargatu();
+      },
+      error: (err) => {
+        this.erakutsiErrorea(err);
+        this.cdr.detectChanges();
+      },
+    });
   }
 
-  sortuErabiltzailea(){
-    this.apiService.sortuErabiltzaileak(this.erabiltzailea).subscribe({
-      next: (response) => {
-        console.log("Sortuta", response)
-      }, error: (err) => console.error('Errorea', err)
-    })
+  irekiAldaketa(erabiltzailea: ErabiltzaileaTaulan): void {
+    this.editatuId = erabiltzailea.id ?? null;
+    this.erabiltzaileaEditatzen = {
+      izena: erabiltzailea.izena,
+      abizena: erabiltzailea.abizena,
+      login_email: erabiltzailea.login_email,
+      login_pasahitza: '',
+      rola: erabiltzailea.rola,
+    };
+    this.erabiltzaileaAldatuDialog()?.nativeElement.showModal();
   }
 
-  erabiltzaileaID: number = 0;
-  erabiltzaileaEditatu(dialog: HTMLDialogElement) {
-    const erab = this.selectedUsers();
-    if (!erab) {
-      alert('Erabiltzaile bat hautatu');
+  aldatuErabiltzailea(): void {
+    if (this.editatuId === null) {
       return;
     }
 
-    this.erabiltzaileaID = erab.id;
-
-    this.erabiltzailea = {
-      izena: erab.izena,
-      abizena: erab.abizena,
-      login_email: erab.login_email,
-      login_pasahitza: '',
-      rola: erab.rola,
-      erreserben_historikoa: erab.erreserben_historikoa
+    const datuak: Partial<Erabiltzailea> = {
+      izena: this.erabiltzaileaEditatzen.izena,
+      abizena: this.erabiltzaileaEditatzen.abizena,
+      login_email: this.erabiltzaileaEditatzen.login_email,
+      rola: this.erabiltzaileaEditatzen.rola,
     };
-    dialog.showModal();
+
+    if (this.erabiltzaileaEditatzen.login_pasahitza) {
+      datuak.login_pasahitza = this.erabiltzaileaEditatzen.login_pasahitza;
+    }
+
+    this.apiService.aldatuErabiltzaileak(this.editatuId, datuak).subscribe({
+      next: () => {
+        this.erabiltzaileaAldatuDialog()?.nativeElement.close();
+        this.feedback.set({ mota: 'ok', testua: 'Erabiltzailea ongi aldatu da.' });
+        this.kargatu();
+      },
+      error: (err) => {
+        this.erakutsiErrorea(err);
+        this.cdr.detectChanges();
+      },
+    });
   }
 
-  aldatuErabiltzailea(id: number){
-    this.apiService.aldatuErabiltzaileak(id, this.erabiltzailea).subscribe({
-      next: (response) => {
-        console.log("Aldatuta", response)
-        this.apiService.getErabiltzaileak().subscribe(data => {
-          this.users.set(data);
-          this.selectedUsers.set([]);
-        });
-      }, error: (err) => console.error('Errorea', err)
-    })
+  ezabatuErabiltzailea(erabiltzailea: ErabiltzaileaTaulan): void {
+    if (erabiltzailea.id === undefined) {
+      return;
+    }
+
+    if (!window.confirm(`Ziur zaude "${erabiltzailea.login_email}" ezabatu nahi duzula?`)) {
+      return;
+    }
+
+    this.apiService.ezabatuErabiltzailea(erabiltzailea.id).subscribe({
+      next: () => {
+        this.feedback.set({ mota: 'ok', testua: 'Erabiltzailea ongi ezabatu da.' });
+        this.kargatu();
+      },
+      error: (err) => {
+        this.erakutsiErrorea(err);
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  rolaKlasa(rola: string): string {
+    return rola === 'admin' ? 'text-bg-primary' : 'text-bg-secondary';
+  }
+
+  itxiFeedback(): void {
+    this.feedback.set(null);
+  }
+
+  private erakutsiErrorea(err: any): void {
+    const detail = err?.error?.detail;
+    let testua = 'Errorea gertatu da. Saiatu berriro.';
+
+    if (typeof detail === 'string') {
+      testua = detail;
+    } else if (Array.isArray(detail) && detail.length > 0) {
+      testua = detail.map((errorea: any) => errorea.msg ?? errorea).join(', ');
+    }
+
+    this.feedback.set({ mota: 'error', testua });
   }
 }

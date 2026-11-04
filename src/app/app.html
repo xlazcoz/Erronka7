@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">Administrazio-atala</a>
+    <a class="navbar-brand" routerLink="/kargaguneak">Administrazio-atala</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -19,9 +19,16 @@
           <a class="nav-link" routerLink="/erreserbak">Erreserben kudeaketa</a>
         </li>
       </ul>
-      <div class="d-flex gap-2">
-        <button type="button" class="btn btn-primary" routerLink="/saioa-hasi">Saioa hasi</button>
-        <button type="button" class="btn btn-primary" routerLink="/erregistratu">Erregistratu</button>
+      <div class="d-flex gap-2 align-items-center">
+        @if (auth.currentUser(); as erabiltzailea) {
+          <span class="navbar-text me-2">
+            {{ erabiltzailea.izena }} ({{ erabiltzailea.rola }})
+          </span>
+          <button type="button" class="btn btn-outline-danger" (click)="saioaItxi()">Saioa itxi</button>
+        } @else {
+          <button type="button" class="btn btn-primary" routerLink="/saioa-hasi">Saioa hasi</button>
+          <button type="button" class="btn btn-primary" routerLink="/erregistratu">Erregistratu</button>
+        }
       </div>
     </div>
   </div>
