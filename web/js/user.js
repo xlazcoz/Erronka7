@@ -178,6 +178,9 @@ function estadoReserva(reserva) {
   if (now >= start && now <= end) {
     return { key: "active", label: "En curso", badge: "pb-badge-warning" };
   }
+  if (now > end) {
+    return { key: "active", label: "Pendiente de devolución", badge: "pb-badge-danger" };
+  }
   return { key: "active", label: "Activa", badge: "pb-badge-primary" };
 }
 

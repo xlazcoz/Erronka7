@@ -9,7 +9,12 @@ Frontend-a VS Code Live Server erabiliz ireki `index.html` fitxategitik
 `localhost:5432` portuan martxan egotea behar du.
 
 Demo erabiltzailea: alex@example.com / 1234
-Demo administratzailea: ane@example.com / 1234
+Demo administratzaile orokorra: ane@example.com / 1234
+Demo Donostiako udalerri-administratzailea: demo03@example.com / 1234
+Demo Zarauzko udalerri-administratzailea: demo04@example.com / 1234
+
+Testak exekutatzeko, `api_erronka` karpetan:
+uv run python -m unittest discover -s tests -p "test_*.py"
 
 Erreserben arauak:
 - Powerbankak gaurko egunean bakarrik erreserbatu daitezke.

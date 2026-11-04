@@ -5,7 +5,7 @@ from media import IRUDIAK
 
 DATABASE_URL = ("postgresql+psycopg://postgres:@localhost:5432/alokairu_sistema")
 
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL, echo=False)
 
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 

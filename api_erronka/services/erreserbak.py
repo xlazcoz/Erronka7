@@ -15,6 +15,8 @@ MAX_ADVANCE = timedelta(hours=6)
 MAX_DURATION = timedelta(hours=6)
 MIN_DURATION = timedelta(minutes=15)
 PAST_TOLERANCE = timedelta(minutes=1)
+# Itzultzeko atzerapen txiki bat onartzeko.
+EXPIRATION_GRACE = timedelta(hours=1)
 
 
 def now_local() -> datetime:
@@ -81,7 +83,7 @@ def expire_stale_reservations(session: Session) -> None:
         update(Erreserba)
         .where(
             Erreserba.egoera == "aktiboa",
-            Erreserba.amaiera_data_ordua < now_local(),
+            Erreserba.amaiera_data_ordua < now_local() - EXPIRATION_GRACE,
         )
         .values(egoera="amaitua")
     )
