@@ -53,18 +53,60 @@
 
   <main class="container my-4 my-lg-5 flex-grow-1">
     <section class="stations-hero mb-4">
-      <span class="pb-eyebrow">Red de carga</span>
-      <h1 class="display-5 fw-bold mt-2 mb-2">Encuentra tu estación</h1>
-      <p class="pb-muted mb-0">
-        Consulta la disponibilidad en tiempo real y reserva tu powerbank para hoy.
-      </p>
+      <div class="hero-glow hero-glow-1" aria-hidden="true"></div>
+      <div class="hero-glow hero-glow-2" aria-hidden="true"></div>
+      <div class="hero-grid" aria-hidden="true"></div>
+
+      <div class="row align-items-center g-4 position-relative">
+        <div class="col-lg-7">
+          <span class="pb-eyebrow hero-eyebrow">
+            <span class="hero-live-dot" aria-hidden="true"></span>Red de carga en vivo
+          </span>
+          <h1 class="display-4 fw-bold mt-3 mb-3 hero-title">
+            Encuentra tu <span class="hero-highlight">estación</span>
+          </h1>
+          <p class="pb-muted hero-subtitle mb-4">
+            Consulta la disponibilidad en tiempo real, explora el mapa y reserva tu powerbank en segundos.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary px-4 py-2" href="#stationsList">
+              <i class="fas fa-bolt me-2"></i>Ver estaciones
+            </a>
+            <a class="btn btn-outline-primary px-4 py-2" href="Erabiltzailea.html">
+              <i class="fas fa-calendar-check me-2"></i>Mis reservas
+            </a>
+          </div>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="hero-metrics" aria-label="Resumen de la red">
+            <div class="hero-metric">
+              <span class="hero-metric-value" data-stat="stations">0</span>
+              <span class="hero-metric-label">Estaciones</span>
+            </div>
+            <div class="hero-metric">
+              <span class="hero-metric-value" data-stat="powerbanks">0</span>
+              <span class="hero-metric-label">Powerbanks libres</span>
+            </div>
+            <div class="hero-metric">
+              <span class="hero-metric-value" data-stat="municipalities">0</span>
+              <span class="hero-metric-label">Municipios</span>
+            </div>
+            <div class="hero-metric">
+              <span class="hero-metric-value" data-stat="online">0%</span>
+              <span class="hero-metric-label">Red operativa</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section class="pb-card p-3 p-lg-4 mb-4" aria-labelledby="mapTitle">
-      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+    <section class="pb-card map-card p-3 p-lg-4 mb-4 reveal" aria-labelledby="mapTitle">
+      <div class="map-card-head">
         <div>
-          <span class="pb-eyebrow">Mapa interactivo</span>
-          <h2 class="h4 fw-bold mt-1 mb-0" id="mapTitle">Estaciones en el mapa</h2>
+          <span class="pb-eyebrow"><i class="fas fa-satellite-dish me-1"></i>Mapa interactivo</span>
+          <h2 class="h4 fw-bold mt-1 mb-1" id="mapTitle">Estaciones en el mapa</h2>
+          <p class="pb-muted small mb-0">Explora la red y abre cada marcador para reservar.</p>
         </div>
         <select class="form-select municipality-select" id="municipalityFilter"
           aria-label="Filtrar estaciones por municipio">
@@ -78,23 +120,64 @@
       </div>
     </section>
 
-    <div class="stations-toolbar d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-      <span class="pb-muted small" id="stationsCount">Cargando estaciones…</span>
-      <a class="btn btn-outline-secondary btn-sm" href="Erabiltzailea.html">
-        <i class="fas fa-calendar-check me-1"></i>Mis reservas
-      </a>
-    </div>
+    <section class="stations-section" id="stationsList" aria-labelledby="stationsTitle">
+      <div class="stations-heading reveal">
+        <div>
+          <span class="pb-eyebrow">Listado</span>
+          <h2 class="h3 fw-bold mt-1 mb-1" id="stationsTitle">Estaciones de la red</h2>
+          <p class="pb-muted small mb-0" id="stationsCount">Cargando estaciones…</p>
+        </div>
+        <button type="button" class="btn btn-outline-secondary btn-sm btn-refresh" id="btnRefresh">
+          <i class="fas fa-rotate me-2"></i>Actualizar
+        </button>
+      </div>
 
-    <div class="list-group gap-3" id="lista">
-      <div class="station-skeleton pb-card p-4">
-        <div class="pb-skeleton w-50 mb-2"></div>
-        <div class="pb-skeleton w-25"></div>
+      <div class="stations-toolbar pb-card reveal">
+        <div class="station-search">
+          <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+          <input type="search" class="form-control" id="stationSearch"
+            placeholder="Buscar por nombre, dirección o municipio…" aria-label="Buscar estaciones" autocomplete="off">
+        </div>
+
+        <button type="button" class="btn filter-toggle" id="onlyAvailable" aria-pressed="false">
+          <span class="filter-toggle-dot" aria-hidden="true"></span>
+          <span>Solo disponibles</span>
+        </button>
+
+        <select class="form-select station-sort" id="stationSort" aria-label="Ordenar estaciones">
+          <option value="recomendado">Recomendado</option>
+          <option value="disponibilidad">Más disponibilidad</option>
+          <option value="nombre">Nombre (A-Z)</option>
+        </select>
       </div>
-      <div class="station-skeleton pb-card p-4">
-        <div class="pb-skeleton w-50 mb-2"></div>
-        <div class="pb-skeleton w-25"></div>
+
+      <div class="stations-grid" id="lista">
+        <div class="station-skeleton pb-card">
+          <div class="pb-skeleton w-50 mb-3"></div>
+          <div class="pb-skeleton w-75 mb-2"></div>
+          <div class="pb-skeleton w-25 mb-4"></div>
+          <div class="pb-skeleton w-100"></div>
+        </div>
+        <div class="station-skeleton pb-card">
+          <div class="pb-skeleton w-50 mb-3"></div>
+          <div class="pb-skeleton w-75 mb-2"></div>
+          <div class="pb-skeleton w-25 mb-4"></div>
+          <div class="pb-skeleton w-100"></div>
+        </div>
+        <div class="station-skeleton pb-card">
+          <div class="pb-skeleton w-50 mb-3"></div>
+          <div class="pb-skeleton w-75 mb-2"></div>
+          <div class="pb-skeleton w-25 mb-4"></div>
+          <div class="pb-skeleton w-100"></div>
+        </div>
+        <div class="station-skeleton pb-card">
+          <div class="pb-skeleton w-50 mb-3"></div>
+          <div class="pb-skeleton w-75 mb-2"></div>
+          <div class="pb-skeleton w-25 mb-4"></div>
+          <div class="pb-skeleton w-100"></div>
+        </div>
       </div>
-    </div>
+    </section>
   </main>
 
   <footer class="pb-footer">

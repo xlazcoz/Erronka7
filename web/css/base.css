@@ -399,11 +399,24 @@ body.pb-page {
 .pb-page .btn-primary {
   background: linear-gradient(135deg, var(--pb-primary), var(--pb-primary-strong));
   border: 0;
+  color: #fff;
 }
 
 .pb-page .btn-primary:hover,
 .pb-page .btn-primary:focus {
   background: linear-gradient(135deg, #60a5fa, #1d4ed8);
+  color: #fff;
+}
+
+/* Los enlaces con clase .btn no deben heredar el color de enlace global */
+.pb-page a.btn {
+  text-decoration: none;
+}
+
+.pb-page a.btn-primary,
+.pb-page a.btn-success,
+.pb-page a.btn-danger {
+  color: #fff;
 }
 
 .pb-page .btn-outline-primary {

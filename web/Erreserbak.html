@@ -53,62 +53,102 @@
   <main class="flex-grow-1 py-4 py-lg-5">
     <div class="pb-shell">
 
-      <section class="reservations-hero pb-card p-4 p-lg-5 mb-4" aria-labelledby="reservationsTitle">
-        <div class="reservations-hero-content d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-4">
-          <div>
-            <span class="pb-eyebrow">Tu actividad</span>
-            <h1 class="display-6 fw-bold mt-2 mb-2" id="reservationsTitle">Mis reservas</h1>
-            <p class="pb-muted mb-0">
+      <section class="reservations-hero pb-card mb-4" aria-labelledby="reservationsTitle">
+        <div class="hero-orb hero-orb-1" aria-hidden="true"></div>
+        <div class="hero-orb hero-orb-2" aria-hidden="true"></div>
+        <div class="hero-grid" aria-hidden="true"></div>
+
+        <div class="row align-items-center g-4 position-relative">
+          <div class="col-lg-6">
+            <span class="pb-eyebrow hero-eyebrow">
+              <span class="hero-live-dot" aria-hidden="true"></span>Tu actividad
+            </span>
+            <h1 class="display-6 fw-bold mt-3 mb-2 hero-title" id="reservationsTitle">Mis reservas</h1>
+            <p class="pb-muted hero-text mb-4">
               Consulta tus reservas, abre el QR de recogida, devuelve la powerbank o cancela antes de que empiece.
             </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary btn-new-reservation px-4 py-2" href="index.html">
+                <i class="fas fa-plus"></i><span>Nueva reserva</span>
+              </a>
+              <a class="btn btn-outline-primary px-4 py-2" href="Erabiltzailea.html">
+                <i class="fas fa-user"></i><span>Mi cuenta</span>
+              </a>
+            </div>
           </div>
-          <a class="btn btn-primary px-4 py-2 align-self-start align-self-lg-end" href="index.html">
-            <i class="fas fa-plus me-2"></i>Nueva reserva
-          </a>
+
+          <div class="col-lg-6">
+            <div class="reservation-stats" aria-label="Resumen de tus reservas">
+              <article class="stat-card stat-card-total">
+                <span class="stat-icon"><i class="fas fa-layer-group"></i></span>
+                <span class="stat-body">
+                  <span class="stat-value" id="statTotal">0</span>
+                  <span class="stat-label">Totales</span>
+                </span>
+              </article>
+              <article class="stat-card stat-card-active">
+                <span class="stat-icon"><i class="fas fa-bolt"></i></span>
+                <span class="stat-body">
+                  <span class="stat-value" id="statActive">0</span>
+                  <span class="stat-label">Activas</span>
+                </span>
+              </article>
+              <article class="stat-card stat-card-success">
+                <span class="stat-icon"><i class="fas fa-circle-check"></i></span>
+                <span class="stat-body">
+                  <span class="stat-value" id="statFinished">0</span>
+                  <span class="stat-label">Finalizadas</span>
+                </span>
+              </article>
+              <article class="stat-card stat-card-muted">
+                <span class="stat-icon"><i class="fas fa-ban"></i></span>
+                <span class="stat-body">
+                  <span class="stat-value" id="statCancelled">0</span>
+                  <span class="stat-label">Canceladas</span>
+                </span>
+              </article>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section class="pb-card p-4 p-lg-5" aria-labelledby="reservationsListTitle">
-        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+      <section class="pb-card reservations-panel p-4 p-lg-5" aria-labelledby="reservationsListTitle">
+        <div class="panel-head">
           <div>
-            <h2 class="h4 fw-bold mb-1" id="reservationsListTitle">Historial y reservas activas</h2>
+            <span class="pb-eyebrow">Panel de actividad</span>
+            <h2 class="h4 fw-bold mt-1 mb-1" id="reservationsListTitle">Historial y reservas activas</h2>
             <p class="pb-muted small mb-0">Solo puedes cancelar reservas que aún no han comenzado.</p>
           </div>
-          <button type="button" class="btn btn-outline-secondary btn-sm" id="btnRefrescarReservas">
-            <i class="fas fa-rotate me-1"></i>Actualizar
+          <button type="button" class="btn btn-outline-secondary btn-sm btn-refresh" id="btnRefrescarReservas">
+            <i class="fas fa-rotate"></i><span>Actualizar</span>
           </button>
         </div>
 
-        <div class="reservation-stats mb-4">
-          <div class="stat-card">
-            <span class="stat-value" id="statTotal">0</span>
-            <span class="stat-label">Totales</span>
-          </div>
-          <div class="stat-card stat-card-active">
-            <span class="stat-value" id="statActive">0</span>
-            <span class="stat-label">Activas</span>
-          </div>
-          <div class="stat-card stat-card-success">
-            <span class="stat-value" id="statFinished">0</span>
-            <span class="stat-label">Finalizadas</span>
-          </div>
-          <div class="stat-card stat-card-muted">
-            <span class="stat-value" id="statCancelled">0</span>
-            <span class="stat-label">Canceladas</span>
-          </div>
-        </div>
-
-        <div class="reservation-filters mb-4" role="group" aria-label="Filtrar reservas">
-          <button type="button" class="filter-btn is-active" data-reservation-filter="all">Todas</button>
-          <button type="button" class="filter-btn" data-reservation-filter="active">Activas</button>
-          <button type="button" class="filter-btn" data-reservation-filter="finished">Finalizadas</button>
-          <button type="button" class="filter-btn" data-reservation-filter="cancelled">Canceladas</button>
+        <div class="reservation-filters" role="group" aria-label="Filtrar reservas">
+          <button type="button" class="filter-btn is-active" data-reservation-filter="all">
+            Todas <span class="filter-count" id="countAll">0</span>
+          </button>
+          <button type="button" class="filter-btn" data-reservation-filter="active">
+            Activas <span class="filter-count" id="countActive">0</span>
+          </button>
+          <button type="button" class="filter-btn" data-reservation-filter="finished">
+            Finalizadas <span class="filter-count" id="countFinished">0</span>
+          </button>
+          <button type="button" class="filter-btn" data-reservation-filter="cancelled">
+            Canceladas <span class="filter-count" id="countCancelled">0</span>
+          </button>
         </div>
 
         <div id="reservasLista" class="reservations-list" aria-live="polite">
-          <div class="pb-empty">
-            <i class="fas fa-calendar-days"></i>
-            <p class="mb-0">Cargando tus reservas…</p>
+          <div class="reservation-skeleton">
+            <span class="pb-skeleton w-25 mb-2"></span>
+            <span class="pb-skeleton w-50 mb-2"></span>
+            <span class="pb-skeleton w-75"></span>
+          </div>
+          <div class="reservation-skeleton">
+            <span class="pb-skeleton w-25 mb-2"></span>
+            <span class="pb-skeleton w-50 mb-2"></span>
+            <span class="pb-skeleton w-75"></span>
           </div>
         </div>
       </section>

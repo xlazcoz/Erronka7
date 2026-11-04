@@ -3,7 +3,7 @@ let filtroReservas = "all";
 
 document.addEventListener("DOMContentLoaded", () => {
   cargarReservas();
-  document.getElementById("btnRefrescarReservas").addEventListener("click", cargarReservas);
+  document.getElementById("btnRefrescarReservas").addEventListener("click", refrescarReservas);
 
   document.querySelectorAll("[data-reservation-filter]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -104,6 +104,56 @@ function crearElemento(tag, className, text) {
   return element;
 }
 
+function crearMeta(icono, texto) {
+  const span = crearElemento("span");
+  const icon = crearElemento("i", `fas ${icono}`);
+  span.append(icon, document.createTextNode(texto));
+  return span;
+}
+
+async function refrescarReservas() {
+  const boton = document.getElementById("btnRefrescarReservas");
+  boton.classList.add("is-loading");
+  try {
+    await cargarReservas();
+  } finally {
+    boton.classList.remove("is-loading");
+  }
+}
+
+function animarValor(elemento, valor) {
+  if (!elemento) return;
+
+  const reducido = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reducido) {
+    elemento.textContent = valor;
+    elemento.dataset.valor = String(valor);
+    return;
+  }
+
+  const desde = Number(elemento.dataset.valor || 0);
+  if (desde === valor) {
+    elemento.textContent = valor;
+    return;
+  }
+
+  const inicio = performance.now();
+  const duracion = 700;
+
+  const paso = (ahora) => {
+    const progreso = Math.min(1, (ahora - inicio) / duracion);
+    const suave = 1 - Math.pow(1 - progreso, 3);
+    elemento.textContent = Math.round(desde + (valor - desde) * suave);
+    if (progreso < 1) {
+      requestAnimationFrame(paso);
+    } else {
+      elemento.dataset.valor = String(valor);
+    }
+  };
+
+  requestAnimationFrame(paso);
+}
+
 function renderizarReservas() {
   const lista = document.getElementById("reservasLista");
   lista.replaceChildren();
@@ -120,10 +170,15 @@ function renderizarReservas() {
     { total: 0, active: 0, finished: 0, cancelled: 0 },
   );
 
-  document.getElementById("statTotal").textContent = conteos.total;
-  document.getElementById("statActive").textContent = conteos.active;
-  document.getElementById("statFinished").textContent = conteos.finished;
-  document.getElementById("statCancelled").textContent = conteos.cancelled;
+  animarValor(document.getElementById("statTotal"), conteos.total);
+  animarValor(document.getElementById("statActive"), conteos.active);
+  animarValor(document.getElementById("statFinished"), conteos.finished);
+  animarValor(document.getElementById("statCancelled"), conteos.cancelled);
+
+  document.getElementById("countAll").textContent = conteos.total;
+  document.getElementById("countActive").textContent = conteos.active;
+  document.getElementById("countFinished").textContent = conteos.finished;
+  document.getElementById("countCancelled").textContent = conteos.cancelled;
 
   const filtradas = reservas
     .filter((reserva) => filtroReservas === "all" || estadoReserva(reserva).key === filtroReservas)
@@ -146,38 +201,40 @@ function renderizarReservas() {
     return;
   }
 
-  filtradas.forEach((reserva) => {
+  filtradas.forEach((reserva, indice) => {
     const estado = estadoReserva(reserva);
-    const card = crearElemento("article", "reservation-card");
+    const card = crearElemento("article", `reservation-card is-${estado.key}`);
+    card.style.setProperty("--i", String(indice));
 
     const icon = crearElemento("div", "reservation-icon");
     icon.innerHTML = '<i class="fas fa-bolt"></i>';
 
     const main = crearElemento("div", "reservation-main");
     const title = crearElemento("div", "reservation-title");
+    const badge = crearElemento("span", `pb-badge ${estado.badge}`);
+    const dot = crearElemento("span", "status-dot");
+    badge.append(dot, document.createTextNode(estado.label));
     title.append(
       crearElemento("span", "", reserva.kargagunea_izena || `Estación #${reserva.kargagunea_id || "—"}`),
-      crearElemento("span", `pb-badge ${estado.badge}`, estado.label),
+      badge,
     );
 
     const meta = crearElemento("div", "reservation-meta");
     meta.append(
-      crearElemento("span", "", `Reserva #${reserva.id}`),
-      crearElemento("span", "", reserva.karga_postua_izena || `Puesto #${reserva.hasierako_karga_postua}`),
-      crearElemento("span", "", `Powerbank #${reserva.powerbank_id}`),
-      crearElemento("span", "", `Duración: ${formatearDuracion(reserva)}`),
+      crearMeta("fa-hashtag", `Reserva #${reserva.id}`),
+      crearMeta("fa-plug", reserva.karga_postua_izena || `Puesto #${reserva.hasierako_karga_postua}`),
+      crearMeta("fa-battery-full", `Powerbank #${reserva.powerbank_id}`),
+      crearMeta("fa-clock", `Duración: ${formatearDuracion(reserva)}`),
     );
 
     const fecha = crearElemento("div", "reservation-meta mt-1");
-    fecha.append(crearElemento("span", "", formatearRango(reserva)));
+    fecha.append(crearMeta("fa-calendar-days", formatearRango(reserva)));
 
     main.append(title, meta, fecha);
 
     if (reserva.egoera === "amaitua" && reserva.amaitze_data_ordua) {
       const devuelto = crearElemento("div", "reservation-meta mt-1");
-      devuelto.append(
-        crearElemento("span", "", `Devuelto: ${formatearFechaHora(reserva.amaitze_data_ordua)}`),
-      );
+      devuelto.append(crearMeta("fa-circle-check", `Devuelto: ${formatearFechaHora(reserva.amaitze_data_ordua)}`));
       main.appendChild(devuelto);
     }
 
@@ -197,19 +254,23 @@ function renderizarReservas() {
     const start = new Date(reserva.hasiera_data_ordua);
 
     if (reserva.egoera === "aktiboa") {
-      const qrButton = crearElemento("button", "btn btn-outline-secondary btn-sm", "Ver QR");
+      const qrButton = crearElemento("button", "btn btn-outline-secondary btn-sm");
+      const qrIcon = crearElemento("i", "fas fa-qrcode");
+      qrButton.append(qrIcon, document.createTextNode("Ver QR"));
       qrButton.type = "button";
       qrButton.addEventListener("click", () => mostrarQR(reserva));
       actions.appendChild(qrButton);
     }
 
     if (reserva.egoera === "aktiboa" && now < start) {
-      const cancel = crearElemento("button", "btn btn-outline-danger btn-sm", "Cancelar");
+      const cancel = crearElemento("button", "btn btn-outline-danger btn-sm");
+      cancel.append(crearElemento("i", "fas fa-xmark"), document.createTextNode("Cancelar"));
       cancel.type = "button";
       cancel.addEventListener("click", () => cancelarReserva(reserva.id));
       actions.appendChild(cancel);
     } else if (reserva.egoera === "aktiboa") {
-      const returnButton = crearElemento("button", "btn btn-outline-primary btn-sm", "Devolver");
+      const returnButton = crearElemento("button", "btn btn-outline-primary btn-sm");
+      returnButton.append(crearElemento("i", "fas fa-rotate-left"), document.createTextNode("Devolver"));
       returnButton.type = "button";
       returnButton.title = "Devolver la powerbank en la estación de recogida";
       returnButton.addEventListener("click", () => devolverReserva(reserva.id));
