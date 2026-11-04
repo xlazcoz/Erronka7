@@ -2,9 +2,10 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-const API_HOST =
-    typeof window !== 'undefined' ? window.location.hostname || '127.0.0.1' : '127.0.0.1';
-const API_BASE = `http://${API_HOST}:8000`;
+const API_BASE =
+    typeof window !== 'undefined' && ['5500', '4200'].includes(window.location.port)
+        ? `http://${window.location.hostname || '127.0.0.1'}:8000`
+        : '/api';
 
 export interface Udalerria{
     id?: number
