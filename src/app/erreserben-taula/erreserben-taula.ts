@@ -248,7 +248,8 @@ export class ErreserbenTaula implements OnInit {
         property: 'erabiltzailea_izena',
         title: 'Erabiltzailea',
         sortable: true,
-        width: 180,
+        width: 230,
+        wrapping: 'nowrap',
         filter: {
           type: 'dropdown',
           mode: 'menu',
@@ -260,7 +261,8 @@ export class ErreserbenTaula implements OnInit {
         property: 'kargagunea_izena',
         title: 'Kargagunea',
         sortable: true,
-        width: 180,
+        width: 220,
+        wrapping: 'nowrap',
         filter: {
           type: 'dropdown',
           mode: 'menu',
@@ -272,7 +274,8 @@ export class ErreserbenTaula implements OnInit {
         property: 'powerbank_id',
         title: 'Powerbank',
         sortable: true,
-        width: 120,
+        width: 140,
+        wrapping: 'nowrap',
         filter: { type: 'text', mode: 'row', placeholder: 'Powerbank ID' },
       },
       {
@@ -286,7 +289,8 @@ export class ErreserbenTaula implements OnInit {
         property: 'egoera',
         title: 'Egoera',
         sortable: true,
-        width: 130,
+        width: 180,
+        wrapping: 'nowrap',
         filter: {
           type: 'dropdown',
           mode: 'menu',

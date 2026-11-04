@@ -28,7 +28,7 @@ SessionDep = Annotated[Session, Depends(get_session)]
 
 def station_response(session: Session, station: Kargagunea) -> dict:
     available_count = 0
-    if station.egoera == "erabilgarri":
+    if (station.egoera or "").lower() == "erabilgarri":
         available_count = session.scalar(
             select(func.count(Powerbank.id))
             .join(KargaPostua, Powerbank.karga_postua_id == KargaPostua.id)
