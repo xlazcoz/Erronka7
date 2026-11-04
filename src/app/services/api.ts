@@ -13,6 +13,7 @@ export interface Erabiltzailea{
     login_email: string
     login_pasahitza: string
     rola: string
+    aktiboa?: boolean
     erreserben_historikoa?: string
     erreserbak?: Erreserba[]
 }
@@ -87,6 +88,7 @@ export class Api {
 
     private apiKargaPostuakGet = `${API_BASE}/kargapostuak`;
     private apiKargaPostuakSortu = `${API_BASE}/kargapostuak`;
+    private apiKargaPostuakAldatu = `${API_BASE}/kargapostuak/{id}`;
     private apiKargaPostuakEzabatu = `${API_BASE}/kargapostuak/{id}`;
 
     private apiPowerbanksGet = `${API_BASE}/powerbanks`;
@@ -161,6 +163,26 @@ export class Api {
         return this.http.patch<Kargagunea>(url, partialData);
     }
 
+    igoKargaguneaIrudia(id: number, file: File): Observable<{ irudia: string }>{
+        const url = `${this.apiKargaguneakGet}/${id}/irudia/upload`;
+        const formData = new FormData();
+        formData.append('file', file);
+        return this.http.post<{ irudia: string }>(url, formData);
+    }
+
+    getKargaguneaErabilgarritasuna(
+        id: number,
+        hasiera: string,
+        amaiera: string,
+    ): Observable<KargaPostua[]>{
+        return this.http.get<KargaPostua[]>(`${this.apiKargaguneakGet}/${id}/erabilgarritasuna`, {
+            params: {
+                hasiera_data_ordua: hasiera,
+                amaiera_data_ordua: amaiera,
+            },
+        });
+    }
+
     // KARGA POSTUAK DEIAK
     getKargaPostuak(): Observable<KargaPostua[]>{
         return this.http.get<KargaPostua[]>(this.apiKargaPostuakGet);
@@ -168,6 +190,11 @@ export class Api {
 
     sortuKargaPostua(kargaPostua: KargaPostuaCreate): Observable<KargaPostua>{
         return this.http.post<KargaPostua>(this.apiKargaPostuakSortu, kargaPostua);
+    }
+
+    aldatuKargaPostua(id: number, partialData: Partial<KargaPostua>): Observable<KargaPostua>{
+        const url = this.apiKargaPostuakAldatu.replace('{id}', id.toString());
+        return this.http.patch<KargaPostua>(url, partialData);
     }
 
     ezabatuKargaPostua(id: number): Observable<KargaPostua>{
@@ -210,11 +237,14 @@ export class Api {
         return this.http.patch<Erreserba>(url, partialData);
     }
 
-    itzuliErreserba(id: number, partialData: { bukaerako_karga_postua: number }): Observable<Erreserba>{
+    itzuliErreserba(
+        id: number,
+        partialData: { bukaerako_karga_postua: number; amaitze_data_ordua?: string },
+    ): Observable<Erreserba>{
         const url = this.apiErreserbakItzuli.replace('{id}', id.toString());
         return this.http.patch<Erreserba>(url, {
             ...partialData,
-            amaitze_data_ordua: new Date().toISOString(),
+            amaitze_data_ordua: partialData.amaitze_data_ordua ?? new Date().toISOString(),
             egoera: 'amaitua',
         });
     }

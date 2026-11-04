@@ -28,6 +28,88 @@
     </div>
   }
 
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-6">
+          <label for="erabiltzaileaHautatu" class="form-label">Erabiltzailea aukeratu</label>
+          <select
+            class="form-select"
+            id="erabiltzaileaHautatu"
+            [ngModel]="erabiltzaileHautatuaId()"
+            (ngModelChange)="erabiltzaileaAukeratu($event)"
+          >
+            <option [ngValue]="null">-- Aukeratu erabiltzaile bat --</option>
+            @for (erabiltzailea of users(); track erabiltzailea.id) {
+              <option [ngValue]="erabiltzailea.id">
+                {{ erabiltzailea.izena }} {{ erabiltzailea.abizena }} — {{ erabiltzailea.login_email }}
+              </option>
+            }
+          </select>
+        </div>
+
+        @if (erabiltzaileaHautatua(); as hautatua) {
+          <div class="col-md-3">
+            <label for="rolaHautatu" class="form-label">Rola</label>
+            <select
+              class="form-select"
+              id="rolaHautatu"
+              [ngModel]="rolaHautatua"
+              (ngModelChange)="rolaHautatua = $event"
+            >
+              @for (rola of rolak; track rola) {
+                <option [value]="rola">{{ rola }}</option>
+              }
+            </select>
+          </div>
+          <div class="col-md-3">
+            <button type="button" class="btn btn-primary w-100" (click)="gordeRola()">
+              Rola gorde
+            </button>
+          </div>
+        }
+      </div>
+
+      @if (erabiltzaileaHautatua(); as hautatua) {
+        <hr />
+        <h6 class="fw-bold">
+          {{ hautatua.izena }} {{ hautatua.abizena }} — Erreserbak
+        </h6>
+
+        @if (erreserbakKargatzen()) {
+          <p class="text-muted mb-0">Erreserbak kargatzen...</p>
+        } @else if (erreserbak().length) {
+          <div class="table-responsive">
+            <table class="table table-sm table-striped align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Hasierako postua</th>
+                  <th>Hasiera</th>
+                  <th>Amaiera</th>
+                  <th>Egoera</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (erreserba of erreserbak(); track erreserba.id) {
+                  <tr>
+                    <td>{{ erreserba.id }}</td>
+                    <td>{{ erreserba.hasierako_karga_postua }}</td>
+                    <td>{{ erreserba.hasiera_data_ordua | date: 'short' }}</td>
+                    <td>{{ erreserba.amaiera_data_ordua | date: 'short' }}</td>
+                    <td>{{ erreserba.egoera }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="text-muted mb-0">Erabiltzaile honek ez dauka erreserbarik.</p>
+        }
+      }
+    </div>
+  </div>
+
   <hub-table
     [data]="users()"
     [headers]="headers"
@@ -42,9 +124,23 @@
       <span class="badge" [ngClass]="rolaKlasa(item.rola)">{{ item.rola }}</span>
     </ng-template>
 
+    <ng-template cellTpt header="aktiboa" let-item="item">
+      <span class="badge" [ngClass]="item.aktiboa ? 'text-bg-success' : 'text-bg-danger'">
+        {{ item.aktiboa ? 'Aktiboa' : 'Ez aktiboa' }}
+      </span>
+    </ng-template>
+
     <ng-template cellTpt header="ekintzak" let-item="item">
       <span class="accion-icono" title="Datuak aldatu" (click)="irekiAldaketa(item)">
         <img src="icons/edit.svg" alt="Datuak aldatu" />
+      </span>
+      <span
+        class="accion-icono"
+        [class.accion-icono--exito]="!item.aktiboa"
+        [title]="item.aktiboa ? 'Desaktibatu' : 'Aktibatu'"
+        (click)="aldatuAktiboa(item)"
+      >
+        <img src="icons/power.svg" alt="Aktibatu edo desaktibatu" />
       </span>
       <span
         class="accion-icono accion-icono--peligro"
@@ -125,6 +221,19 @@
       </select>
     </div>
 
+    <div class="col-md-6 d-flex align-items-end">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          id="sortu-aktiboa"
+          name="sortu-aktiboa"
+          [(ngModel)]="erabiltzaileaBerria.aktiboa"
+        />
+        <label class="form-check-label" for="sortu-aktiboa">Aktiboa</label>
+      </div>
+    </div>
+
     <div class="col-12 d-flex">
       <button type="submit" class="btn btn-success">Gorde</button>
       <button type="button" class="btn btn-danger ms-auto" (click)="erabiltzaileaSortu.close()">
@@ -199,6 +308,19 @@
           <option [value]="rola">{{ rola }}</option>
         }
       </select>
+    </div>
+
+    <div class="col-md-6 d-flex align-items-end">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          id="aldatu-aktiboa"
+          name="aldatu-aktiboa"
+          [(ngModel)]="erabiltzaileaEditatzen.aktiboa"
+        />
+        <label class="form-check-label" for="aldatu-aktiboa">Aktiboa</label>
+      </div>
     </div>
 
     <div class="col-12 d-flex">

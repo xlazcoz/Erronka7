@@ -19,8 +19,17 @@ class ErreserbakResponse(BaseModel):
 
 class ErreserbakCreate(BaseModel):
     kargagunea_id: int = Field(gt=0)
+    karga_postua_id: Optional[int] = Field(default=None, gt=0)
     hasiera_data_ordua: datetime
     amaiera_data_ordua: datetime
+
+    @field_validator("hasiera_data_ordua")
+    @classmethod
+    def hasiera_ez_iragana(cls, value: datetime) -> datetime:
+        orain = datetime.now(tz=value.tzinfo) if value.tzinfo else datetime.now()
+        if value < orain:
+            raise ValueError("Iraganeko data baterako ezin da erreserbarik egin")
+        return value
 
     @field_validator("amaiera_data_ordua")
     @classmethod
@@ -74,6 +83,7 @@ class ErabiltzaileaResponse(BaseModel):
     abizena: str
     login_email: str
     rola: str
+    aktiboa: bool = True
     erreserbak: List[ErreserbakResponse] = []
 
     model_config = ConfigDict(from_attributes=True)
@@ -85,6 +95,7 @@ class ErabiltzaileaCreate(BaseModel):
     login_email: str = Field(min_length=1, max_length=100)
     login_pasahitza: str = Field(min_length=1, max_length=100)
     rola: str = Field(default="user", min_length=1, max_length=100)
+    aktiboa: bool = True
 
 
 class ErabiltzaileaUpdate(BaseModel):
@@ -93,6 +104,7 @@ class ErabiltzaileaUpdate(BaseModel):
     login_email: Optional[str] = None
     login_pasahitza: Optional[str] = None  
     rola: Optional[str] = None
+    aktiboa: Optional[bool] = None
 
 
 class ErabiltzaileaRolaUpdate(BaseModel):
@@ -168,6 +180,19 @@ class KargaPostuaCreate(BaseModel):
         kargagunea_egoera = {"hutsa", "kargatuta", "kargatzen"}
         if value not in kargagunea_egoera:
             raise ValueError("Egoera hauetako bat izan behar da: hutsa, kargatuta, kargatzen")
+        return value
+
+
+class KargaPostuaUpdate(BaseModel):
+    egoera: Optional[str] = Field(default=None, min_length=1, max_length=100)
+
+    @field_validator("egoera")
+    @classmethod
+    def egoera_balidatu(cls, value: Optional[str]) -> Optional[str]:
+        if value is not None:
+            kargagunea_egoera = {"hutsa", "kargatuta", "kargatzen"}
+            if value not in kargagunea_egoera:
+                raise ValueError("Egoera hauetako bat izan behar da: hutsa, kargatuta, kargatzen")
         return value
 
 class PowerbankBase(BaseModel):

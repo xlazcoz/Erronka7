@@ -54,7 +54,7 @@
 
     <ng-template cellTpt header="ekintzak" let-item="item">
       @if (item.egoera === 'aktiboa') {
-        <span class="accion-icono" title="Powerbank-a itzuli" (click)="itzuli(item)">
+        <span class="accion-icono" title="Powerbank-a itzuli" (click)="irekiItzultzea(item)">
           <img src="icons/return.svg" alt="Powerbank-a itzuli" />
         </span>
         <span
@@ -118,6 +118,96 @@
         Bai, ezeztatu
       </button>
       <button type="button" class="btn btn-secondary ms-auto" (click)="erreserbaEzeztatu.close()">
+        Irten
+      </button>
+    </div>
+  </form>
+</dialog>
+
+<dialog #erreserbaItzuli class="kargagune-dialog">
+  <form class="row g-3" (ngSubmit)="itzuli()">
+    <div class="col-12">
+      <h4 class="mb-0">Powerbank-a itzuli</h4>
+    </div>
+
+    @if (erreserbaItzultzeko; as erreserba) {
+      <div class="col-12">
+        <div class="alert alert-info mb-0">
+          Bete itzultzeko karga postua eta data/ordua.
+        </div>
+      </div>
+
+      @if (feedback(); as alerta) {
+        @if (alerta.mota === 'error') {
+          <div class="col-12">
+            <div class="alert alert-danger mb-0">{{ alerta.testua }}</div>
+          </div>
+        }
+      }
+
+      <div class="col-md-6">
+        <label class="form-label">Erreserba ID</label>
+        <input type="text" class="form-control" [value]="erreserba.id" readonly />
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Erabiltzailea</label>
+        <input type="text" class="form-control" [value]="erreserba.erabiltzailea_izena" readonly />
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Kargagunea</label>
+        <input type="text" class="form-control" [value]="erreserba.kargagunea_izena" readonly />
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Powerbank</label>
+        <input type="text" class="form-control" [value]="erreserba.powerbank_id" readonly />
+      </div>
+
+      <div class="col-md-6">
+        <label for="itzuli-postua" class="form-label">Bukaerako karga postua</label>
+        <select
+          class="form-select"
+          id="itzuli-postua"
+          name="itzuliPostuaId"
+          [(ngModel)]="itzuliPostuaId"
+          required
+        >
+          @for (posta of postuak(); track posta.id) {
+            <option [ngValue]="posta.id">{{ kargaPostuEtiketa(posta) }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="col-md-6">
+        <label for="itzuli-data" class="form-label">Itzultze data eta ordua</label>
+        <input
+          type="datetime-local"
+          class="form-control"
+          id="itzuli-data"
+          name="itzuliDataOrdua"
+          [(ngModel)]="itzuliDataOrdua"
+          required
+        />
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Hasiera</label>
+        <input type="text" class="form-control" [value]="dataFormatua(erreserba.hasiera_data_ordua)" readonly />
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">Amaiera</label>
+        <input type="text" class="form-control" [value]="dataFormatua(erreserba.amaiera_data_ordua)" readonly />
+      </div>
+    }
+
+    <div class="col-12 d-flex">
+      <button type="submit" class="btn btn-success" [disabled]="!erreserbaItzultzeko">
+        Itzuli
+      </button>
+      <button type="button" class="btn btn-secondary ms-auto" (click)="erreserbaItzuli.close()">
         Irten
       </button>
     </div>

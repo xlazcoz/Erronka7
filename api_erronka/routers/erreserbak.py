@@ -1,20 +1,36 @@
+from datetime import datetime
 from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
+
 from database import get_session
-from models.models import Erreserba, KargaPostua, Powerbank, Erabiltzailea
-from services.auth import get_current_user
+from models.models import Erabiltzailea, Erreserba, KargaPostua, Kargagunea, Powerbank
 from schemas.schemas import (
-    ErreserbakCreate, 
-    ErreserbakResponse, 
-    ErreserbakEgoeraUpdate, 
-    ErreserbakItzuliUpdate
+    ErreserbakCreate,
+    ErreserbakEgoeraUpdate,
+    ErreserbakItzuliUpdate,
+    ErreserbakResponse,
 )
+from services.auth import get_current_user
 
 router = APIRouter(prefix="/erreserbak", tags=["Erreserbak"])
 
 SessionDep = Annotated[Session, Depends(get_session)]
+
+
+def egiaztatu_erreserba_baimena(current_user: Erabiltzailea, erreserba: Erreserba) -> None:
+    if current_user.rola != "admin" and erreserba.erabiltzailea_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Beste erabiltzaile baten erreserbak ezin dituzu kudeatu",
+        )
+
+
+def oraina(data: datetime) -> datetime:
+    return datetime.now(tz=data.tzinfo) if data.tzinfo else datetime.now()
+
 
 @router.get("", response_model=list[ErreserbakResponse], status_code=200)
 def get_erreserbak(
@@ -26,12 +42,19 @@ def get_erreserbak(
         stmt = stmt.where(Erreserba.erabiltzailea_id == current_user.id)
     return session.scalars(stmt).all()
 
+
 @router.get("/{id}", response_model=ErreserbakResponse, status_code=200)
-def get_erreserba_by_id(session: SessionDep, id: int):
+def get_erreserba_by_id(
+    session: SessionDep,
+    id: int,
+    current_user: Erabiltzailea = Depends(get_current_user),
+):
     erreserba = session.get(Erreserba, id)
     if not erreserba:
         raise HTTPException(status_code=404, detail="Erreserba ez da aurkitzen")
+    egiaztatu_erreserba_baimena(current_user, erreserba)
     return erreserba
+
 
 @router.post("", response_model=ErreserbakResponse, status_code=201)
 def sortu_erreserba(
@@ -39,11 +62,13 @@ def sortu_erreserba(
     data: ErreserbakCreate,
     current_user: Erabiltzailea = Depends(get_current_user),
 ):
-    available = session.execute(
+    stmt = (
         select(KargaPostua, Powerbank.id)
         .join(Powerbank, Powerbank.karga_postua_id == KargaPostua.id)
-        .where( 
+        .join(Kargagunea, Kargagunea.id == KargaPostua.kargagunea_id)
+        .where(
             KargaPostua.kargagunea_id == data.kargagunea_id,
+            func.lower(Kargagunea.egoera) == "erabilgarri",
             KargaPostua.egoera == "kargatuta",
             ~select(Erreserba.id)
             .where(
@@ -56,9 +81,18 @@ def sortu_erreserba(
         )
         .order_by(KargaPostua.id)
         .with_for_update(of=KargaPostua)
-    ).first() 
+    )
+
+    if data.karga_postua_id is not None:
+        stmt = stmt.where(KargaPostua.id == data.karga_postua_id)
+
+    available = session.execute(stmt).first()
     if available is None:
-        raise HTTPException(status_code=409, detail="Ez dago powerbank erabilgarririk ordutegi horretan")
+        raise HTTPException(
+            status_code=409,
+            detail="Ez dago karga postu erabilgarririk ordutegi horretan",
+        )
+
     available_slot, powerbank_id = available
 
     erreserba = Erreserba(
@@ -71,17 +105,32 @@ def sortu_erreserba(
         hasierako_karga_postua=available_slot.id,
         egoera="aktiboa",
     )
-    available_slot.egoera = "hutsa"
     session.add(erreserba)
     session.commit()
     session.refresh(erreserba)
     return erreserba
 
+
 @router.patch("/{id}/egoera", response_model=ErreserbakResponse, status_code=200)
-def erreserben_egoera_kudeatu(session: SessionDep, data: ErreserbakEgoeraUpdate, id: int):
+def erreserben_egoera_kudeatu(
+    session: SessionDep,
+    data: ErreserbakEgoeraUpdate,
+    id: int,
+    current_user: Erabiltzailea = Depends(get_current_user),
+):
     erreserba = session.get(Erreserba, id)
     if not erreserba:
         raise HTTPException(status_code=404, detail="Erreserba ez da aurkitzen")
+
+    egiaztatu_erreserba_baimena(current_user, erreserba)
+
+    if current_user.rola != "admin" and erreserba.hasiera_data_ordua < oraina(
+        erreserba.hasiera_data_ordua
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Iraganeko erreserbak ezin dira ezeztatu",
+        )
 
     if erreserba.egoera == "aktiboa" and data.egoera == "ezeztatua":
         slot = session.get(KargaPostua, erreserba.hasierako_karga_postua)
@@ -93,11 +142,19 @@ def erreserben_egoera_kudeatu(session: SessionDep, data: ErreserbakEgoeraUpdate,
     session.refresh(erreserba)
     return erreserba
 
+
 @router.patch("/{id}/itzuli", response_model=ErreserbakResponse, status_code=200)
-def itzuli_powerbank(session: SessionDep, data: ErreserbakItzuliUpdate, id: int):
+def itzuli_powerbank(
+    session: SessionDep,
+    data: ErreserbakItzuliUpdate,
+    id: int,
+    current_user: Erabiltzailea = Depends(get_current_user),
+):
     erreserba = session.get(Erreserba, id)
     if not erreserba:
         raise HTTPException(status_code=404, detail="Erreserba ez da aurkitzen")
+
+    egiaztatu_erreserba_baimena(current_user, erreserba)
 
     slot = session.get(KargaPostua, data.bukaerako_karga_postua)
     if slot is not None:
@@ -115,11 +172,18 @@ def itzuli_powerbank(session: SessionDep, data: ErreserbakItzuliUpdate, id: int)
     session.refresh(erreserba)
     return erreserba
 
+
 @router.delete("/{id}")
-def borrar_erreserba(id: int, db: Session = Depends(get_session)):
+def borrar_erreserba(
+    id: int,
+    current_user: Erabiltzailea = Depends(get_current_user),
+    db: Session = Depends(get_session),
+):
     erreserba = db.query(Erreserba).filter(Erreserba.id == id).first()
     if not erreserba:
-        raise HTTPException(status_code=404, detail="Reserva no encontrada")
+        raise HTTPException(status_code=404, detail="Erreserba ez da aurkitzen")
+
+    egiaztatu_erreserba_baimena(current_user, erreserba)
 
     if erreserba.egoera == "aktiboa":
         slot = db.get(KargaPostua, erreserba.hasierako_karga_postua)

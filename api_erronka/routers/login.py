@@ -37,6 +37,9 @@ def login(data: LoginRequest, response: Response, session: Session = Depends(get
     if erabiltzailea is None or not pasahitza_egiaztatu(data.login_pasahitza, erabiltzailea.login_pasahitza):
         raise HTTPException(status_code=401, detail="Emaila edo pasahitza ez da zuzena")
 
+    if not erabiltzailea.aktiboa:
+        raise HTTPException(status_code=403, detail="Erabiltzailea desaktibatuta dago")
+
     session_id = create_session_id()
     auth_session = AuthSession(id=session_id, erabiltzailea=erabiltzailea)
 

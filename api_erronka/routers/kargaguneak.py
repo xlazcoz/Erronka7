@@ -1,13 +1,28 @@
+import shutil
+import uuid
+from datetime import datetime
+from pathlib import Path
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import func, or_, select
+
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
+
 from database import get_session
 from models.models import Erabiltzailea, Erreserba, KargaPostua, Kargagunea, Powerbank
-from schemas.schemas import KargaguneaCreate, KargaguneaResponse, KargaguneaUpdate, KargaguneaIrudiaUpdate
+from schemas.schemas import (
+    KargaguneaCreate,
+    KargaguneaIrudiaUpdate,
+    KargaguneaResponse,
+    KargaguneaUpdate,
+    KargaPostuaResponse,
+)
 from services.auth import require_admin
 
 router = APIRouter(prefix="/kargaguneak", tags=["Kargaguneak"])
+
+UPLOAD_DIR = Path(__file__).resolve().parent.parent / "uploads"
+UPLOAD_DIR.mkdir(exist_ok=True)
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
@@ -46,6 +61,47 @@ def get_kargaguneak_id(session: SessionDep, id: int):
     if kargagunea is None:
         raise HTTPException(status_code=404, detail="Kargagunea ez da aurkitzen")
     return station_response(session, kargagunea)
+
+@router.get("/{id}/erabilgarritasuna", response_model=list[KargaPostuaResponse], status_code=200)
+def kargagune_erabilgarritasuna(
+    session: SessionDep,
+    id: int,
+    hasiera_data_ordua: datetime,
+    amaiera_data_ordua: datetime,
+):
+    kargagunea = session.get(Kargagunea, id)
+    if kargagunea is None:
+        raise HTTPException(status_code=404, detail="Kargagunea ez da aurkitzen")
+
+    if amaiera_data_ordua <= hasiera_data_ordua:
+        raise HTTPException(
+            status_code=400,
+            detail="Amaiera-data hasiera-data baino geroagokoa izan behar da",
+        )
+
+    if (kargagunea.egoera or "").lower() != "erabilgarri":
+        return []
+
+    stmt = (
+        select(KargaPostua)
+        .join(Powerbank, Powerbank.karga_postua_id == KargaPostua.id)
+        .where(
+            KargaPostua.kargagunea_id == id,
+            KargaPostua.egoera == "kargatuta",
+            ~select(Erreserba.id)
+            .where(
+                Erreserba.hasierako_karga_postua == KargaPostua.id,
+                Erreserba.egoera == "aktiboa",
+                Erreserba.hasiera_data_ordua < amaiera_data_ordua,
+                Erreserba.amaiera_data_ordua > hasiera_data_ordua,
+            )
+            .exists(),
+        )
+        .distinct()
+        .order_by(KargaPostua.id)
+    )
+    return session.scalars(stmt).all()
+
 
 @router.post("", response_model=KargaguneaResponse, status_code=201)
 def sortu_kargagunea(
@@ -104,6 +160,31 @@ def aldatu_irudia(
     session.refresh(kargagunea)
     return kargagunea
 
+@router.post("/{id}/irudia/upload", status_code=200)
+def igo_kargagunearen_irudia(
+    session: SessionDep,
+    request: Request,
+    id: int,
+    file: UploadFile = File(...),
+    _admin: Erabiltzailea = Depends(require_admin),
+):
+    kargagunea = session.get(Kargagunea, id)
+    if not kargagunea:
+        raise HTTPException(status_code=404, detail="Kargagunea ez da aurkitzen")
+
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Fitxategiak irudi bat izan behar du")
+
+    suffix = Path(file.filename or "").suffix.lower() or ".img"
+    filename = f"{uuid.uuid4().hex}{suffix}"
+    destination = UPLOAD_DIR / filename
+    with destination.open("wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    url = f"{str(request.base_url).rstrip('/')}/uploads/{filename}"
+    return {"irudia": url}
+
+
 @router.delete("/{id}", response_model=KargaguneaResponse, status_code=200)
 def ezabatu_kargagunea(
     session: SessionDep,
@@ -115,44 +196,14 @@ def ezabatu_kargagunea(
     if not kargagunea:
         raise HTTPException(status_code=404, detail="Kargagunea ez da aurkitzen")
 
-    postu_ids = [postua.id for postua in kargagunea.karga_postuak]
-    powerbank_ids = []
-    if postu_ids:
-        powerbank_ids = list(
-            session.scalars(
-                select(Powerbank.id).where(Powerbank.karga_postua_id.in_(postu_ids))
-            ).all()
-        )
-
-    erreserba = None
-    if powerbank_ids:
-        erreserba = session.scalar(
-            select(Erreserba.id).where(Erreserba.powerbank_id.in_(powerbank_ids)).limit(1)
-        )
-    if erreserba is None and postu_ids:
-        erreserba = session.scalar(
-            select(Erreserba.id)
-            .where(
-                or_(
-                    Erreserba.hasierako_karga_postua.in_(postu_ids),
-                    Erreserba.bukaerako_karga_postua.in_(postu_ids),
-                )
-            )
-            .limit(1)
-        )
-    if erreserba is not None:
+    if kargagunea.karga_postuak:
         raise HTTPException(
             status_code=409,
-            detail="Kargagune honek erreserbak ditu, ezin da ezabatu",
+            detail=(
+                "Kargagune honek karga postuak ditu. Ezin da ezabatu; "
+                "jarri 'Zerbitzutik kanpo' egoeran desaktibatzeko."
+            ),
         )
-
-    if powerbank_ids:
-        for powerbank in session.scalars(
-            select(Powerbank).where(Powerbank.id.in_(powerbank_ids))
-        ).all():
-            session.delete(powerbank)
-    for postua in kargagunea.karga_postuak:
-        session.delete(postua)
 
     session.delete(kargagunea)
     session.commit()

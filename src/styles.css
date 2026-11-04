@@ -1,5 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 
+hub-table th {
+  white-space: nowrap;
+}
+
 .section-heading {
   font-weight: 700;
   background: linear-gradient(120deg, #2563eb, #4f46e5);
@@ -64,6 +68,14 @@
 
 .accion-icono--peligro:hover {
   background-color: #b91c1c;
+}
+
+.accion-icono--exito {
+  background-color: #16a34a;
+}
+
+.accion-icono--exito:hover {
+  background-color: #15803d;
 }
 
 .irudi-thumb {

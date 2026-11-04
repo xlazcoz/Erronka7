@@ -75,7 +75,8 @@ def sortu_erabiltzailea(
         abizena=data.abizena, 
         login_email=data.login_email, 
         login_pasahitza=hash_password(data.login_pasahitza), 
-        rola=data.rola
+        rola=data.rola,
+        aktiboa=data.aktiboa,
     )
     session.add(erabiltzailea)
     session.commit()
@@ -98,10 +99,22 @@ def aldatu_erabiltzailea(
 
     changes = data.model_dump(exclude_unset=True)
 
-    if current_user.rola != "admin" and "rola" in changes:
+    if current_user.rola != "admin" and ("rola" in changes or "aktiboa" in changes):
         raise HTTPException(
             status_code=403,
-            detail="Ezin duzu zure rola aldatu",
+            detail="Ezin duzu zure rola edo egoera aldatu",
+        )
+
+    if current_user.id == id and changes.get("aktiboa") is False:
+        raise HTTPException(
+            status_code=403,
+            detail="Ezin duzu zeure burua desaktibatu",
+        )
+
+    if current_user.id == id and changes.get("rola") not in (None, "admin"):
+        raise HTTPException(
+            status_code=403,
+            detail="Ezin duzu zeure administrari rola kendu",
         )
 
     new_email = changes.get("login_email")
@@ -135,11 +148,17 @@ def aldatu_rolak(
     session: SessionDep,
     data: ErabiltzaileaRolaUpdate,
     id: int,
-    _admin: Erabiltzailea = Depends(require_admin),
+    current_user: Erabiltzailea = Depends(require_admin),
 ):
     erabiltzailea = session.get(Erabiltzailea, id)
     if not erabiltzailea:
         raise HTTPException(status_code=404, detail="Erabiltzailea ez da aurkitzen")
+
+    if current_user.id == id and data.rola != "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Ezin duzu zeure administrari rola kendu",
+        )
 
     erabiltzailea.rola = data.rola
 

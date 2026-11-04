@@ -17,6 +17,7 @@ class Erabiltzailea(Base):
     login_email: Mapped[str] = mapped_column(String(100))
     login_pasahitza: Mapped[str] = mapped_column(String(100))
     rola: Mapped[str] = mapped_column(String(100), default="user")
+    aktiboa: Mapped[bool] = mapped_column(default=True)
 
     erreserbak: Mapped[list["Erreserba"]] = relationship(back_populates="erabiltzailea")
     auth_sessions: Mapped[list["AuthSession"]] = relationship(

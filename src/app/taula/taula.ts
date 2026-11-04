@@ -16,9 +16,10 @@ import {
   PaginableTableHeader,
   PaginableTableOrdination,
 } from 'ng-hub-ui-paginable';
-import { Api, Erabiltzailea } from '../services/api';
+import { Api, Erabiltzailea, Erreserba } from '../services/api';
 
 type ErabiltzaileaTaulan = Erabiltzailea & {
+  aktiboa: boolean;
   erreserba_kopurua: number;
 };
 
@@ -46,20 +47,60 @@ export class Taula implements OnInit {
   ordination = signal<PaginableTableOrdination | undefined>(undefined);
   feedback = signal<{ mota: 'ok' | 'error'; testua: string } | null>(null);
 
+  erabiltzaileHautatuaId = signal<number | null>(null);
+  erabiltzaileaHautatua = signal<ErabiltzaileaTaulan | null>(null);
+  erreserbak = signal<Erreserba[]>([]);
+  erreserbakKargatzen = signal<boolean>(false);
+  rolaHautatua = 'user';
+
   readonly rolak = ['user', 'admin'];
 
   headers: PaginableTableHeader[] = [
     { property: 'id', title: 'ID', sortable: true, width: 90 },
-    { property: 'izena', title: 'Izena', sortable: true },
+    {
+      property: 'izena',
+      title: 'Izena',
+      sortable: true,
+      filter: { type: 'text', mode: 'row', placeholder: 'Izena...' },
+    },
     { property: 'abizena', title: 'Abizena', sortable: true },
-    { property: 'login_email', title: 'Emaila', sortable: true },
-    { property: 'rola', title: 'Rola', sortable: true, width: 110 },
+    {
+      property: 'login_email',
+      title: 'Emaila',
+      sortable: true,
+      filter: { type: 'text', mode: 'row', placeholder: 'Emaila...' },
+    },
+    {
+      property: 'rola',
+      title: 'Rola',
+      sortable: true,
+      width: 150,
+      filter: {
+        type: 'dropdown',
+        mode: 'menu',
+        options: ['user', 'admin'],
+        placeholder: 'Rola',
+      },
+    },
+    {
+      property: 'aktiboa',
+      title: 'Egoera',
+      sortable: true,
+      align: 'center',
+      width: 120,
+      filter: {
+        type: 'boolean',
+        mode: 'row',
+        trueLabel: 'Aktiboa',
+        falseLabel: 'Ez aktiboa',
+      },
+    },
     {
       property: 'erreserba_kopurua',
       title: 'Erreserbak',
       sortable: true,
       align: 'center',
-      width: 120,
+      width: 140,
     },
     {
       property: 'ekintzak',
@@ -67,7 +108,7 @@ export class Taula implements OnInit {
       onlyButtons: true,
       align: 'end',
       sticky: 'end',
-      width: 100,
+      width: 150,
     },
   ];
 
@@ -77,6 +118,7 @@ export class Taula implements OnInit {
     login_email: '',
     login_pasahitza: '',
     rola: 'user',
+    aktiboa: true,
   };
 
   erabiltzaileaEditatzen: Erabiltzailea = {
@@ -85,6 +127,7 @@ export class Taula implements OnInit {
     login_email: '',
     login_pasahitza: '',
     rola: 'user',
+    aktiboa: true,
   };
 
   editatuId: number | null = null;
@@ -100,10 +143,21 @@ export class Taula implements OnInit {
       next: (data) => {
         const prestatuak = data.map((erabiltzailea) => ({
           ...erabiltzailea,
+          aktiboa: erabiltzailea.aktiboa ?? true,
           erreserba_kopurua: erabiltzailea.erreserbak?.length ?? 0,
         }));
 
         this.users.set(prestatuak);
+
+        const hautatuaId = this.erabiltzaileHautatuaId();
+        if (hautatuaId !== null) {
+          const hautatua = prestatuak.find((erabiltzailea) => erabiltzailea.id === hautatuaId) ?? null;
+          this.erabiltzaileaHautatua.set(hautatua);
+          if (hautatua) {
+            this.rolaHautatua = hautatua.rola;
+          }
+        }
+
         this.isLoading.set(false);
         this.cdr.detectChanges();
       },
@@ -115,6 +169,82 @@ export class Taula implements OnInit {
     });
   }
 
+  erabiltzaileaAukeratu(id: number | string | null): void {
+    const zenbakia = id === null || id === '' ? null : Number(id);
+    this.erabiltzaileHautatuaId.set(zenbakia);
+
+    if (zenbakia === null) {
+      this.erabiltzaileaHautatua.set(null);
+      this.erreserbak.set([]);
+      return;
+    }
+
+    const hautatua = this.users().find((erabiltzailea) => erabiltzailea.id === zenbakia) ?? null;
+    this.erabiltzaileaHautatua.set(hautatua);
+    this.rolaHautatua = hautatua?.rola ?? 'user';
+    this.kargatuErabiltzailearenErreserbak(zenbakia);
+  }
+
+  kargatuErabiltzailearenErreserbak(id: number): void {
+    this.erreserbakKargatzen.set(true);
+    this.apiService.getErabiltzaileakErreserbak(id).subscribe({
+      next: (data) => {
+        this.erreserbak.set(data);
+        this.erreserbakKargatzen.set(false);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.erreserbakKargatzen.set(false);
+        this.erakutsiErrorea(err);
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  gordeRola(): void {
+    const hautatua = this.erabiltzaileaHautatua();
+    if (!hautatua?.id) {
+      return;
+    }
+
+    this.apiService
+      .aldatuErabiltzaileakRolak(hautatua.id, { rola: this.rolaHautatua })
+      .subscribe({
+        next: () => {
+          this.feedback.set({ mota: 'ok', testua: 'Erabiltzailearen rola aldatu da.' });
+          this.kargatu();
+        },
+        error: (err) => {
+          this.erakutsiErrorea(err);
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  aldatuAktiboa(erabiltzailea: ErabiltzaileaTaulan): void {
+    if (erabiltzailea.id === undefined) {
+      return;
+    }
+
+    this.apiService
+      .aldatuErabiltzaileak(erabiltzailea.id, { aktiboa: !erabiltzailea.aktiboa })
+      .subscribe({
+        next: () => {
+          this.feedback.set({
+            mota: 'ok',
+            testua: erabiltzailea.aktiboa
+              ? 'Erabiltzailea desaktibatu da.'
+              : 'Erabiltzailea aktibatu da.',
+          });
+          this.kargatu();
+        },
+        error: (err) => {
+          this.erakutsiErrorea(err);
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
   irekiSortu(): void {
     this.erabiltzaileaBerria = {
       izena: '',
@@ -122,6 +252,7 @@ export class Taula implements OnInit {
       login_email: '',
       login_pasahitza: '',
       rola: 'user',
+      aktiboa: true,
     };
     this.erabiltzaileaSortuDialog()?.nativeElement.showModal();
   }
@@ -148,6 +279,7 @@ export class Taula implements OnInit {
       login_email: erabiltzailea.login_email,
       login_pasahitza: '',
       rola: erabiltzailea.rola,
+      aktiboa: erabiltzailea.aktiboa,
     };
     this.erabiltzaileaAldatuDialog()?.nativeElement.showModal();
   }
@@ -162,6 +294,7 @@ export class Taula implements OnInit {
       abizena: this.erabiltzaileaEditatzen.abizena,
       login_email: this.erabiltzaileaEditatzen.login_email,
       rola: this.erabiltzaileaEditatzen.rola,
+      aktiboa: this.erabiltzaileaEditatzen.aktiboa,
     };
 
     if (this.erabiltzaileaEditatzen.login_pasahitza) {
@@ -193,6 +326,9 @@ export class Taula implements OnInit {
     this.apiService.ezabatuErabiltzailea(erabiltzailea.id).subscribe({
       next: () => {
         this.feedback.set({ mota: 'ok', testua: 'Erabiltzailea ongi ezabatu da.' });
+        if (this.erabiltzaileHautatuaId() === erabiltzailea.id) {
+          this.erabiltzaileaAukeratu(null);
+        }
         this.kargatu();
       },
       error: (err) => {

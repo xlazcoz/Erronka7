@@ -224,8 +224,11 @@
       </select>
     </div>
 
-    <div class="col-12 d-flex">
+    <div class="col-12 d-flex gap-2">
       <button type="submit" class="btn btn-success">Gorde</button>
+      <button type="button" class="btn btn-outline-warning" (click)="desaktibatuKargagunea()">
+        Desaktibatu
+      </button>
       <button type="button" class="btn btn-danger ms-auto" (click)="kargaguneaAldatu.close()">
         Irten
       </button>
@@ -250,6 +253,15 @@
         [(ngModel)]="kargaguneaEditatzen.irudia1"
         required
       />
+      <input
+        type="file"
+        class="form-control mt-2"
+        accept="image/*"
+        (change)="igoIrudia($event, 1)"
+      />
+      @if (irudiaIgotzen() === 1) {
+        <small class="text-muted">Irudia igotzen...</small>
+      }
     </div>
     <div class="col-md-4 d-flex align-items-end">
       @if (irudiBaliozkoa(kargaguneaEditatzen.irudia1)) {
@@ -271,6 +283,15 @@
         [(ngModel)]="kargaguneaEditatzen.irudia2"
         required
       />
+      <input
+        type="file"
+        class="form-control mt-2"
+        accept="image/*"
+        (change)="igoIrudia($event, 2)"
+      />
+      @if (irudiaIgotzen() === 2) {
+        <small class="text-muted">Irudia igotzen...</small>
+      }
     </div>
     <div class="col-md-4 d-flex align-items-end">
       @if (irudiBaliozkoa(kargaguneaEditatzen.irudia2)) {
@@ -292,6 +313,15 @@
         [(ngModel)]="kargaguneaEditatzen.irudia3"
         required
       />
+      <input
+        type="file"
+        class="form-control mt-2"
+        accept="image/*"
+        (change)="igoIrudia($event, 3)"
+      />
+      @if (irudiaIgotzen() === 3) {
+        <small class="text-muted">Irudia igotzen...</small>
+      }
     </div>
     <div class="col-md-4 d-flex align-items-end">
       @if (irudiBaliozkoa(kargaguneaEditatzen.irudia3)) {
@@ -332,6 +362,7 @@
             <tr>
               <th scope="col">ID</th>
               <th scope="col">Egoera</th>
+              <th scope="col">QR</th>
               <th scope="col" class="text-end">Ekintza</th>
             </tr>
           </thead>
@@ -340,7 +371,23 @@
               <tr>
                 <td>{{ posta.id }}</td>
                 <td>
-                  <span class="badge" [ngClass]="postuKlasa(posta.egoera)">{{ posta.egoera }}</span>
+                  <select
+                    class="form-select form-select-sm"
+                    [value]="posta.egoera"
+                    (change)="aldatuPostuEgoera(posta, $any($event.target).value)"
+                  >
+                    @for (egoera of postuEgoerak; track egoera) {
+                      <option [value]="egoera">{{ egoera }}</option>
+                    }
+                  </select>
+                </td>
+                <td>
+                  <img
+                    [src]="qrUrl(posta)"
+                    width="56"
+                    height="56"
+                    alt="Karga postuaren QR kodea"
+                  />
                 </td>
                 <td class="text-end">
                   <button

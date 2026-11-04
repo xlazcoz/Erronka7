@@ -50,21 +50,22 @@ export class Kargaguneak implements OnInit {
   ordination = signal<PaginableTableOrdination | undefined>(undefined);
 
   feedback = signal<{ mota: 'ok' | 'error'; testua: string } | null>(null);
+  irudiaIgotzen = signal<number | null>(null);
 
   headers: PaginableTableHeader[] = [
     { property: 'id', title: 'ID', sortable: true, width: 90 },
     { property: 'izena', title: 'Izena', sortable: true },
     { property: 'helbidea', title: 'Helbidea', sortable: true },
     { property: 'egoera_etiketa', title: 'Egoera', sortable: true },
-    { property: 'libres', title: 'Powerbank libreak', sortable: true, align: 'center', width: 150 },
+    { property: 'libres', title: 'Powerbank libreak', sortable: true, align: 'center', width: 170 },
     {
       property: 'karga_postuak_kopurua',
       title: 'Karga postuak',
       sortable: true,
       align: 'center',
-      width: 140,
+      width: 155,
     },
-    { property: 'irudiak', title: 'Irudiak', align: 'center', width: 180 },
+    { property: 'irudiak', title: 'Irudiak', align: 'center', width: 190 },
     {
       property: 'ekintzak',
       title: 'Ekintzak',
@@ -176,6 +177,73 @@ export class Kargaguneak implements OnInit {
       egoera: this.egoeraNormalizatu(kargagunea.egoera),
     };
     this.kargaguneaIrudiakDialog()?.nativeElement.showModal();
+  }
+
+  igoIrudia(event: Event, posizio: 1 | 2 | 3): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file || this.editatuId === null) {
+      return;
+    }
+
+    this.irudiaIgotzen.set(posizio);
+    this.apiService.igoKargaguneaIrudia(this.editatuId, file).subscribe({
+      next: ({ irudia }) => {
+        if (posizio === 1) {
+          this.kargaguneaEditatzen.irudia1 = irudia;
+        } else if (posizio === 2) {
+          this.kargaguneaEditatzen.irudia2 = irudia;
+        } else {
+          this.kargaguneaEditatzen.irudia3 = irudia;
+        }
+        this.irudiaIgotzen.set(null);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.irudiaIgotzen.set(null);
+        this.erakutsiErrorea(err);
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  desaktibatuKargagunea(): void {
+    if (this.editatuId === null) {
+      return;
+    }
+
+    this.apiService
+      .aldatuKargaguneak(this.editatuId, { egoera: 'Zerbitzutik kanpo' })
+      .subscribe({
+        next: () => {
+          this.kargaguneaAldatuDialog()?.nativeElement.close();
+          this.feedback.set({ mota: 'ok', testua: 'Kargagunea desaktibatu da.' });
+          this.kargaguneakKargatu();
+        },
+        error: (err) => {
+          this.erakutsiErrorea(err);
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  qrUrl(kargaPostua: KargaPostua): string {
+    const edukia = `kargagunea:${this.kargaguneaHautatua?.id ?? ''};posta:${kargaPostua.id}`;
+    return `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(edukia)}`;
+  }
+
+  aldatuPostuEgoera(kargaPostua: KargaPostua, egoera: string): void {
+    this.apiService.aldatuKargaPostua(kargaPostua.id, { egoera }).subscribe({
+      next: () => {
+        this.feedback.set({ mota: 'ok', testua: 'Karga postuaren egoera aldatu da.' });
+        this.kargaguneakKargatu();
+      },
+      error: (err) => {
+        this.erakutsiErrorea(err);
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   gordeIrudiak(): void {

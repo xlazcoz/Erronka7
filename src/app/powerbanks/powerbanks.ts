@@ -50,8 +50,8 @@ export class Powerbanks implements OnInit {
 
   headers: PaginableTableHeader[] = [
     { property: 'id', title: 'ID', sortable: true, width: 90 },
-    { property: 'karga_maila', title: 'Karga maila', sortable: true, width: 160 },
-    { property: 'karga_postua_id', title: 'Takilla ID', sortable: true, width: 120 },
+    { property: 'karga_maila', title: 'Karga maila', sortable: true, width: 170 },
+    { property: 'karga_postua_id', title: 'Takilla ID', sortable: true, width: 130 },
     { property: 'tokia_etiketa', title: 'Kokapena', sortable: true },
     {
       property: 'ekintzak',
@@ -59,7 +59,7 @@ export class Powerbanks implements OnInit {
       onlyButtons: true,
       align: 'end',
       sticky: 'end',
-      width: 130,
+      width: 140,
     },
   ];
 
