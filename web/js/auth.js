@@ -7,7 +7,7 @@ async function actualizarBotonNavbar() {
     try {
         await apiRequest("/login/me");
         btnCuenta.className = "btn btn-outline-danger px-3";
-        btnCuenta.textContent = "Cerrar sesión";
+        btnCuenta.innerHTML = '<i class="fas fa-right-from-bracket me-2"></i>Cerrar sesión';
         btnCuenta.href = "#";
         btnCuenta.onclick = async (event) => {
             event.preventDefault();
@@ -16,13 +16,13 @@ async function actualizarBotonNavbar() {
     } catch (error) {
         if (error.status !== 401) {
             console.error("No se pudo comprobar la sesión:", error);
-            btnCuenta.textContent = "Iniciar sesión";
+            btnCuenta.innerHTML = '<i class="fas fa-right-to-bracket me-2"></i>Iniciar sesión';
             btnCuenta.title = error.message;
             return;
         }
 
         btnCuenta.className = "btn btn-outline-primary px-3";
-        btnCuenta.textContent = "Iniciar sesión";
+        btnCuenta.innerHTML = '<i class="fas fa-right-to-bracket me-2"></i>Iniciar sesión';
         btnCuenta.href = "Login.html";
         btnCuenta.onclick = null;
     }

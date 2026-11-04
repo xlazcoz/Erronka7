@@ -14,27 +14,30 @@
 </head>
 
 <body class="pb-page d-flex flex-column min-vh-100">
-  <header>
+  <header class="pb-header">
     <nav class="navbar navbar-expand-lg navbar-dark pb-navbar">
       <div class="container">
         <a class="pb-brand" href="index.html">
           <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
-          POWERBANK
+          <span class="pb-brand-text">
+            <span class="pb-brand-name">POWERBANK</span>
+            <span class="pb-brand-tagline">Energía bajo demanda</span>
+          </span>
         </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCuenta"
-          aria-controls="navbarCuenta" aria-expanded="false" aria-label="Abrir menú">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
+          aria-controls="navbarMain" aria-expanded="false" aria-label="Abrir menú">
           <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="navbarCuenta">
-          <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
-            <li class="nav-item"><a class="nav-link" href="index.html">Estaciones</a></li>
-            <li class="nav-item"><a class="nav-link active" href="Erabiltzailea.html">Mi cuenta</a></li>
-            <li class="nav-item">
-              <a class="btn btn-outline-primary px-3" href="Login.html" id="btnCuenta">Iniciar sesión</a>
-            </li>
+        <div class="collapse navbar-collapse" id="navbarMain">
+          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-1">
+            <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-location-dot"></i>Estaciones</a></li>
+            <li class="nav-item"><a class="nav-link active" href="Erabiltzailea.html"><i class="fas fa-calendar-check"></i>Mi cuenta</a></li>
           </ul>
+          <div class="pb-nav-actions">
+            <a class="btn btn-outline-primary px-3" href="Login.html" id="btnCuenta">Iniciar sesión</a>
+          </div>
         </div>
       </div>
     </nav>
@@ -236,12 +239,65 @@
     </div>
   </div>
 
-  <footer class="pb-footer py-4 mt-auto">
-    <div class="pb-shell d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2 small">
-      <span>© 2026 Powerbank Inc.</span>
-      <div class="d-flex gap-3">
-        <a href="index.html">Estaciones</a>
-        <a href="Erabiltzailea.html">Mi cuenta</a>
+  <footer class="pb-footer">
+    <div class="pb-shell pb-footer-main">
+      <div class="row g-4">
+        <div class="col-lg-4">
+          <a class="pb-brand pb-footer-brand" href="index.html">
+            <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
+            <span class="pb-brand-text">
+              <span class="pb-brand-name">POWERBANK</span>
+              <span class="pb-brand-tagline">Energía bajo demanda</span>
+            </span>
+          </a>
+          <p class="pb-footer-text">
+            Powerbanks para tus dispositivos, disponibles en Donostia y Zarautz.
+            Reserva en segundos y recoge cuando la necesites.
+          </p>
+          <div class="pb-socials">
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="X"><i class="fab fa-x-twitter"></i></a>
+            <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+          </div>
+        </div>
+
+        <div class="col-6 col-lg-2">
+          <h3 class="pb-footer-title">Explora</h3>
+          <ul class="pb-footer-links">
+            <li><a href="index.html">Estaciones</a></li>
+            <li><a href="Erabiltzailea.html">Mi cuenta</a></li>
+            <li><a href="puesto-Carga.html">Reservar</a></li>
+          </ul>
+        </div>
+
+        <div class="col-6 col-lg-3">
+          <h3 class="pb-footer-title">Ayuda</h3>
+          <ul class="pb-footer-links">
+            <li><a href="#">Preguntas frecuentes</a></li>
+            <li><a href="#">Contacto</a></li>
+            <li><a href="#">Términos y privacidad</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-3">
+          <h3 class="pb-footer-title">Contacto</h3>
+          <ul class="pb-footer-contact">
+            <li><i class="fas fa-envelope"></i> hola@powerbank.eus</li>
+            <li><i class="fas fa-phone"></i> +34 943 00 00 00</li>
+            <li><i class="fas fa-location-dot"></i> Donostia · Zarautz</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="pb-footer-bottom">
+      <div class="pb-shell d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+        <span>© 2026 Powerbank Inc. Todos los derechos reservados.</span>
+        <div class="d-flex gap-3">
+          <a href="#">Privacidad</a>
+          <a href="#">Cookies</a>
+          <a href="#">Aviso legal</a>
+        </div>
       </div>
     </div>
   </footer>
