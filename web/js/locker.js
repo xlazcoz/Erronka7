@@ -11,6 +11,7 @@ const STATUS_META = {
   idle: { icon: "fa-qrcode", title: "Esperando un QR…", kind: "idle" },
   loading: { icon: "fa-spinner fa-spin", title: "Validando QR…", kind: "idle" },
   in_use: { icon: "fa-lock-open", title: "Taquilla abierta", kind: "success" },
+  closed: { icon: "fa-lock", title: "Taquilla cerrada", kind: "success" },
   returned: { icon: "fa-circle-check", title: "Powerbank entregada", kind: "success" },
   returned_late: {
     icon: "fa-triangle-exclamation",
@@ -278,9 +279,24 @@ function mostrarResultado(data) {
     result.appendChild(
       crearBoton("Cerrar taquilla", "btn btn-primary w-100 mt-2", () => {
         mostrarResultado({
-          status: "idle",
+          status: "closed",
           message: "Taquilla cerrada. La reserva queda en uso hasta la devolución.",
         });
+      }),
+    );
+  }
+
+  if (["returned", "returned_late"].includes(data?.status)) {
+    const importe = Number(data.extra_fee || 0)
+      .toFixed(2)
+      .replace(".", ",");
+    const mensaje = data.late
+      ? `Taquilla cerrada. Powerbank entregada con retraso. Cargo extra: ${importe} €.`
+      : "Taquilla cerrada. Powerbank entregada correctamente.";
+
+    result.appendChild(
+      crearBoton("Cerrar taquilla", "btn btn-primary w-100 mt-2", () => {
+        mostrarResultado({ status: "closed", message: mensaje });
       }),
     );
   }
