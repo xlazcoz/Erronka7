@@ -1,38 +1,23 @@
-body {
-  background-color: #0b0f19;
-  background-image: 
-    linear-gradient(#1e293b 1px, transparent 1px),
-    linear-gradient(90deg, #1e293b 1px, transparent 1px);
-  background-size: 40px 40px; 
-  color: #f1f5f9;
-}
-
-nav {
-  border-bottom: rgba(255, 255, 255, 0.2) solid 1px;
-    background-color: #1b2331;
-
-}
-
-header{
-      background-color: rgba(11, 15, 25, 1);
-}
-
-.navbar-brand img {
-  width: 50px;
-}
-
-footer   {
-  border-top: rgba(255, 255, 255, 0.2) solid 1px;
-    background-color: rgba(11, 15, 25);
+.info {
+  display: flex;
+  align-items: stretch;
 }
 
 .titulo {
-  padding: 20px 0;
+  width: 100%;
   text-align: center;
+  padding: 0;
+  margin: 0 0 2.25rem;
+}
+
+.titulo h1 {
+  font-size: clamp(1.6rem, 2.8vw, 2.4rem);
+  letter-spacing: -0.03em;
+  margin: 0;
 }
 
 #carouselExampleIndicators {
-  max-width: 500px;
+  max-width: 540px;
   width: 100%;
   padding: 0;
   margin: 0 auto;
@@ -40,9 +25,9 @@ footer   {
 
 .carousel-item {
   overflow: hidden;
-  height: 600px; 
+  height: 560px;
   width: 100%;
-  border-radius: 2em; 
+  border-radius: 1.4rem;
 }
 
 .carousel-item img {
@@ -51,9 +36,19 @@ footer   {
   object-fit: cover;
 }
 
-.info {
-  display: flex;
-  align-items: center;
+.carousel-inner {
+  border: 1px solid var(--pb-border);
+  border-radius: 1.4rem;
+}
+
+.texto {
+  width: 100%;
+  padding: 2rem;
+  border: 1px solid var(--pb-border);
+  box-shadow: var(--pb-shadow);
+  border-radius: 1.4rem;
+  background: linear-gradient(150deg, rgba(15, 23, 42, 0.92), rgba(11, 15, 25, 0.9));
+  backdrop-filter: blur(9px);
 }
 
 .estado {
@@ -62,35 +57,39 @@ footer   {
 }
 
 .estadotxt {
-  margin-left: 15px;
+  margin-left: 10px;
 }
 
-.titulo {
-  width: 100%;
-  text-align: center;
-  padding: 0 0 1rem 0;
-  margin: 0;
-}
-
-.titulo h1 {
-  font-size: clamp(1.5rem, 2.5vw, 2.2rem); 
-  margin: 0;
-}
-
-
-.texto {
-width: 100%;
-  padding: 2.5em 2em; 
-  margin-left: 0;
-  border: rgba(255, 255, 255, 0.2) 2px solid; 
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  border-radius: 1.5em; 
-  background-color: rgba(11, 15, 25, 0.6); 
-  backdrop-filter: blur(5px);
-}
-
-.direccion, .numero {
+.direccion,
+.numero {
   text-align: left;
+}
+
+.direccion a {
+  color: #bfdbfe;
+  text-decoration: none;
+}
+
+.direccion a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.station-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(59, 130, 246, 0.28);
+  background: rgba(59, 130, 246, 0.08);
+  color: #cbd5e1;
+  font-size: 0.85rem;
+}
+
+.station-note i {
+  margin-top: 0.15rem;
+  color: #93c5fd;
 }
 
 .boton {
@@ -99,29 +98,67 @@ width: 100%;
 
 .popover-personalizado {
   background: transparent;
-  max-width: 500px;
-  width: 90%;
+  max-width: 560px;
+  width: min(94vw, 560px);
   border: none;
+  padding: 0;
 }
 
 .popover-personalizado::backdrop {
-  background-color: rgba(11, 15, 25, 0.7);
+  background-color: rgba(7, 11, 20, 0.78);
   backdrop-filter: blur(8px);
 }
 
-.form-control, .form-select {
-  background-color: #272b32 !important;
-  color: #fff;
+.style-container {
+  border-radius: 1.4rem;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.16), transparent 35%),
+    #0f172a !important;
+  border-color: var(--pb-border) !important;
 }
 
+.reservation-summary {
+  padding: 0.9rem 1rem;
+  border-radius: 0.85rem;
+  border: 1px solid var(--pb-border);
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.reservation-summary strong {
+  color: #dbeafe;
+}
+
+#reservationDuration,
+#reservationAvailability {
+  font-weight: 700;
+}
+
+#reservationAvailability.is-free {
+  color: #86efac;
+}
+
+#reservationAvailability.is-busy {
+  color: #fca5a5;
+}
 
 @media (max-width: 991px) {
   .texto {
-    padding: 2em 1.5em; 
-    margin-left: 0;
+    padding: 1.6rem 1.3rem;
   }
 
   .carousel-item {
-    height: 480px; 
+    height: 420px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .carousel-item {
+    height: 300px;
+  }
+
+  .popover-personalizado {
+    width: 100vw;
+    max-height: 92vh;
+    margin: auto;
   }
 }

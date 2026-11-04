@@ -1,6 +1,8 @@
-from datetime import datetime
-from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
+from datetime import datetime, timedelta
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, ValidationInfo, field_validator, model_validator
 from typing import Optional, List
+
+ROLAK = {"user", "udalerri_admin", "admin"}
 
 class ErreserbakResponse(BaseModel):
     id: int
@@ -14,6 +16,11 @@ class ErreserbakResponse(BaseModel):
     bukaerako_karga_postua: Optional[int] = None
     egoera: str
 
+    # Erabiltzailearen konturako laguntza-eremuak.
+    kargagunea_izena: Optional[str] = None
+    karga_postua_izena: Optional[str] = None
+    powerbank_karga_maila: Optional[float] = None
+
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -22,13 +29,17 @@ class ErreserbakCreate(BaseModel):
     hasiera_data_ordua: datetime
     amaiera_data_ordua: datetime
 
-    @field_validator("amaiera_data_ordua")
-    @classmethod
-    def amaiera_geroago(cls, value: datetime, info: ValidationInfo) -> datetime:
-        hasiera = info.data.get("hasiera_data_ordua")
-        if hasiera is not None and value <= hasiera:
+    @model_validator(mode="after")
+    def balidatu_iraupena(self):
+        if self.amaiera_data_ordua <= self.hasiera_data_ordua:
             raise ValueError("Amaiera-data hasiera-data baino geroagokoa izan behar da")
-        return value
+
+        iraupena = self.amaiera_data_ordua - self.hasiera_data_ordua
+        if iraupena < timedelta(minutes=15):
+            raise ValueError("Erreserbak gutxienez 15 minutu iraun behar du")
+        if iraupena > timedelta(hours=6):
+            raise ValueError("Erreserbak gehienez 6 ordu iraun dezake")
+        return self
 
 
 class ErreserbakUpdate(BaseModel):
@@ -74,6 +85,8 @@ class ErabiltzaileaResponse(BaseModel):
     abizena: str
     login_email: str
     rola: str
+    udalerria_id: Optional[int] = None
+    udalerria_izena: Optional[str] = None
     erreserbak: List[ErreserbakResponse] = []
 
     model_config = ConfigDict(from_attributes=True)
@@ -85,6 +98,14 @@ class ErabiltzaileaCreate(BaseModel):
     login_email: str = Field(min_length=1, max_length=100)
     login_pasahitza: str = Field(min_length=1, max_length=100)
     rola: str = Field(default="user", min_length=1, max_length=100)
+    udalerria_id: Optional[int] = Field(default=None, gt=0)
+
+    @field_validator("rola")
+    @classmethod
+    def rola_balidatu(cls, value: str) -> str:
+        if value not in ROLAK:
+            raise ValueError("Rola hauetako bat izan behar da: user, udalerri_admin, admin")
+        return value
 
 
 class ErabiltzaileaUpdate(BaseModel):
@@ -93,10 +114,44 @@ class ErabiltzaileaUpdate(BaseModel):
     login_email: Optional[str] = None
     login_pasahitza: Optional[str] = None  
     rola: Optional[str] = None
+    udalerria_id: Optional[int] = Field(default=None, gt=0)
+
+    @field_validator("rola")
+    @classmethod
+    def rola_balidatu(cls, value: Optional[str]) -> Optional[str]:
+        if value is not None and value not in ROLAK:
+            raise ValueError("Rola hauetako bat izan behar da: user, udalerri_admin, admin")
+        return value
 
 
 class ErabiltzaileaRolaUpdate(BaseModel):
     rola: str = Field(min_length=1, max_length=100)
+    udalerria_id: Optional[int] = Field(default=None, gt=0)
+
+    @field_validator("rola")
+    @classmethod
+    def rola_balidatu(cls, value: str) -> str:
+        if value not in ROLAK:
+            raise ValueError("Rola hauetako bat izan behar da: user, udalerri_admin, admin")
+        return value
+
+class UdalerriaResponse(BaseModel):
+    id: int
+    izena: str
+    aktiboa: bool
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UdalerriaCreate(BaseModel):
+    izena: str = Field(min_length=1, max_length=100)
+    aktiboa: bool = True
+
+
+class UdalerriaUpdate(BaseModel):
+    izena: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    aktiboa: Optional[bool] = None
+
 
 class KargaguneaResponse(BaseModel):
     id: int
@@ -106,6 +161,10 @@ class KargaguneaResponse(BaseModel):
     irudia2: str
     irudia3: str
     egoera: str
+    udalerria_id: Optional[int] = None
+    udalerria_izena: Optional[str] = None
+    latitud: Optional[float] = None
+    longitud: Optional[float] = None
     libres: int = 0
     karga_postuak: List[KargaPostuaResponse] = []
 
@@ -118,14 +177,18 @@ class KargaguneaCreate(BaseModel):
     irudia2: str = Field(min_length=1, max_length=100)
     irudia3: str = Field(min_length=1, max_length=100)
     egoera: str = Field(min_length=1, max_length=100)
+    udalerria_id: Optional[int] = Field(default=None, gt=0)
+    latitud: Optional[float] = Field(default=None, ge=-90, le=90)
+    longitud: Optional[float] = Field(default=None, ge=-180, le=180)
 
     @field_validator("egoera")
     @classmethod
     def egoera_balidatu(cls, value: str) -> str:
-        kargagunea_egoera = {"Erabilgarri", "Mantentze-lanetan", "Zerbitzutik kanpo"}
-        if value not in kargagunea_egoera:
-            raise ValueError("Egoera hauetako bat izan behar da: Erabilgarri, Mantentze-lanetan, Zerbitzutik kanpo")
-        return value
+        kargagunea_egoera = {"erabilgarri", "mantentze-lanetan", "zerbitzutik-kanpo"}
+        normalized = value.strip().lower().replace(" ", "-")
+        if normalized not in kargagunea_egoera:
+            raise ValueError("Egoera hauetako bat izan behar da: erabilgarri, mantentze-lanetan, zerbitzutik-kanpo")
+        return normalized
 
 class KargaguneaUpdate(BaseModel):
     izena: Optional[str] = Field(default=None, min_length=1, max_length=100)
@@ -134,14 +197,19 @@ class KargaguneaUpdate(BaseModel):
     irudia2: Optional[str] = Field(default=None, min_length=1, max_length=100)
     irudia3: Optional[str] = Field(default=None, min_length=1, max_length=100)
     egoera: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    udalerria_id: Optional[int] = Field(default=None, gt=0)
+    latitud: Optional[float] = Field(default=None, ge=-90, le=90)
+    longitud: Optional[float] = Field(default=None, ge=-180, le=180)
 
     @field_validator("egoera")
     @classmethod
     def egoera_balidatu(cls, value: Optional[str]) -> Optional[str]:
         if value is not None:
-            kargagunea_egoera = {"Erabilgarri", "Mantentze-lanetan", "Zerbitzutik kanpo"}
-            if value not in kargagunea_egoera:
-                raise ValueError("Egoera hauetako bat izan behar da: Erabilgarri, Mantentze-lanetan, Zerbitzutik kanpo")
+            kargagunea_egoera = {"erabilgarri", "mantentze-lanetan", "zerbitzutik-kanpo"}
+            normalized = value.strip().lower().replace(" ", "-")
+            if normalized not in kargagunea_egoera:
+                raise ValueError("Egoera hauetako bat izan behar da: erabilgarri, mantentze-lanetan, zerbitzutik-kanpo")
+            return normalized
         return value
 
 class KargaguneaIrudiaUpdate(BaseModel):
@@ -154,12 +222,14 @@ class KargaguneaIrudiaUpdate(BaseModel):
 class KargaPostuaResponse(BaseModel):
     id: int
     egoera: str
+    tamaina: Optional[str] = None
     kargagunea_id: int
 
     model_config = ConfigDict(from_attributes=True)
 
 class KargaPostuaCreate(BaseModel):
     egoera: str = Field(min_length=1, max_length=100)
+    tamaina: str = Field(default="estandar", min_length=1, max_length=100)
     kargagunea_id: int = Field(gt=0)
 
     @field_validator("egoera")
@@ -173,6 +243,7 @@ class KargaPostuaCreate(BaseModel):
 class PowerbankBase(BaseModel):
     # id: int
     karga_maila: float = Field(le=100)
+    egoera: str = Field(default="erabilgarri", min_length=1, max_length=100)
     karga_postua_id: int = Field(gt=0)
     
 
@@ -183,6 +254,7 @@ class PowerbankCreate(PowerbankBase):
 
 class PowerbankUpdate(BaseModel):
     karga_postua_id: Optional[int] = Field(default=None, gt=0)
+    egoera: Optional[str] = Field(default=None, min_length=1, max_length=100)
 
 class PowerbankResponse(PowerbankBase):
     id: int
@@ -195,9 +267,46 @@ class PowerbankResponse(PowerbankBase):
 
 class RegisterRequest(BaseModel):
     izena: str = Field(min_length=2, max_length=100)
-    login_email: str = Field(min_length=2, max_length=100)
-    login_pasahitza: str = Field(min_length=2, max_length=100)
+    abizena: str = Field(default="", max_length=100)
+    login_email: EmailStr
+    login_pasahitza: str = Field(min_length=8, max_length=100)
+
+    @field_validator("izena", "abizena")
+    @classmethod
+    def garbitu_izena(cls, value: str) -> str:
+        return value.strip()
+
+    @field_validator("login_email", mode="before")
+    @classmethod
+    def normalizatu_emaila(cls, value: str) -> str:
+        return value.strip().lower() if isinstance(value, str) else value
 
 class LoginRequest(BaseModel):
     login_email: str = Field(min_length=2, max_length=100)
-    login_pasahitza: str = Field(min_length=2, max_length=100)
+    login_pasahitza: str = Field(min_length=1, max_length=100)
+
+    @field_validator("login_email", mode="before")
+    @classmethod
+    def normalizatu_emaila(cls, value: str) -> str:
+        return value.strip().lower() if isinstance(value, str) else value
+
+
+class ProfileUpdate(BaseModel):
+    izena: Optional[str] = Field(default=None, min_length=2, max_length=100)
+    abizena: Optional[str] = Field(default=None, max_length=100)
+    login_email: Optional[EmailStr] = None
+
+    @field_validator("izena", "abizena")
+    @classmethod
+    def garbitu_izena(cls, value: Optional[str]) -> Optional[str]:
+        return value.strip() if isinstance(value, str) else value
+
+    @field_validator("login_email", mode="before")
+    @classmethod
+    def normalizatu_emaila(cls, value: str) -> str:
+        return value.strip().lower() if isinstance(value, str) else value
+
+
+class PasswordChange(BaseModel):
+    current_password: str = Field(min_length=1, max_length=100)
+    new_password: str = Field(min_length=8, max_length=100)

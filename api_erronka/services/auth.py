@@ -31,6 +31,30 @@ def get_current_user(session_id: str | None = Cookie(default=None), session: Ses
 def require_admin(current_user: Erabiltzailea = Depends(get_current_user)) -> Erabiltzailea:
     if current_user.rola != "admin":
         raise HTTPException(
-            status_code=403, detail="Ez zara administratzailea",)
+            status_code=403, detail="Ez zara administratzaile orokorra",)
 
     return current_user
+
+
+def require_manager(current_user: Erabiltzailea = Depends(get_current_user)) -> Erabiltzailea:
+    if current_user.rola not in {"admin", "udalerri_admin"}:
+        raise HTTPException(
+            status_code=403, detail="Ez duzu kudeatzeko baimenik",)
+
+    return current_user
+
+
+def is_general_admin(current_user: Erabiltzailea) -> bool:
+    return current_user.rola == "admin"
+
+
+def is_municipal_admin(current_user: Erabiltzailea) -> bool:
+    return current_user.rola == "udalerri_admin" and current_user.udalerria_id is not None
+
+
+def can_manage_municipality(current_user: Erabiltzailea, udalerria_id: int | None) -> bool:
+    if is_general_admin(current_user):
+        return True
+    if is_municipal_admin(current_user):
+        return udalerria_id is not None and current_user.udalerria_id == udalerria_id
+    return False

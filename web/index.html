@@ -1,81 +1,108 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/lista.css">
-    <link rel="stylesheet" href="css/dialogos.css">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Powerbank · Estaciones</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/lista.css">
+  <link rel="stylesheet" href="css/dialogos.css">
 </head>
 
-<body class="d-flex flex-column min-vh-100">
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-transparent">
-            <div class="container">
-                <a class="navbar-brand logo" href="index.html">
-                    <img src="https://assets.footylogos.com/logos/rayo-vallecano-white-logo-footylogos.png" alt="Logo">
-                </a>
+<body class="pb-page d-flex flex-column min-vh-100">
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-dark pb-navbar">
+      <div class="container">
+        <a class="pb-brand" href="index.html">
+          <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
+          POWERBANK
+        </a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav4">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarEstaciones"
+          aria-controls="navbarEstaciones" aria-expanded="false" aria-label="Abrir menú">
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-                <div class="collapse navbar-collapse" id="navbarNav4">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="index.html">Estaciones</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="Erabiltzailea.html">Cuenta</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-outline-primary ms-md-2 mt-2 mt-md-0" href="Login.html"
-                                id="btnCuenta">Iniciar Sesión</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-        <script src="js/api.js"></script>
-        <script src="js/dialogos.js"></script>
-        <script src="js/auth.js"></script>
-    </header>
-
-    <main class="container my-5 flex-grow-1">
-        <h1 class="text-center text-uppercase mb-4 fw-bold tracking-wide">Estaciones de Carga</h1>
-
-        <div class="list-group gap-3" id="lista">
-
-            <a href="puesto-Carga.html"
-                class="list-group-item list-group-item-action estacion-item text-white rounded-pill d-flex justify-content-between align-items-center py-3 px-4 shadow-sm">
-                <span class="text-lowercase fw-medium">estacion 1</span>
-                <div class="bg-success rounded-circle shadow-sm" style="width: 25px; height: 25px;"></div>
-            </a>
-
-
-
+        <div class="collapse navbar-collapse" id="navbarEstaciones">
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+            <li class="nav-item"><a class="nav-link active" href="index.html">Estaciones</a></li>
+            <li class="nav-item"><a class="nav-link" href="Erabiltzailea.html">Mi cuenta</a></li>
+            <li class="nav-item">
+              <a class="btn btn-outline-primary px-3" href="Login.html" id="btnCuenta">Iniciar sesión</a>
+            </li>
+          </ul>
         </div>
-        <script src="js/index.js"></script>
-    </main>
+      </div>
+    </nav>
+    <script src="js/api.js"></script>
+    <script src="js/dialogos.js"></script>
+    <script src="js/auth.js"></script>
+  </header>
 
-    <footer class="text-light mt-auto py-5" data-bs-theme="dark">
-        <div class="container text-center">
-            <h5 class="mb-3 fw-bold">POWERBANK</h5>
-            <ul class="list-inline small mb-3">
-                <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="index.html">Estaciones</a></li>
-                <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none" href="#"> </a>
-                </li>
-                <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="#"> </a></li>
-                <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none" href="erabiltzailea.html">Cuenta</a>
-                </li>
-            </ul>
-            <span class="text-body-secondary small">&copy; 2026 Powerbank Inc.</span>
+  <main class="container my-4 my-lg-5 flex-grow-1">
+    <section class="stations-hero mb-4">
+      <span class="pb-eyebrow">Red de carga</span>
+      <h1 class="display-5 fw-bold mt-2 mb-2">Encuentra tu estación</h1>
+      <p class="pb-muted mb-0">
+        Consulta la disponibilidad en tiempo real y reserva tu powerbank para hoy.
+      </p>
+    </section>
+
+    <section class="pb-card p-3 p-lg-4 mb-4" aria-labelledby="mapTitle">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+        <div>
+          <span class="pb-eyebrow">Mapa interactivo</span>
+          <h2 class="h4 fw-bold mt-1 mb-0" id="mapTitle">Estaciones en el mapa</h2>
         </div>
-    </footer>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+        <select class="form-select municipality-select" id="municipalityFilter"
+          aria-label="Filtrar estaciones por municipio">
+          <option value="">Todos los municipios</option>
+        </select>
+      </div>
+      <div id="map" class="station-map" role="application" aria-label="Mapa de estaciones de carga"></div>
+      <div id="mapEmpty" class="pb-empty mt-3 d-none">
+        <i class="fas fa-map-location-dot"></i>
+        <p class="mb-0">No hay estaciones con ubicación registrada.</p>
+      </div>
+    </section>
+
+    <div class="stations-toolbar d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+      <span class="pb-muted small" id="stationsCount">Cargando estaciones…</span>
+      <a class="btn btn-outline-secondary btn-sm" href="Erabiltzailea.html">
+        <i class="fas fa-calendar-check me-1"></i>Mis reservas
+      </a>
+    </div>
+
+    <div class="list-group gap-3" id="lista">
+      <div class="station-skeleton pb-card p-4">
+        <div class="pb-skeleton w-50 mb-2"></div>
+        <div class="pb-skeleton w-25"></div>
+      </div>
+      <div class="station-skeleton pb-card p-4">
+        <div class="pb-skeleton w-50 mb-2"></div>
+        <div class="pb-skeleton w-25"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="pb-footer py-4 mt-auto">
+    <div class="pb-shell d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2 small">
+      <span>© 2026 Powerbank Inc.</span>
+      <div class="d-flex gap-3">
+        <a href="index.html">Estaciones</a>
+        <a href="Erabiltzailea.html">Mi cuenta</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/index.js"></script>
 </body>
 
 </html>

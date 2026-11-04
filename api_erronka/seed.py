@@ -1,15 +1,9 @@
 from datetime import datetime, timedelta
 
 from database import SessionLocal, engine
-from models.models import Base, Erabiltzailea, Erreserba, KargaPostua, Kargagunea, Powerbank
+from media import IRUDIAK
+from models.models import Base, Erabiltzailea, Erreserba, KargaPostua, Kargagunea, Powerbank, Udalerria
 from services.auth import hash_password
-
-
-IRUDIAK = [
-    "https://upload.wikimedia.org/wikipedia/commons/d/de/El_Peine_del_Viento_en_Donostia-San_Sebasti%C3%A1n.jpg",
-    "https://i.pinimg.com/736x/81/67/1b/81671be0a66a32abe4442b902d5b2455.jpg",
-    "https://i.pinimg.com/736x/70/59/c9/7059c9b99717f630694c4f8a4320d003.jpg",
-]
 
 ERABILTZAILEAK = [
     ("Alex", "Johnson", "alex@example.com", "user"),
@@ -20,36 +14,36 @@ ERABILTZAILEAK = [
 ]
 
 ESTACIONES = [
-    ("Kargagunea Zubieta", "Zubieta Plaza, 1", "erabilgarri", [
+    ("Kargagunea Zubieta", "Zubieta Plaza, 1", "erabilgarri", "Donostia", 43.3078, -1.9566, [
         ("kargatuta", 100), ("kargatuta", 80), ("hutsa", None),
         ("kargatuta", 45), ("kargatzen", 60), ("kargatuta", 100),
     ]),
-    ("Kargagunea Donostia Centrico", "Askatasunaren Hiribidea, 15", "erabilgarri", [
+    ("Kargagunea Donostia Centrico", "Askatasunaren Hiribidea, 15", "erabilgarri", "Donostia", 43.3210, -1.9850, [
         ("hutsa", None), ("hutsa", None),
     ]),
-    ("Kargagunea Demo 03", "Easo Kalea, 10", "erabilgarri", [
+    ("Kargagunea Easo", "Easo Kalea, 10", "erabilgarri", "Donostia", 43.3195, -1.9830, [
         ("kargatuta", 100), ("kargatuta", 60), ("hutsa", None), ("kargatuta", 75),
     ]),
-    ("Kargagunea Demo 04", "Urbieta Kalea, 25", "mantentze-lanetan", [
+    ("Kargagunea Urbieta", "Urbieta Kalea, 25", "mantentze-lanetan", "Donostia", 43.3170, -1.9820, [
         ("kargatuta", 90), ("kargatuta", 50), ("hutsa", None),
     ]),
-    ("Kargagunea Demo 05", "Gros Kalea, 5", "zerbitzutik kanpo", [
+    ("Kargagunea Gros", "Gros Kalea, 5", "zerbitzutik-kanpo", "Donostia", 43.3240, -1.9760, [
         ("kargatzen", 10), ("kargatuta", 100), ("hutsa", None),
     ]),
-    ("Kargagunea Demo 06", "Antiguo Auzoa, 12", "erabilgarri", [
+    ("Kargagunea Zarautz Antiguo", "Antiguo Auzoa, 12", "erabilgarri", "Zarautz", 43.2845, -2.1695, [
         ("kargatuta", 80), ("hutsa", None),
     ]),
-    ("Kargagunea Demo 07", "Amara Kalea, 8", "mantentze-lanetan", [
+    ("Kargagunea Zarautz Amara", "Amara Kalea, 8", "mantentze-lanetan", "Zarautz", 43.2820, -2.1720, [
         ("hutsa", None), ("hutsa", None),
     ]),
-    ("Kargagunea Demo 08", "Egia Kalea, 20", "zerbitzutik kanpo", [
+    ("Kargagunea Zarautz Egia", "Egia Kalea, 20", "zerbitzutik-kanpo", "Zarautz", 43.2860, -2.1660, [
         ("kargatuta", 100), ("kargatuta", 100), ("hutsa", None), ("kargatuta", 35),
     ]),
-    ("Kargagunea Demo 09", "Aiete Pasealekua, 3", "erabilgarri", [
+    ("Kargagunea Zarautz Aiete", "Aiete Pasealekua, 3", "erabilgarri", "Zarautz", 43.2800, -2.1740, [
         ("kargatuta", 50), ("kargatuta", 80), ("kargatuta", 100),
         ("hutsa", None), ("hutsa", None),
     ]),
-    ("Kargagunea Demo 10", "Intxaurrondo Kalea, 14", "erabilgarri", [
+    ("Kargagunea Zarautz Intxaurrondo", "Intxaurrondo Kalea, 14", "erabilgarri", "Zarautz", 43.2880, -2.1640, [
         ("kargatuta", 70), ("kargatuta", 30), ("hutsa", None),
     ]),
 ]
@@ -73,8 +67,24 @@ def poblar_base_de_datos():
             session.flush()
             user_ids.append(erabiltzailea.id)
 
+        udalerriak = {}
+        for izena in ("Donostia", "Zarautz"):
+            udalerria = Udalerria(izena=izena, aktiboa=True)
+            session.add(udalerria)
+            session.flush()
+            udalerriak[izena] = udalerria
+
+        # Udalerri-administratzaile demoak.
+        demo_donostia = session.get(Erabiltzailea, user_ids[2])
+        demo_donostia.rola = "udalerri_admin"
+        demo_donostia.udalerria_id = udalerriak["Donostia"].id
+
+        demo_zarautz = session.get(Erabiltzailea, user_ids[3])
+        demo_zarautz.rola = "udalerri_admin"
+        demo_zarautz.udalerria_id = udalerriak["Zarautz"].id
+
         powerbank_slots = []
-        for number, (name, address, status, docks) in enumerate(ESTACIONES, start=1):
+        for number, (name, address, status, udalerria_izena, latitud, longitud, docks) in enumerate(ESTACIONES, start=1):
             station = Kargagunea(
                 izena=name,
                 helbidea=address,
@@ -82,6 +92,9 @@ def poblar_base_de_datos():
                 irudia2=IRUDIAK[number % len(IRUDIAK)],
                 irudia3=IRUDIAK[(number + 1) % len(IRUDIAK)],
                 egoera=status,
+                udalerria_id=udalerriak[udalerria_izena].id,
+                latitud=latitud,
+                longitud=longitud,
             )
             session.add(station)
             session.flush()
@@ -104,6 +117,8 @@ def poblar_base_de_datos():
                     powerbank_slots.append((powerbank.id, slot.id))
 
         now = datetime.now()
+
+        # Erreserba historikoak.
         for number, (powerbank_id, slot_id) in enumerate(powerbank_slots[:10]):
             start = now - timedelta(days=30 - number)
             end = start + timedelta(hours=2)
@@ -119,59 +134,24 @@ def poblar_base_de_datos():
                 egoera="amaitua",
             ))
 
-<<<<<<< HEAD
+        # Demo-erreserba aktibo bat, gaur bertan.
+        if powerbank_slots:
+            powerbank_id, slot_id = powerbank_slots[0]
+            start = now + timedelta(hours=1)
+            end = start + timedelta(hours=2)
+            session.add(Erreserba(
+                erabiltzailea_id=user_ids[0],
+                powerbank_id=powerbank_id,
+                hasiera_data_ordua=start,
+                amaiera_data_ordua=end,
+                egikaritze_data_ordua=start,
+                amaitze_data_ordua=end,
+                hasierako_karga_postua=slot_id,
+                bukaerako_karga_postua=None,
+                egoera="aktiboa",
+            ))
 
-        p1 = KargaPostua(egoera="kargatuta", kargagunea_id=k1.id)
-        p2 = KargaPostua(egoera="kargatuta", kargagunea_id=k1.id)
-        p3 = KargaPostua(egoera="hutsa", kargagunea_id=k2.id)
-        p4 = KargaPostua(egoera="kargatuta", kargagunea_id=k2.id)
-        session.add_all([p1, p2, p3, p4])
-        session.commit()
-
-
-        pb1 = Powerbank( karga_postua_id=p1.id)
-        pb2 = Powerbank(karga_postua_id=p2.id)
-        pb3 = Powerbank(karga_postua_id=p4.id)
-        session.add_all([pb1, pb2, pb3])
-        session.commit()
-
-
-        ahora = datetime.now()
-        r1 = Erreserba(
-            erabiltzailea_id=u1.id,
-            powerbank_id=pb1.id,
-            hasiera_data_ordua=ahora,
-            amaiera_data_ordua=ahora + timedelta(hours=2),
-            egikaritze_data_ordua=ahora,
-            amaitze_data_ordua=ahora + timedelta(hours=2),
-            hasierako_karga_postua=p1.id,
-            bukaerako_karga_postua=None,
-            egoera="aktiboa"
-        )
-        r2 = Erreserba(
-            erabiltzailea_id=u1.id,
-            powerbank_id=pb2.id,
-            hasiera_data_ordua=ahora - timedelta(days=2),
-            amaiera_data_ordua=ahora - timedelta(days=2, hours=-2),
-            egikaritze_data_ordua=ahora - timedelta(days=2),
-            amaitze_data_ordua=ahora - timedelta(days=2, hours=-2),
-            hasierako_karga_postua=p2.id,
-            bukaerako_karga_postua=p2.id,
-            egoera="amaitua"
-        )
-        session.add_all([r1, r2])
-        session.commit()
-
-        print("Base de datos poblada con exito.")
-
-    except Exception as e:
-        session.rollback()
-        print("Error al insertar datos:", e)
-    finally:
-        session.close()
-=======
-    print("Seed completado: al menos 10 usuarios, estaciones, puestos, powerbanks y reservas.")
->>>>>>> 001dfbaca6c83cdcd9ebdb2ae22cecb2f594d55b
+    print("Seed completado: usuarios, estaciones, puestos, powerbanks y reservas.")
 
 
 if __name__ == "__main__":

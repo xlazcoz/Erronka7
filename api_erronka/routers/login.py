@@ -1,40 +1,81 @@
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Response
-from sqlalchemy import select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
+
 from database import get_session
-from schemas.schemas import LoginRequest, RegisterRequest, ErabiltzaileaResponse
-from models.models import AuthSession, Erabiltzailea
-from services.auth import get_current_user, create_session_id, hash_password, pasahitza_egiaztatu
+from models.models import AuthSession, Erabiltzailea, Erreserba
+from schemas.schemas import (
+    ErabiltzaileaResponse,
+    PasswordChange,
+    ProfileUpdate,
+    LoginRequest,
+    RegisterRequest,
+)
+from services.auth import (
+    create_session_id,
+    get_current_user,
+    hash_password,
+    pasahitza_egiaztatu,
+)
+from services.erreserbak import expire_stale_reservations, reservation_response
 
 router = APIRouter(prefix="/login", tags=["Login"])
 
+SESSION_MAX_AGE = 60 * 60 * 24 * 7  # 7 egun
+
+
+def user_response(session: Session, erabiltzailea: Erabiltzailea) -> ErabiltzaileaResponse:
+    expire_stale_reservations(session)
+    erreserbak = session.scalars(
+        select(Erreserba)
+        .where(Erreserba.erabiltzailea_id == erabiltzailea.id)
+        .order_by(Erreserba.hasiera_data_ordua.desc())
+    ).all()
+
+    return ErabiltzaileaResponse(
+        id=erabiltzailea.id,
+        izena=erabiltzailea.izena,
+        abizena=erabiltzailea.abizena or "",
+        login_email=erabiltzailea.login_email,
+        rola=erabiltzailea.rola,
+        udalerria_id=erabiltzailea.udalerria_id,
+        udalerria_izena=erabiltzailea.udalerria.izena if erabiltzailea.udalerria else None,
+        erreserbak=[reservation_response(session, erreserba) for erreserba in erreserbak],
+    )
+
+
 @router.post("/register", response_model=ErabiltzaileaResponse, status_code=201)
 def erregistratu(data: RegisterRequest, session: Session = Depends(get_session)):
+    email = str(data.login_email).strip().lower()
     existing_user = session.scalar(
-        select(Erabiltzailea).where(Erabiltzailea.login_email == data.login_email)
+        select(Erabiltzailea).where(func.lower(Erabiltzailea.login_email) == email)
     )
     if existing_user is not None:
         raise HTTPException(status_code=409, detail="Emaila existitzen da, saioa hasi behar duzu")
 
     erabiltzailea = Erabiltzailea(
-        izena=data.izena,
-        abizena="",
-        login_email=data.login_email,
+        izena=data.izena.strip(),
+        abizena=data.abizena.strip(),
+        login_email=email,
         login_pasahitza=hash_password(data.login_pasahitza),
-        rola="user"
+        rola="user",
     )
     session.add(erabiltzailea)
     session.commit()
     session.refresh(erabiltzailea)
 
-    return erabiltzailea
+    return user_response(session, erabiltzailea)
+
 
 @router.post("")
 def login(data: LoginRequest, response: Response, session: Session = Depends(get_session)):
-    stmt = select(Erabiltzailea).where(Erabiltzailea.login_email == data.login_email)
+    email = data.login_email.strip().lower()
+    stmt = select(Erabiltzailea).where(func.lower(Erabiltzailea.login_email) == email)
     erabiltzailea = session.scalars(stmt).first()
 
-    if erabiltzailea is None or not pasahitza_egiaztatu(data.login_pasahitza, erabiltzailea.login_pasahitza):
+    if erabiltzailea is None or not pasahitza_egiaztatu(
+        data.login_pasahitza, erabiltzailea.login_pasahitza
+    ):
         raise HTTPException(status_code=401, detail="Emaila edo pasahitza ez da zuzena")
 
     session_id = create_session_id()
@@ -43,21 +84,34 @@ def login(data: LoginRequest, response: Response, session: Session = Depends(get
     session.add(auth_session)
     session.commit()
 
-    response.set_cookie(key="session_id", value=session_id, httponly=True, samesite="lax", secure=False)
+    response.set_cookie(
+        key="session_id",
+        value=session_id,
+        httponly=True,
+        samesite="lax",
+        secure=False,
+        max_age=SESSION_MAX_AGE,
+    )
 
     return {
         "message": "Saioa hasi da",
         "usuario": {
             "id": erabiltzailea.id,
             "izena": erabiltzailea.izena,
+            "abizena": erabiltzailea.abizena,
             "email": erabiltzailea.login_email,
-            "rola": erabiltzailea.rola
-        }
+            "rola": erabiltzailea.rola,
+        },
     }
 
+
 @router.post("/logout")
-def logout(response: Response, session_id: str | None = Cookie(default=None), session: Session = Depends(get_session)):
-    if session_id is not None: 
+def logout(
+    response: Response,
+    session_id: str | None = Cookie(default=None),
+    session: Session = Depends(get_session),
+):
+    if session_id is not None:
         auth_session = session.get(AuthSession, session_id)
         if auth_session is not None:
             session.delete(auth_session)
@@ -66,6 +120,62 @@ def logout(response: Response, session_id: str | None = Cookie(default=None), se
     response.delete_cookie(key="session_id")
     return {"message": "Saioa itxi da"}
 
+
 @router.get("/me", response_model=ErabiltzaileaResponse)
-def me(current_user: Erabiltzailea = Depends(get_current_user)):
-    return current_user
+def me(current_user: Erabiltzailea = Depends(get_current_user), session: Session = Depends(get_session)):
+    return user_response(session, current_user)
+
+
+@router.patch("/me", response_model=ErabiltzaileaResponse)
+def aldatu_me(
+    data: ProfileUpdate,
+    current_user: Erabiltzailea = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    changes = data.model_dump(exclude_unset=True)
+
+    if "login_email" in changes:
+        email = str(changes["login_email"]).strip().lower()
+        existing = session.scalar(
+            select(Erabiltzailea).where(
+                func.lower(Erabiltzailea.login_email) == email,
+                Erabiltzailea.id != current_user.id,
+            )
+        )
+        if existing is not None:
+            raise HTTPException(status_code=409, detail="Email hori erabilita dago")
+        changes["login_email"] = email
+
+    for field, value in changes.items():
+        setattr(current_user, field, value)
+
+    session.commit()
+    session.refresh(current_user)
+    return user_response(session, current_user)
+
+
+@router.patch("/password")
+def aldatu_pasahitza(
+    data: PasswordChange,
+    current_user: Erabiltzailea = Depends(get_current_user),
+    session_id: str | None = Cookie(default=None),
+    session: Session = Depends(get_session),
+):
+    if not pasahitza_egiaztatu(data.current_password, current_user.login_pasahitza):
+        raise HTTPException(status_code=400, detail="Oraingo pasahitza ez da zuzena")
+
+    if data.current_password == data.new_password:
+        raise HTTPException(status_code=400, detail="Pasahitz berria ezberdina izan behar da")
+
+    current_user.login_pasahitza = hash_password(data.new_password)
+
+    if session_id is not None:
+        session.execute(
+            delete(AuthSession).where(
+                AuthSession.erabiltzailea_id == current_user.id,
+                AuthSession.id != session_id,
+            )
+        )
+
+    session.commit()
+    return {"message": "Pasahitza aldatu da"}

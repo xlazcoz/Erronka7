@@ -2,186 +2,196 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kargagune</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/kargagunea.css">
-    <link rel="stylesheet" href="css/dialogos.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Powerbank · Estación</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/kargagunea.css">
+  <link rel="stylesheet" href="css/dialogos.css">
 </head>
 
-<body>
+<body class="pb-page d-flex flex-column min-vh-100">
 
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-transparent">
-            <div class="container">
-                <a class="navbar-brand logo" href="index.html">
-                    <img src="https://assets.footylogos.com/logos/rayo-vallecano-white-logo-footylogos.png" alt="Logo">
-                </a>
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-dark pb-navbar">
+      <div class="container">
+        <a class="pb-brand" href="index.html">
+          <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
+          POWERBANK
+        </a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav4">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarEstacion"
+          aria-controls="navbarEstacion" aria-expanded="false" aria-label="Abrir menú">
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-                <div class="collapse navbar-collapse" id="navbarNav4">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="index.html">Estaciones</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="Erabiltzailea.html">Cuenta</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-outline-primary ms-md-2 mt-2 mt-md-0" href="Login.html"
-                                id="btnCuenta">Iniciar Sesión</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-        <script src="js/api.js"></script>
-        <script src="js/dialogos.js"></script>
-        <script src="js/auth.js"></script>
-    </header>
-
-    <main class="container my-4">
-
-        <div class="info row align-items-center g-4">
-
-            <div class="col-12 col-lg-6 d-flex justify-content-center">
-                <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-indicators">
-                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0"
-                            class="active" aria-current="true" aria-label="Slide 1"></button>
-                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1"
-                            aria-label="Slide 2"></button>
-                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2"
-                            aria-label="Slide 3"></button>
-                    </div>
-                    <div class="carousel-inner shadow-sm">
-                        <div class="carousel-item active">
-                            <img id="imagen1"
-                                src="https://upload.wikimedia.org/wikipedia/commons/d/de/El_Peine_del_Viento_en_Donostia-San_Sebasti%C3%A1n.jpg"
-                                class="d-block w-100" alt="Peine del Viento">
-                        </div>
-                        <div class="carousel-item">
-                            <img id="imagen2"
-                                src="https://i.pinimg.com/736x/81/67/1b/81671be0a66a32abe4442b902d5b2455.jpg"
-                                class="d-block w-100" alt="Puente de Zurriola">
-                        </div>
-                        <div class="carousel-item">
-                            <img id="imagen3"
-                                src="https://i.pinimg.com/736x/70/59/c9/7059c9b99717f630694c4f8a4320d003.jpg"
-                                class="d-block w-100" alt="La Concha">
-                        </div>
-                    </div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators"
-                        data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators"
-                        data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="col-12 col-lg-6 d-flex flex-column align-items-center">
-
-                <div class="titulo">
-                    <h1 id="titulo">KARGAGUNEA_ZUBIETA</h1>
-                </div>
-
-                <div class="texto">
-
-
-                    <div class="estado align-items-center gap-2 mb-3">
-                        <div id="mi-circulo" class="bg-success rounded-circle" style="width: 25px; height: 25px;"></div>
-                        <div class="estadotxt m-0">
-                            <p class="m-0 fs-5" id="estado"> </p>
-                        </div>
-                    </div>
-
-                    <div class="direccion mb-4">
-                        <ul class="list-unstyled m-0">
-                            <li><a href="https://www.google.es/maps" target="_blank" class="fs-5 text-decoration-none"
-                                    id="maps">📍 Dirección</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="boton mt-auto">
-                        <button type="button" id="reservationButton" popovertarget="Reserva"
-                            class="btn btn-outline-primary btn-lg w-100">Reservar</button>
-                    </div>
-                </div>
-            </div>
-
+        <div class="collapse navbar-collapse" id="navbarEstacion">
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+            <li class="nav-item"><a class="nav-link" href="index.html">Estaciones</a></li>
+            <li class="nav-item"><a class="nav-link" href="Erabiltzailea.html">Mi cuenta</a></li>
+            <li class="nav-item">
+              <a class="btn btn-outline-primary px-3" href="Login.html" id="btnCuenta">Iniciar sesión</a>
+            </li>
+          </ul>
         </div>
+      </div>
+    </nav>
+    <script src="js/api.js"></script>
+    <script src="js/dialogos.js"></script>
+    <script src="js/auth.js"></script>
+  </header>
 
-        <div id="Reserva" popover class="popover-personalizado">
-            <div class="card bg-dark text-light border-secondary shadow-lg style-container">
-                <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-registration/img3.webp"
-                    class="card-img-top w-100" alt="Sample photo">
+  <main class="container my-4 my-lg-5 flex-grow-1">
 
-                <div class="card-body p-4 p-md-5">
-                    <h3 class="mb-4 text-center fw-bold">RESERVAR</h3>
+    <div class="info row align-items-stretch g-4">
 
-                    <form id="reservationForm">
-                        <div class="row">
-                            <div class="col-12 col-md-6 mb-4">
-                                <label for="FechaReserva" class="form-label text-secondary small fw-semibold">Fecha de
-                                    reserva</label>
-                                <input type="date" class="form-control bg-secondary-subtle text-white border-secondary"
-                                    id="FechaReserva" required />
-                            </div>
-
-                            <div class="col-12 col-md-6 mb-4">
-                                <label for="horaReserva" class="form-label text-secondary small fw-semibold">Hora de
-                                    reserva</label>
-                                <input type="time" class="form-control bg-secondary-subtle text-white border-secondary"
-                                    id="horaReserva" required />
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label text-secondary small fw-semibold" for="HoraDevolucion">Hora de
-                                devolucion</label>
-                            <input type="time" id="HoraDevolucion"
-                                class="form-control bg-secondary-subtle text-white border-secondary" required />
-                        </div>
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-outline-primary btn-lg mt-2">Confirmar reserva</button>
-                        </div>
-                    </form>
-                </div>
+      <div class="col-12 col-lg-6 d-flex justify-content-center">
+        <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-indicators">
+            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active"
+              aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1"
+              aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2"
+              aria-label="Slide 3"></button>
+          </div>
+          <div class="carousel-inner shadow-sm">
+            <div class="carousel-item active">
+              <img id="imagen1"
+                src="https://thumb.wikimedia.org/wikipedia/commons/thumb/5/59/Donostia-San-Sebastian-City-Hall.jpg/1280px-Donostia-San-Sebastian-City-Hall.jpg"
+                class="d-block w-100" alt="Ayuntamiento de Donostia">
             </div>
+            <div class="carousel-item">
+              <img id="imagen2"
+                src="https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/Donostia_Igeldotik.jpg/1280px-Donostia_Igeldotik.jpg"
+                class="d-block w-100" alt="Vista de Donostia">
+            </div>
+            <div class="carousel-item">
+              <img id="imagen3"
+                src="https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1c/San_Sebastian_Donostia_Maria_Cristina_Bridge_1190559.jpg/1280px-San_Sebastian_Donostia_Maria_Cristina_Bridge_1190559.jpg"
+                class="d-block w-100" alt="Puente María Cristina">
+            </div>
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators"
+            data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Anterior</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators"
+            data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Siguiente</span>
+          </button>
         </div>
+      </div>
 
-    </main>
+      <div class="col-12 col-lg-6 d-flex">
+        <div class="texto w-100 d-flex flex-column">
+          <div class="titulo text-center">
+            <span class="pb-eyebrow">Estación de carga</span>
+            <h1 id="titulo" class="mt-3">Cargando estación…</h1>
+          </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/puesto.js"></script>
+          <div class="estado justify-content-center align-items-center gap-2 mb-3">
+            <div id="mi-circulo" class="bg-success rounded-circle" style="width: 14px; height: 14px;"></div>
+            <div class="estadotxt m-0">
+              <p class="m-0 fs-5" id="estado">Comprobando disponibilidad…</p>
+            </div>
+          </div>
 
-    <footer class=" text-light mt-auto py-5" data-bs-theme="dark">
-        <div class="container text-center">
-            <h5 class="mb-3">POWERBANK</h5>
-            <ul class="list-inline small mb-3">
-                <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="index.html">Estaciones</a></li>
-                <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none" href="#"> </a>
-                </li>
-                <li class="list-inline-item"><a class="link-secondary text-decoration-none" href="#"> </a></li>
-                <li class="list-inline-item mx-3"><a class="link-secondary text-decoration-none" href="erab">Cuenta</a>
-                </li>
+          <div class="direccion text-center mb-4">
+            <ul class="list-unstyled m-0">
+              <li><a href="https://www.google.es/maps" target="_blank" rel="noopener"
+                  class="fs-6 text-decoration-none" id="maps">
+                  <i class="fas fa-location-dot me-2"></i>Dirección
+                </a></li>
             </ul>
-            <span class="text-body-secondary small">&copy; 2026 Powerbank Inc.</span>
+          </div>
+
+          <div class="boton mt-auto">
+            <button type="button" id="reservationButton" popovertarget="Reserva"
+              class="btn btn-primary btn-lg w-100 py-3" disabled>
+              <i class="fas fa-calendar-plus me-2"></i>Reservar powerbank
+            </button>
+          </div>
         </div>
-    </footer>
+      </div>
 
+    </div>
 
+    <div id="Reserva" popover class="popover-personalizado">
+      <div class="card bg-dark text-light border-secondary shadow-lg style-container">
+        <div class="card-body p-4 p-md-5">
+          <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+            <div>
+              <span class="pb-eyebrow">Nueva reserva</span>
+              <h3 class="mb-0 fw-bold mt-1">Elige tu horario</h3>
+            </div>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="closeReserva"
+              aria-label="Cerrar">✕</button>
+          </div>
+
+          <div id="reservationFeedback" class="pb-feedback mb-3" role="alert" aria-live="polite"></div>
+
+          <form id="reservationForm" novalidate>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label for="FechaReserva" class="form-label">Fecha de recogida</label>
+                <input type="date" class="form-control" id="FechaReserva" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label for="horaReserva" class="form-label">Hora de recogida</label>
+                <input type="time" class="form-control" id="horaReserva" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label for="FechaDevolucion" class="form-label">Fecha de devolución</label>
+                <input type="date" class="form-control" id="FechaDevolucion" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label for="HoraDevolucion" class="form-label">Hora de devolución</label>
+                <input type="time" id="HoraDevolucion" class="form-control" required>
+              </div>
+            </div>
+
+            <div class="reservation-summary mt-4">
+              <div class="d-flex justify-content-between">
+                <span class="pb-muted">Duración</span>
+                <strong id="reservationDuration">—</strong>
+              </div>
+              <div class="d-flex justify-content-between mt-1">
+                <span class="pb-muted">Disponibilidad en ese horario</span>
+                <strong id="reservationAvailability">—</strong>
+              </div>
+            </div>
+
+            <div class="d-grid gap-2 mt-4">
+              <button type="submit" id="reservationSubmit" class="btn btn-primary btn-lg py-3">
+                <span class="btn-label">Confirmar reserva</span>
+                <span class="pb-spinner d-none ms-2" aria-hidden="true"></span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="pb-footer py-4 mt-auto">
+    <div class="pb-shell d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2 small">
+      <span>© 2026 Powerbank Inc.</span>
+      <div class="d-flex gap-3">
+        <a href="index.html">Estaciones</a>
+        <a href="Erabiltzailea.html">Mi cuenta</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/puesto.js"></script>
 </body>
 
 </html>

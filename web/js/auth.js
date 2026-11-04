@@ -6,11 +6,11 @@ async function actualizarBotonNavbar() {
 
     try {
         await apiRequest("/login/me");
-        btnCuenta.className = "btn btn-danger me-2";
+        btnCuenta.className = "btn btn-outline-danger px-3";
         btnCuenta.textContent = "Cerrar sesión";
         btnCuenta.href = "#";
-        btnCuenta.onclick = async (e) => {
-            e.preventDefault();
+        btnCuenta.onclick = async (event) => {
+            event.preventDefault();
             await cerrarSesion();
         };
     } catch (error) {
@@ -21,7 +21,7 @@ async function actualizarBotonNavbar() {
             return;
         }
 
-        btnCuenta.className = "btn btn-primary me-2";
+        btnCuenta.className = "btn btn-outline-primary px-3";
         btnCuenta.textContent = "Iniciar sesión";
         btnCuenta.href = "Login.html";
         btnCuenta.onclick = null;
@@ -33,9 +33,13 @@ async function cerrarSesion() {
         await apiRequest("/login/logout", { method: "POST" });
         window.location.href = "index.html";
     } catch (error) {
-        await mostrarDialogo(`No se pudo cerrar la sesión: ${error.message}`, {
-            title: "Error al cerrar sesión",
-            type: "error",
-        });
+        if (typeof mostrarDialogo === "function") {
+            await mostrarDialogo(`No se pudo cerrar la sesión: ${error.message}`, {
+                title: "Error al cerrar sesión",
+                type: "error",
+            });
+        } else {
+            console.error("No se pudo cerrar la sesión:", error);
+        }
     }
 }
