@@ -125,12 +125,14 @@ def ensure_schema():
         connection.execute(text(
             "UPDATE erabiltzaileak SET rola = 'udalerri_admin', udalerria_id = "
             "(SELECT id FROM udalerriak WHERE lower(izena) = 'donostia' LIMIT 1) "
-            "WHERE lower(login_email) = 'demo03@example.com'"
+            "WHERE lower(login_email) = 'demo03@example.com' "
+            "AND rola = 'user' AND udalerria_id IS NULL"
         ))
         connection.execute(text(
             "UPDATE erabiltzaileak SET rola = 'udalerri_admin', udalerria_id = "
             "(SELECT id FROM udalerriak WHERE lower(izena) = 'zarautz' LIMIT 1) "
-            "WHERE lower(login_email) = 'demo04@example.com'"
+            "WHERE lower(login_email) = 'demo04@example.com' "
+            "AND rola = 'user' AND udalerria_id IS NULL"
         ))
 
 
