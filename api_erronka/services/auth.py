@@ -26,6 +26,9 @@ def get_current_user(session_id: str | None = Cookie(default=None), session: Ses
     if auth_session is None:
         raise HTTPException(status_code=401)
 
+    if not auth_session.erabiltzailea.aktiboa:
+        raise HTTPException(status_code=403, detail="Erabiltzailea desaktibatuta dago")
+
     return auth_session.erabiltzailea
 
 def require_admin(current_user: Erabiltzailea = Depends(get_current_user)) -> Erabiltzailea:

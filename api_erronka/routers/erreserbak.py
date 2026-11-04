@@ -12,7 +12,7 @@ from schemas.schemas import (
     ErreserbakEgoeraUpdate,
     ErreserbakItzuliUpdate,
 )
-from services.auth import can_manage_municipality, get_current_user, require_admin
+from services.auth import can_manage_municipality, get_current_user, require_admin, require_manager
 from services.erreserbak import (
     expire_stale_reservations,
     now_local,
@@ -262,12 +262,15 @@ def recoger_powerbank(
 def devolver_powerbank(
     session: SessionDep,
     id: int,
-    _admin: Erabiltzailea = Depends(require_admin),
+    current_user: Erabiltzailea = Depends(require_manager),
 ):
-    """Devolución de respaldo en la estación de recogida (solo admin)."""
+    """Devolución de respaldo en la estación de recogida."""
     erreserba = session.get(Erreserba, id)
     if not erreserba:
         raise HTTPException(status_code=404, detail="Erreserba ez da aurkitzen")
+
+    if not _can_manage(session, current_user, erreserba):
+        raise HTTPException(status_code=403, detail="Ez duzu erreserba hau aldatzeko baimenik")
 
     return_slot = session.get(KargaPostua, erreserba.hasierako_karga_postua)
     if return_slot is None:
@@ -284,12 +287,15 @@ def itzuli_powerbank(
     session: SessionDep,
     data: ErreserbakItzuliUpdate,
     id: int,
-    _admin: Erabiltzailea = Depends(require_admin),
+    current_user: Erabiltzailea = Depends(require_manager),
 ):
-    """Devolución indicando explícitamente la taquilla de destino (solo admin)."""
+    """Devolución indicando explícitamente la taquilla de destino."""
     erreserba = session.get(Erreserba, id)
     if not erreserba:
         raise HTTPException(status_code=404, detail="Erreserba ez da aurkitzen")
+
+    if not _can_manage(session, current_user, erreserba):
+        raise HTTPException(status_code=403, detail="Ez duzu erreserba hau aldatzeko baimenik")
 
     return_slot = session.get(KargaPostua, data.bukaerako_karga_postua)
     if return_slot is None:

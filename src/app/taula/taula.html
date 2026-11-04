@@ -1,86 +1,383 @@
-<div class="col-12 d-flex gap-2">
-    <button type="button" class="btn btn-success" id="sortu" (click)="erabiltzaileaSortu.showModal()">Sortu</button>
-    <button type="button" class="btn btn-primary" (click)="erabiltzaileaEditatu(erabiltzaileaAldatu)">Aldatu</button>
-    <button type="button" class="btn btn-danger">Desaktibatu</button>
+<div class="container py-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+    <div>
+      <h2 class="section-heading mb-1">Erabiltzaileen kudeaketa</h2>
+      <p class="text-muted mb-0">
+        Erabiltzaileak sortu, datuak aldatu, rolak kudeatu eta ezabatu.
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      <button type="button" class="btn btn-outline-secondary" (click)="kargatu()">
+        Berritu
+      </button>
+      <button type="button" class="btn btn-primary" (click)="irekiSortu()">
+        Erabiltzailea sortu
+      </button>
+    </div>
   </div>
 
-<hub-table
-  [data]="users()"
-  [headers]="headers"
-  [selectable]="true"
-  [ngModel]="selectedUsers()"
-  (ngModelChange)="selectedUsers.set($event)"
-  [totalItems]="totalItems()"
-  [(page)]="currentPage"
-  [(perPage)]="perPage"
-  [loading]="isLoading()"
-  [searchable]="true"
-  [(searchTerm)]="searchTerm"
-  [(ordination)]="ordination">
-</hub-table>
+  @if (feedback(); as alerta) {
+    <div
+      class="alert d-flex align-items-center justify-content-between"
+      [class.alert-success]="alerta.mota === 'ok'"
+      [class.alert-danger]="alerta.mota === 'error'"
+      role="alert"
+    >
+      <span>{{ alerta.testua }}</span>
+      <button type="button" class="btn-close" aria-label="Itxi" (click)="itxiFeedback()"></button>
+    </div>
+  }
 
-<dialog #erabiltzaileaSortu>
-  <form class="row g-3" method="dialog">
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+          <label for="erabiltzaileaHautatu" class="form-label">Erabiltzailea aukeratu</label>
+          <select
+            class="form-select"
+            id="erabiltzaileaHautatu"
+            [ngModel]="erabiltzaileHautatuaId()"
+            (ngModelChange)="erabiltzaileaAukeratu($event)"
+          >
+            <option [ngValue]="null">-- Aukeratu erabiltzaile bat --</option>
+            @for (erabiltzailea of users(); track erabiltzailea.id) {
+              <option [ngValue]="erabiltzailea.id">
+                {{ erabiltzailea.izena }} {{ erabiltzailea.abizena }} — {{ erabiltzailea.login_email }}
+              </option>
+            }
+          </select>
+        </div>
+
+        @if (erabiltzaileaHautatua(); as hautatua) {
+          <div class="col-md-3">
+            <label for="rolaHautatu" class="form-label">Rola</label>
+            <select
+              class="form-select"
+              id="rolaHautatu"
+              [ngModel]="rolaHautatua"
+              (ngModelChange)="rolaHautatua = $event"
+            >
+              @for (rola of rolak; track rola) {
+                <option [value]="rola">{{ rolaEtiketa(rola) }}</option>
+              }
+            </select>
+          </div>
+          @if (rolaHautatua === 'udalerri_admin') {
+            <div class="col-md-3">
+              <label for="udalerriaHautatu" class="form-label">Udalerria</label>
+              <select
+                class="form-select"
+                id="udalerriaHautatu"
+                [ngModel]="udalerriaHautatua"
+                (ngModelChange)="udalerriaHautatua = $event"
+              >
+                <option [ngValue]="null">-- Aukeratu udalerri bat --</option>
+                @for (udalerria of udalerriak(); track udalerria.id) {
+                  <option [ngValue]="udalerria.id">{{ udalerria.izena }}</option>
+                }
+              </select>
+            </div>
+          }
+          <div class="col-md-2">
+            <button type="button" class="btn btn-primary w-100" (click)="gordeRola()">
+              Rola gorde
+            </button>
+          </div>
+        }
+      </div>
+
+      @if (erabiltzaileaHautatua(); as hautatua) {
+        <hr />
+        <h6 class="fw-bold">
+          {{ hautatua.izena }} {{ hautatua.abizena }} — Erreserbak
+        </h6>
+
+        @if (erreserbakKargatzen()) {
+          <p class="text-muted mb-0">Erreserbak kargatzen...</p>
+        } @else if (erreserbak().length) {
+          <div class="table-responsive">
+            <table class="table table-sm table-striped align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Hasierako postua</th>
+                  <th>Hasiera</th>
+                  <th>Amaiera</th>
+                  <th>Egoera</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (erreserba of erreserbak(); track erreserba.id) {
+                  <tr>
+                    <td>{{ erreserba.id }}</td>
+                    <td>{{ erreserba.hasierako_karga_postua }}</td>
+                    <td>{{ erreserba.hasiera_data_ordua | date: 'short' }}</td>
+                    <td>{{ erreserba.amaiera_data_ordua | date: 'short' }}</td>
+                    <td>{{ erreserba.egoera }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <p class="text-muted mb-0">Erabiltzaile honek ez dauka erreserbarik.</p>
+        }
+      }
+    </div>
+  </div>
+
+  <hub-table
+    [data]="users()"
+    [headers]="headers"
+    [(page)]="currentPage"
+    [(perPage)]="perPage"
+    [loading]="isLoading()"
+    [searchable]="true"
+    [(searchTerm)]="searchTerm"
+    [(ordination)]="ordination"
+  >
+    <ng-template cellTpt header="rola" let-item="item">
+      <span class="badge" [ngClass]="rolaKlasa(item.rola)">{{ rolaEtiketa(item.rola) }}</span>
+    </ng-template>
+
+    <ng-template cellTpt header="aktiboa" let-item="item">
+      <span class="badge" [ngClass]="item.aktiboa ? 'text-bg-success' : 'text-bg-danger'">
+        {{ item.aktiboa ? 'Aktiboa' : 'Ez aktiboa' }}
+      </span>
+    </ng-template>
+
+    <ng-template cellTpt header="ekintzak" let-item="item">
+      <span class="accion-icono" title="Datuak aldatu" (click)="irekiAldaketa(item)">
+        <img src="icons/edit.svg" alt="Datuak aldatu" />
+      </span>
+      <span
+        class="accion-icono"
+        [class.accion-icono--exito]="!item.aktiboa"
+        [title]="item.aktiboa ? 'Desaktibatu' : 'Aktibatu'"
+        (click)="aldatuAktiboa(item)"
+      >
+        <img src="icons/power.svg" alt="Aktibatu edo desaktibatu" />
+      </span>
+      <span
+        class="accion-icono accion-icono--peligro"
+        title="Ezabatu"
+        (click)="ezabatuErabiltzailea(item)"
+      >
+        <img src="icons/trash.svg" alt="Ezabatu" />
+      </span>
+    </ng-template>
+  </hub-table>
+</div>
+
+<dialog #erabiltzaileaSortu class="kargagune-dialog">
+  <form class="row g-3" (ngSubmit)="sortuErabiltzailea()">
+    <div class="col-12">
+      <h4 class="mb-0">Erabiltzaile berria</h4>
+    </div>
+
     <div class="col-md-6">
-      <label for="izena" class="form-label">Izena</label>
-      <input type="text" class="form-control" id="izena" [(ngModel)]="erabiltzailea.izena" name="izena">
+      <label for="sortu-izena" class="form-label">Izena</label>
+      <input
+        type="text"
+        class="form-control"
+        id="sortu-izena"
+        name="sortu-izena"
+        [(ngModel)]="erabiltzaileaBerria.izena"
+        required
+      />
     </div>
-    <div class="col-md-4">
-      <label for="abizena" class="form-label">Abizena</label>
-      <input type="text" class="form-control" id="abizena" [(ngModel)]="erabiltzailea.abizena" name="abizena">
-    </div>
+
     <div class="col-md-6">
-      <label for="login_email" class="form-label">Email</label>
-      <input type="text" class="form-control" id="login_email" [(ngModel)]="erabiltzailea.login_email" name="login_email">
+      <label for="sortu-abizena" class="form-label">Abizena</label>
+      <input
+        type="text"
+        class="form-control"
+        id="sortu-abizena"
+        name="sortu-abizena"
+        [(ngModel)]="erabiltzaileaBerria.abizena"
+        required
+      />
     </div>
+
     <div class="col-md-6">
-      <label for="login_pasahitza" class="form-label">Pasahitza</label>
-      <input type="text" class="form-control" id="login_pasahitza" [(ngModel)]="erabiltzailea.login_pasahitza" name="login_pasahitza">
+      <label for="sortu-email" class="form-label">Emaila</label>
+      <input
+        type="email"
+        class="form-control"
+        id="sortu-email"
+        name="sortu-email"
+        [(ngModel)]="erabiltzaileaBerria.login_email"
+        required
+      />
     </div>
+
     <div class="col-md-6">
-      <label for="rola" class="form-label">Rola</label>
-      <input type="text" class="form-control" id="rola" [(ngModel)]="erabiltzailea.rola" name="rola">
+      <label for="sortu-pasahitza" class="form-label">Pasahitza</label>
+      <input
+        type="password"
+        class="form-control"
+        id="sortu-pasahitza"
+        name="sortu-pasahitza"
+        [(ngModel)]="erabiltzaileaBerria.login_pasahitza"
+        required
+      />
     </div>
+
     <div class="col-md-6">
-      <label for="erreserben_historikoa" class="form-label">Erreserbak</label>
-      <input type="text" class="form-control" id="erreserben_historikoa" [(ngModel)]="erabiltzailea.erreserben_historikoa" name="erreserben_historikoa">
+      <label for="sortu-rola" class="form-label">Rola</label>
+      <select
+        class="form-select"
+        id="sortu-rola"
+        name="sortu-rola"
+        [(ngModel)]="erabiltzaileaBerria.rola"
+      >
+        @for (rola of rolak; track rola) {
+          <option [value]="rola">{{ rolaEtiketa(rola) }}</option>
+        }
+      </select>
     </div>
+
+    @if (erabiltzaileaBerria.rola === 'udalerri_admin') {
+      <div class="col-md-6">
+        <label for="sortu-udalerria" class="form-label">Udalerria</label>
+        <select
+          class="form-select"
+          id="sortu-udalerria"
+          name="sortu-udalerria"
+          [(ngModel)]="erabiltzaileaBerria.udalerria_id"
+        >
+          <option [ngValue]="null">-- Aukeratu udalerri bat --</option>
+          @for (udalerria of udalerriak(); track udalerria.id) {
+            <option [ngValue]="udalerria.id">{{ udalerria.izena }}</option>
+          }
+        </select>
+      </div>
+    }
+
+    <div class="col-md-6 d-flex align-items-end">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          id="sortu-aktiboa"
+          name="sortu-aktiboa"
+          [(ngModel)]="erabiltzaileaBerria.aktiboa"
+        />
+        <label class="form-check-label" for="sortu-aktiboa">Aktiboa</label>
+      </div>
+    </div>
+
     <div class="col-12 d-flex">
-      <button type="button" class="btn btn-success" (click)="sortuErabiltzailea(); erabiltzaileaSortu.close()">Gorde</button>
-      <button type="button" class="btn btn-danger ms-auto" (click)="erabiltzaileaSortu.close()">Irten</button>
+      <button type="submit" class="btn btn-success">Gorde</button>
+      <button type="button" class="btn btn-danger ms-auto" (click)="erabiltzaileaSortu.close()">
+        Irten
+      </button>
     </div>
   </form>
 </dialog>
 
-<dialog #erabiltzaileaAldatu>
-  <form class="row g-3" method="dialog">
+<dialog #erabiltzaileaAldatu class="kargagune-dialog">
+  <form class="row g-3" (ngSubmit)="aldatuErabiltzailea()">
+    <div class="col-12">
+      <h4 class="mb-0">Erabiltzailea aldatu</h4>
+    </div>
+
     <div class="col-md-6">
-      <label for="izena" class="form-label">Izena</label>
-      <input type="text" class="form-control" id="izena" [(ngModel)]="erabiltzailea.izena" name="izena">
+      <label for="aldatu-izena" class="form-label">Izena</label>
+      <input
+        type="text"
+        class="form-control"
+        id="aldatu-izena"
+        name="aldatu-izena"
+        [(ngModel)]="erabiltzaileaEditatzen.izena"
+        required
+      />
     </div>
-    <div class="col-md-4">
-      <label for="abizena" class="form-label">Abizena</label>
-      <input type="text" class="form-control" id="abizena" [(ngModel)]="erabiltzailea.abizena" name="abizena">
-    </div>
+
     <div class="col-md-6">
-      <label for="login_email" class="form-label">Email</label>
-      <input type="text" class="form-control" id="login_email" [(ngModel)]="erabiltzailea.login_email" name="login_email">
+      <label for="aldatu-abizena" class="form-label">Abizena</label>
+      <input
+        type="text"
+        class="form-control"
+        id="aldatu-abizena"
+        name="aldatu-abizena"
+        [(ngModel)]="erabiltzaileaEditatzen.abizena"
+        required
+      />
     </div>
+
     <div class="col-md-6">
-      <label for="login_pasahitza" class="form-label">Pasahitza</label>
-      <input type="text" class="form-control" id="login_pasahitza" [(ngModel)]="erabiltzailea.login_pasahitza" name="login_pasahitza">
+      <label for="aldatu-email" class="form-label">Emaila</label>
+      <input
+        type="email"
+        class="form-control"
+        id="aldatu-email"
+        name="aldatu-email"
+        [(ngModel)]="erabiltzaileaEditatzen.login_email"
+        required
+      />
     </div>
+
     <div class="col-md-6">
-      <label for="rola" class="form-label">Rola</label>
-      <input type="text" class="form-control" id="rola" [(ngModel)]="erabiltzailea.rola" name="rola">
+      <label for="aldatu-pasahitza" class="form-label">Pasahitza berria (aukerakoa)</label>
+      <input
+        type="password"
+        class="form-control"
+        id="aldatu-pasahitza"
+        name="aldatu-pasahitza"
+        [(ngModel)]="erabiltzaileaEditatzen.login_pasahitza"
+      />
     </div>
+
     <div class="col-md-6">
-      <label for="erreserben_historikoa" class="form-label">Erreserbak</label>
-      <input type="text" class="form-control" id="erreserben_historikoa" [(ngModel)]="erabiltzailea.erreserben_historikoa" name="erreserben_historikoa">
+      <label for="aldatu-rola" class="form-label">Rola</label>
+      <select
+        class="form-select"
+        id="aldatu-rola"
+        name="aldatu-rola"
+        [(ngModel)]="erabiltzaileaEditatzen.rola"
+      >
+        @for (rola of rolak; track rola) {
+          <option [value]="rola">{{ rolaEtiketa(rola) }}</option>
+        }
+      </select>
     </div>
+
+    @if (erabiltzaileaEditatzen.rola === 'udalerri_admin') {
+      <div class="col-md-6">
+        <label for="aldatu-udalerria" class="form-label">Udalerria</label>
+        <select
+          class="form-select"
+          id="aldatu-udalerria"
+          name="aldatu-udalerria"
+          [(ngModel)]="erabiltzaileaEditatzen.udalerria_id"
+        >
+          <option [ngValue]="null">-- Aukeratu udalerri bat --</option>
+          @for (udalerria of udalerriak(); track udalerria.id) {
+            <option [ngValue]="udalerria.id">{{ udalerria.izena }}</option>
+          }
+        </select>
+      </div>
+    }
+
+    <div class="col-md-6 d-flex align-items-end">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          id="aldatu-aktiboa"
+          name="aldatu-aktiboa"
+          [(ngModel)]="erabiltzaileaEditatzen.aktiboa"
+        />
+        <label class="form-check-label" for="aldatu-aktiboa">Aktiboa</label>
+      </div>
+    </div>
+
     <div class="col-12 d-flex">
-      <button type="button" class="btn btn-success" (click)="aldatuErabiltzailea(erabiltzaileaID); erabiltzaileaAldatu.close()">Gorde</button>
-      <button type="button" class="btn btn-danger ms-auto" (click)="erabiltzaileaAldatu.close()">Irten</button>
+      <button type="submit" class="btn btn-success">Gorde</button>
+      <button type="button" class="btn btn-danger ms-auto" (click)="erabiltzaileaAldatu.close()">
+        Irten
+      </button>
     </div>
   </form>
 </dialog>

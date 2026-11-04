@@ -39,6 +39,7 @@ def user_response(session: Session, erabiltzailea: Erabiltzailea) -> Erabiltzail
         abizena=erabiltzailea.abizena or "",
         login_email=erabiltzailea.login_email,
         rola=erabiltzailea.rola,
+        aktiboa=erabiltzailea.aktiboa,
         udalerria_id=erabiltzailea.udalerria_id,
         udalerria_izena=erabiltzailea.udalerria.izena if erabiltzailea.udalerria else None,
         erreserbak=[reservation_response(session, erreserba) for erreserba in erreserbak],
@@ -78,6 +79,9 @@ def login(data: LoginRequest, response: Response, session: Session = Depends(get
         data.login_pasahitza, erabiltzailea.login_pasahitza
     ):
         raise HTTPException(status_code=401, detail="Emaila edo pasahitza ez da zuzena")
+
+    if not erabiltzailea.aktiboa:
+        raise HTTPException(status_code=403, detail="Erabiltzailea desaktibatuta dago")
 
     session_id = create_session_id()
     auth_session = AuthSession(id=session_id, erabiltzailea=erabiltzailea)

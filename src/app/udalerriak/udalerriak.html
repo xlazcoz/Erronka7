@@ -1,0 +1,128 @@
+<div class="container py-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+    <div>
+      <h2 class="section-heading mb-1">Udalerrien kudeaketa</h2>
+      <p class="text-muted mb-0">
+        Udalerriak sortu, aldatu eta desaktibatu.
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      <button type="button" class="btn btn-outline-secondary" (click)="kargatu()">
+        Berritu
+      </button>
+      <button type="button" class="btn btn-primary" (click)="irekiSortu()">
+        Udalerria sortu
+      </button>
+    </div>
+  </div>
+
+  @if (feedback(); as alerta) {
+    <div
+      class="alert d-flex align-items-center justify-content-between"
+      [class.alert-success]="alerta.mota === 'ok'"
+      [class.alert-danger]="alerta.mota === 'error'"
+      role="alert"
+    >
+      <span>{{ alerta.testua }}</span>
+      <button type="button" class="btn-close" aria-label="Itxi" (click)="itxiFeedback()"></button>
+    </div>
+  }
+
+  <hub-table
+    [data]="udalerriak()"
+    [headers]="headers"
+    [(page)]="currentPage"
+    [(perPage)]="perPage"
+    [loading]="isLoading()"
+    [searchable]="true"
+    [(searchTerm)]="searchTerm"
+    [(ordination)]="ordination"
+  >
+    <ng-template cellTpt header="aktiboa" let-item="item">
+      <span class="badge" [ngClass]="item.aktiboa ? 'text-bg-success' : 'text-bg-danger'">
+        {{ item.aktiboa ? 'Aktiboa' : 'Ez aktiboa' }}
+      </span>
+    </ng-template>
+
+    <ng-template cellTpt header="ekintzak" let-item="item">
+      <span class="accion-icono" title="Datuak aldatu" (click)="irekiAldaketa(item)">
+        <img src="icons/edit.svg" alt="Datuak aldatu" />
+      </span>
+      <span
+        class="accion-icono"
+        [class.accion-icono--exito]="!item.aktiboa"
+        [title]="item.aktiboa ? 'Desaktibatu' : 'Aktibatu'"
+        (click)="aldatuAktiboa(item)"
+      >
+        <img src="icons/power.svg" alt="Aktibatu edo desaktibatu" />
+      </span>
+    </ng-template>
+  </hub-table>
+</div>
+
+<dialog #udalerriaSortu class="kargagune-dialog">
+  <form class="row g-3" (ngSubmit)="sortuUdalerria()">
+    <div class="col-12">
+      <h4 class="mb-0">Udalerri berria</h4>
+    </div>
+
+    <div class="col-12">
+      <label for="sortu-udalerria-izena" class="form-label">Izena</label>
+      <input
+        type="text"
+        class="form-control"
+        id="sortu-udalerria-izena"
+        name="sortu-udalerria-izena"
+        [(ngModel)]="udalerriaBerria.izena"
+        required
+      />
+    </div>
+
+    <div class="col-12 d-flex">
+      <button type="submit" class="btn btn-success">Gorde</button>
+      <button type="button" class="btn btn-danger ms-auto" (click)="udalerriaSortu.close()">
+        Irten
+      </button>
+    </div>
+  </form>
+</dialog>
+
+<dialog #udalerriaAldatu class="kargagune-dialog">
+  <form class="row g-3" (ngSubmit)="gordeAldaketa()">
+    <div class="col-12">
+      <h4 class="mb-0">Udalerria aldatu</h4>
+    </div>
+
+    <div class="col-12">
+      <label for="aldatu-udalerria-izena" class="form-label">Izena</label>
+      <input
+        type="text"
+        class="form-control"
+        id="aldatu-udalerria-izena"
+        name="aldatu-udalerria-izena"
+        [(ngModel)]="udalerriaEditatzen.izena"
+        required
+      />
+    </div>
+
+    <div class="col-12">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          id="aldatu-udalerria-aktiboa"
+          name="aldatu-udalerria-aktiboa"
+          [(ngModel)]="udalerriaEditatzen.aktiboa"
+        />
+        <label class="form-check-label" for="aldatu-udalerria-aktiboa">Aktiboa</label>
+      </div>
+    </div>
+
+    <div class="col-12 d-flex">
+      <button type="submit" class="btn btn-success">Gorde</button>
+      <button type="button" class="btn btn-danger ms-auto" (click)="udalerriaAldatu.close()">
+        Irten
+      </button>
+    </div>
+  </form>
+</dialog>

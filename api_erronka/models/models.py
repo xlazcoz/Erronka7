@@ -38,6 +38,7 @@ class Erabiltzailea(Base):
     login_email: Mapped[str] = mapped_column(String(100))
     login_pasahitza: Mapped[str] = mapped_column(String(255))
     rola: Mapped[str] = mapped_column(String(100), default="user")
+    aktiboa: Mapped[bool] = mapped_column(Boolean, default=True)
     udalerria_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("udalerriak.id", ondelete="SET NULL"), nullable=True, default=None
     )

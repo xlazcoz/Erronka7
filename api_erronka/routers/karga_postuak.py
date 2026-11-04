@@ -1,10 +1,10 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 from database import get_session
-from models.models import Erabiltzailea, KargaPostua, Kargagunea
-from schemas.schemas import KargaPostuaResponse, KargaPostuaCreate
+from models.models import Erabiltzailea, Erreserba, KargaPostua, Kargagunea, Powerbank
+from schemas.schemas import KargaPostuaResponse, KargaPostuaCreate, KargaPostuaUpdate
 from services.auth import can_manage_municipality, require_manager
 
 router = APIRouter(prefix="/kargapostuak", tags=["Karga postuak"])
@@ -45,6 +45,29 @@ def sortu_karga_postua(
 
     return karga_postua
 
+
+@router.patch("/{id}", response_model=KargaPostuaResponse, status_code=200)
+def aldatu_karga_postua(
+    session: SessionDep,
+    data: KargaPostuaUpdate,
+    id: int,
+    current_user: Erabiltzailea = Depends(require_manager),
+):
+    karga_postua = session.get(KargaPostua, id)
+
+    if not karga_postua:
+        raise HTTPException(status_code=404, detail="Karga postua ez da aurkitzen")
+
+    _check_station_permission(session, current_user, karga_postua.kargagunea_id)
+
+    for field, value in data.model_dump(exclude_unset=True).items():
+        setattr(karga_postua, field, value)
+
+    session.commit()
+    session.refresh(karga_postua)
+    return karga_postua
+
+
 @router.delete("/{id}", response_model=KargaPostuaResponse, status_code=200)
 def ezabatu_karga_postua(
     session: SessionDep,
@@ -57,6 +80,34 @@ def ezabatu_karga_postua(
         raise HTTPException(status_code=404, detail="Karga postua ez da aurkitzen")
 
     _check_station_permission(session, current_user, karga_postua.kargagunea_id)
+
+    powerbank = session.scalar(
+        select(Powerbank.id).where(Powerbank.karga_postua_id == id).limit(1)
+    )
+    if powerbank is not None:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "Karga postu honek powerbank-ak ditu. Mugitu edo ezabatu "
+                "powerbank-ak lehenago."
+            ),
+        )
+
+    erreserba = session.scalar(
+        select(Erreserba.id)
+        .where(
+            or_(
+                Erreserba.hasierako_karga_postua == id,
+                Erreserba.bukaerako_karga_postua == id,
+            )
+        )
+        .limit(1)
+    )
+    if erreserba is not None:
+        raise HTTPException(
+            status_code=409,
+            detail="Karga postu honek erreserbak ditu: ezin da ezabatu.",
+        )
 
     session.delete(karga_postua)
     session.commit()
