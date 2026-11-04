@@ -19,6 +19,7 @@ import {
 import { catchError, forkJoin, of } from 'rxjs';
 import { Api, KargaPostua, Kargagunea, Powerbank, Udalerria } from '../services/api';
 import { AuthService } from '../services/auth';
+import { filterOptions } from '../services/filter-options';
 
 type PowerbankTaulan = Powerbank & {
   id: number;
@@ -201,7 +202,7 @@ export class Powerbanks implements OnInit {
         filter: {
           type: 'dropdown',
           mode: 'row',
-          options: udalerriAukerak.map((udalerria) => udalerria.izena),
+          options: filterOptions(udalerriAukerak.map((udalerria) => udalerria.izena)),
           placeholder: 'Udalerria',
         },
       },

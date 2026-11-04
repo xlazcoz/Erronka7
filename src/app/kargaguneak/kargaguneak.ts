@@ -19,6 +19,7 @@ import {
 import { catchError, forkJoin, of } from 'rxjs';
 import { Api, Kargagunea, KargaPostua, Udalerria } from '../services/api';
 import { AuthService } from '../services/auth';
+import { filterOptions } from '../services/filter-options';
 
 type KargaguneaTaulan = Kargagunea & {
   egoera_etiketa: string;
@@ -373,7 +374,7 @@ export class Kargaguneak implements OnInit {
         filter: {
           type: 'dropdown',
           mode: 'row',
-          options: udalerriAukerak.map((udalerria) => udalerria.izena),
+          options: filterOptions(udalerriAukerak.map((udalerria) => udalerria.izena)),
           placeholder: 'Udalerria',
         },
       },

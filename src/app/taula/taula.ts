@@ -19,6 +19,7 @@ import {
 import { catchError, forkJoin, of } from 'rxjs';
 import { Api, Erabiltzailea, Erreserba, Udalerria } from '../services/api';
 import { rolaEtiketa } from '../services/auth';
+import { filterOptions } from '../services/filter-options';
 
 type ErabiltzaileaTaulan = Erabiltzailea & {
   aktiboa: boolean;
@@ -390,7 +391,7 @@ export class Taula implements OnInit {
         filter: {
           type: 'dropdown',
           mode: 'row',
-          options: ['user', 'admin', 'superadmin'],
+          options: this.rolak.map((rola) => ({ id: rola, name: rolaEtiketa(rola) })),
           placeholder: 'Rola',
         },
       },
@@ -402,7 +403,7 @@ export class Taula implements OnInit {
         filter: {
           type: 'dropdown',
           mode: 'row',
-          options: udalerriak.map((udalerria) => udalerria.izena),
+          options: filterOptions(udalerriak.map((udalerria) => udalerria.izena)),
           placeholder: 'Udalerria',
         },
       },

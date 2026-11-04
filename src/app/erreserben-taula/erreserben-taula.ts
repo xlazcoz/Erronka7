@@ -20,6 +20,7 @@ import {
 import { catchError, forkJoin, of } from 'rxjs';
 import { Api, Erabiltzailea, Erreserba, KargaPostua, Kargagunea, Udalerria } from '../services/api';
 import { AuthService } from '../services/auth';
+import { filterOptions } from '../services/filter-options';
 
 type ErreserbaTaulan = Erreserba & {
   erabiltzailea_izena: string;
@@ -63,7 +64,7 @@ export class ErreserbenTaula implements OnInit {
   ordination = signal<PaginableTableOrdination | undefined>(undefined);
   feedback = signal<{ mota: 'ok' | 'error'; testua: string } | null>(null);
 
-  headers: PaginableTableHeader[] = this.buildHeaders([], [], []);
+  headers: PaginableTableHeader[] = this.buildHeaders([]);
 
   ngOnInit(): void {
     this.kargatu();
@@ -91,7 +92,7 @@ export class ErreserbenTaula implements OnInit {
         this.postuak.set(postuak);
         this.guneak.set(guneak);
         this.udalerriak.set(udalerriak);
-        this.headers = this.buildHeaders(erabiltzaileak, guneak, udalerriak);
+        this.headers = this.buildHeaders(prestatuak);
         this.erreserbak.set(prestatuak);
         this.isLoading.set(false);
         this.cdr.detectChanges();
@@ -242,27 +243,17 @@ export class ErreserbenTaula implements OnInit {
     };
   }
 
-  private buildHeaders(
-    erabiltzaileak: Erabiltzailea[],
-    guneak: Kargagunea[],
-    udalerriak: Udalerria[],
-  ): PaginableTableHeader[] {
-    const erabiltzaileAukerak = Array.from(
-      new Set(
-        erabiltzaileak
-          .map((erabiltzailea) => erabiltzailea.login_email)
-          .filter((email): email is string => !!email),
-      ),
+  private buildHeaders(prestatuak: ErreserbaTaulan[]): PaginableTableHeader[] {
+    const erabiltzaileAukerak = filterOptions(
+      prestatuak.map((erreserba) => erreserba.erabiltzailea_izena),
     );
-    const guneAukerak = Array.from(new Set(guneak.map((gunea) => gunea.izena)));
-    const udalerriAukerak = Array.from(
-      new Set(
-        (this.auth.isSuperadmin()
-          ? udalerriak
-          : udalerriak.filter((udalerria) => udalerria.id === this.auth.udalerriaId())
-        ).map((udalerria) => udalerria.izena),
-      ),
+    const guneAukerak = filterOptions(
+      prestatuak.map((erreserba) => erreserba.kargagunea_izena),
     );
+    const udalerriAukerak = filterOptions(
+      prestatuak.map((erreserba) => erreserba.udalerria_izena),
+    );
+    const egoeraAukerak = filterOptions(['aktiboa', 'ezeztatua', 'amaitua']);
 
     return [
       { property: 'id', title: 'ID', sortable: true, width: 90 },
@@ -330,7 +321,7 @@ export class ErreserbenTaula implements OnInit {
         filter: {
           type: 'dropdown',
           mode: 'row',
-          options: ['aktiboa', 'ezeztatua', 'amaitua'],
+          options: egoeraAukerak,
           placeholder: 'Egoera',
         },
       },
