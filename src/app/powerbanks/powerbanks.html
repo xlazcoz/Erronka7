@@ -1,0 +1,67 @@
+
+<div class="bg-light">
+    <div class="container py-5">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card feature-card h-100 p-4">
+                    <div class="icon-wrapper bg-soft-primary">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                            class="text-primary">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Powerbank berriak sortu</h3>
+                    <p class="card-text text-muted">Get deep insights into your data with our advanced analytics tools.</p>
+                    <button type="button" (click)="powerbankSortu.showModal()" class="btn btn-primary">Sortu</button>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card feature-card h-100 p-4">
+                    <div class="icon-wrapper bg-soft-success">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                            class="text-success">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Powerbank-aren tokia aldatu</h3>
+                    <p class="card-text text-muted">Monitor your systems in real-time with instant notifications.</p>
+                    <button type="button" class="btn btn-primary" (click)="powerbankAldatu.showModal()">Tokia aldatu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<dialog #powerbankSortu>
+    <form class="row g-3" method="dialog">
+        <div class="col-md-6">
+            <label for="karga_maila" class="form-label">Karga maila</label>
+            <input type="text" class="form-control" id="karga_maila" [(ngModel)]="powerbank.karga_maila" name="karga_maila">
+        </div>
+        <div class="col-md-6">
+            <label for="karga_postua_id" class="form-label">Takillaren ID-a</label>
+            <input type="text" class="form-control" id="karga_postua_id" [(ngModel)]="powerbank.karga_postua_id" name="karga_postua_id">
+        </div>
+        <div class="col-12 d-flex">
+            <button type="button" class="btn btn-success" (click)="sortuPowerbanka(); powerbankSortu.close()">Gorde</button>
+            <button type="button" class="btn btn-danger ms-auto" (click)="powerbankSortu.close()">Irten</button>
+        </div>
+    </form>
+</dialog>
+
+<dialog #powerbankAldatu>
+    <form class="row g-3" method="dialog">
+        <div class="col-md-6">
+            <label for="powerbank_id" class="form-label">Powerbank ID</label>
+            <input type="number" class="form-control" id="powerbank_id" [(ngModel)]="powerbank.id" name="powerbank_id">
+        </div>
+        <div class="col-md-6">
+            <label for="karga_postua_id_berria" class="form-label">Takillaren ID berria</label>
+            <input type="number" class="form-control" id="karga_postua_id_berria" [(ngModel)]="powerbank.karga_postua_id" name="karga_postua_id_berria">
+        </div>
+        <div class="col-12 d-flex">
+            <button type="button" class="btn btn-success" (click)="powerbankTokiaAldatu(powerbank.id); powerbankAldatu.close()">Gorde</button>
+            <button type="button" class="btn btn-danger ms-auto" (click)="powerbankAldatu.close()">Irten</button>
+        </div>
+    </form>
+</dialog>

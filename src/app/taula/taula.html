@@ -1,0 +1,86 @@
+<div class="col-12 d-flex gap-2">
+    <button type="button" class="btn btn-success" id="sortu" (click)="erabiltzaileaSortu.showModal()">Sortu</button>
+    <button type="button" class="btn btn-primary" (click)="erabiltzaileaEditatu(erabiltzaileaAldatu)">Aldatu</button>
+    <button type="button" class="btn btn-danger">Desaktibatu</button>
+  </div>
+
+<hub-table
+  [data]="users()"
+  [headers]="headers"
+  [selectable]="true"
+  [ngModel]="selectedUsers()"
+  (ngModelChange)="selectedUsers.set($event)"
+  [totalItems]="totalItems()"
+  [(page)]="currentPage"
+  [(perPage)]="perPage"
+  [loading]="isLoading()"
+  [searchable]="true"
+  [(searchTerm)]="searchTerm"
+  [(ordination)]="ordination">
+</hub-table>
+
+<dialog #erabiltzaileaSortu>
+  <form class="row g-3" method="dialog">
+    <div class="col-md-6">
+      <label for="izena" class="form-label">Izena</label>
+      <input type="text" class="form-control" id="izena" [(ngModel)]="erabiltzailea.izena" name="izena">
+    </div>
+    <div class="col-md-4">
+      <label for="abizena" class="form-label">Abizena</label>
+      <input type="text" class="form-control" id="abizena" [(ngModel)]="erabiltzailea.abizena" name="abizena">
+    </div>
+    <div class="col-md-6">
+      <label for="login_email" class="form-label">Email</label>
+      <input type="text" class="form-control" id="login_email" [(ngModel)]="erabiltzailea.login_email" name="login_email">
+    </div>
+    <div class="col-md-6">
+      <label for="login_pasahitza" class="form-label">Pasahitza</label>
+      <input type="text" class="form-control" id="login_pasahitza" [(ngModel)]="erabiltzailea.login_pasahitza" name="login_pasahitza">
+    </div>
+    <div class="col-md-6">
+      <label for="rola" class="form-label">Rola</label>
+      <input type="text" class="form-control" id="rola" [(ngModel)]="erabiltzailea.rola" name="rola">
+    </div>
+    <div class="col-md-6">
+      <label for="erreserben_historikoa" class="form-label">Erreserbak</label>
+      <input type="text" class="form-control" id="erreserben_historikoa" [(ngModel)]="erabiltzailea.erreserben_historikoa" name="erreserben_historikoa">
+    </div>
+    <div class="col-12 d-flex">
+      <button type="button" class="btn btn-success" (click)="sortuErabiltzailea(); erabiltzaileaSortu.close()">Gorde</button>
+      <button type="button" class="btn btn-danger ms-auto" (click)="erabiltzaileaSortu.close()">Irten</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog #erabiltzaileaAldatu>
+  <form class="row g-3" method="dialog">
+    <div class="col-md-6">
+      <label for="izena" class="form-label">Izena</label>
+      <input type="text" class="form-control" id="izena" [(ngModel)]="erabiltzailea.izena" name="izena">
+    </div>
+    <div class="col-md-4">
+      <label for="abizena" class="form-label">Abizena</label>
+      <input type="text" class="form-control" id="abizena" [(ngModel)]="erabiltzailea.abizena" name="abizena">
+    </div>
+    <div class="col-md-6">
+      <label for="login_email" class="form-label">Email</label>
+      <input type="text" class="form-control" id="login_email" [(ngModel)]="erabiltzailea.login_email" name="login_email">
+    </div>
+    <div class="col-md-6">
+      <label for="login_pasahitza" class="form-label">Pasahitza</label>
+      <input type="text" class="form-control" id="login_pasahitza" [(ngModel)]="erabiltzailea.login_pasahitza" name="login_pasahitza">
+    </div>
+    <div class="col-md-6">
+      <label for="rola" class="form-label">Rola</label>
+      <input type="text" class="form-control" id="rola" [(ngModel)]="erabiltzailea.rola" name="rola">
+    </div>
+    <div class="col-md-6">
+      <label for="erreserben_historikoa" class="form-label">Erreserbak</label>
+      <input type="text" class="form-control" id="erreserben_historikoa" [(ngModel)]="erabiltzailea.erreserben_historikoa" name="erreserben_historikoa">
+    </div>
+    <div class="col-12 d-flex">
+      <button type="button" class="btn btn-success" (click)="aldatuErabiltzailea(erabiltzaileaID); erabiltzaileaAldatu.close()">Gorde</button>
+      <button type="button" class="btn btn-danger ms-auto" (click)="erabiltzaileaAldatu.close()">Irten</button>
+    </div>
+  </form>
+</dialog>
