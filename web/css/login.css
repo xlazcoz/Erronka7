@@ -111,7 +111,6 @@
 .auth-switch-btn.is-active {
   background: linear-gradient(135deg, var(--pb-primary), var(--pb-primary-strong));
   color: #fff;
-  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.28);
 }
 
 .auth-input-group .input-group-text {

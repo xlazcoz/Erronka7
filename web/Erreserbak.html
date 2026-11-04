@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Powerbank · Mis reservas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/reservas.css">
+  <link rel="stylesheet" href="css/dialogos.css">
+</head>
+
+<body class="pb-page d-flex flex-column min-vh-100">
+  <header class="pb-header">
+    <nav class="navbar navbar-expand-lg navbar-dark pb-navbar">
+      <div class="container">
+        <a class="pb-brand" href="index.html">
+          <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
+          <span class="pb-brand-text">
+            <span class="pb-brand-name">POWERBANK</span>
+            <span class="pb-brand-tagline">Energía bajo demanda</span>
+          </span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
+          aria-controls="navbarMain" aria-expanded="false" aria-label="Abrir menú">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMain">
+          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-1 pb-nav-pill">
+            <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-location-dot"></i>Estaciones</a></li>
+            <li class="nav-item"><a class="nav-link active" href="Erreserbak.html"><i class="fas fa-calendar-check"></i>Reservas</a></li>
+            <li class="nav-item"><a class="nav-link" href="Erabiltzailea.html"><i class="fas fa-user"></i>Mi cuenta</a></li>
+          </ul>
+          <div class="pb-nav-actions">
+            <a class="btn btn-primary pb-qr-quick d-none" id="qrQuickButton" href="Erreserbak.html">
+              <i class="fas fa-qrcode me-2"></i><span>Usar QR</span>
+            </a>
+            <a class="btn btn-outline-primary px-3" href="Login.html" id="btnCuenta">Iniciar sesión</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <script src="js/api.js"></script>
+    <script src="js/dialogos.js"></script>
+    <script src="js/auth.js"></script>
+  </header>
+
+  <main class="flex-grow-1 py-4 py-lg-5">
+    <div class="pb-shell">
+
+      <section class="reservations-hero pb-card p-4 p-lg-5 mb-4" aria-labelledby="reservationsTitle">
+        <div class="reservations-hero-content d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-4">
+          <div>
+            <span class="pb-eyebrow">Tu actividad</span>
+            <h1 class="display-6 fw-bold mt-2 mb-2" id="reservationsTitle">Mis reservas</h1>
+            <p class="pb-muted mb-0">
+              Consulta tus reservas, abre el QR de recogida, devuelve la powerbank o cancela antes de que empiece.
+            </p>
+          </div>
+          <a class="btn btn-primary px-4 py-2 align-self-start align-self-lg-end" href="index.html">
+            <i class="fas fa-plus me-2"></i>Nueva reserva
+          </a>
+        </div>
+      </section>
+
+      <section class="pb-card p-4 p-lg-5" aria-labelledby="reservationsListTitle">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+          <div>
+            <h2 class="h4 fw-bold mb-1" id="reservationsListTitle">Historial y reservas activas</h2>
+            <p class="pb-muted small mb-0">Solo puedes cancelar reservas que aún no han comenzado.</p>
+          </div>
+          <button type="button" class="btn btn-outline-secondary btn-sm" id="btnRefrescarReservas">
+            <i class="fas fa-rotate me-1"></i>Actualizar
+          </button>
+        </div>
+
+        <div class="reservation-stats mb-4">
+          <div class="stat-card">
+            <span class="stat-value" id="statTotal">0</span>
+            <span class="stat-label">Totales</span>
+          </div>
+          <div class="stat-card stat-card-active">
+            <span class="stat-value" id="statActive">0</span>
+            <span class="stat-label">Activas</span>
+          </div>
+          <div class="stat-card stat-card-success">
+            <span class="stat-value" id="statFinished">0</span>
+            <span class="stat-label">Finalizadas</span>
+          </div>
+          <div class="stat-card stat-card-muted">
+            <span class="stat-value" id="statCancelled">0</span>
+            <span class="stat-label">Canceladas</span>
+          </div>
+        </div>
+
+        <div class="reservation-filters mb-4" role="group" aria-label="Filtrar reservas">
+          <button type="button" class="filter-btn is-active" data-reservation-filter="all">Todas</button>
+          <button type="button" class="filter-btn" data-reservation-filter="active">Activas</button>
+          <button type="button" class="filter-btn" data-reservation-filter="finished">Finalizadas</button>
+          <button type="button" class="filter-btn" data-reservation-filter="cancelled">Canceladas</button>
+        </div>
+
+        <div id="reservasLista" class="reservations-list" aria-live="polite">
+          <div class="pb-empty">
+            <i class="fas fa-calendar-days"></i>
+            <p class="mb-0">Cargando tus reservas…</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content qr-modal-content">
+        <div class="modal-header border-secondary border-opacity-25">
+          <h5 class="modal-title" id="qrModalTitle">QR de la reserva</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+            aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body text-center">
+          <div id="qrCode" class="qr-box d-inline-flex align-items-center justify-content-center"></div>
+          <p class="pb-muted small mt-3 mb-0" id="qrInfo"></p>
+          <p class="pb-muted small mt-2 mb-0">Muestra este código en el puesto para abrir la taquilla.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="pb-footer">
+    <div class="pb-shell pb-footer-main">
+      <div class="row g-4">
+        <div class="col-lg-4">
+          <a class="pb-brand pb-footer-brand" href="index.html">
+            <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
+            <span class="pb-brand-text">
+              <span class="pb-brand-name">POWERBANK</span>
+              <span class="pb-brand-tagline">Energía bajo demanda</span>
+            </span>
+          </a>
+          <p class="pb-footer-text">
+            Powerbanks para tus dispositivos, disponibles en Donostia y Zarautz.
+            Reserva en segundos y recoge cuando la necesites.
+          </p>
+          <div class="pb-socials">
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="X"><i class="fab fa-x-twitter"></i></a>
+            <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+          </div>
+        </div>
+
+        <div class="col-6 col-lg-2">
+          <h3 class="pb-footer-title">Explora</h3>
+          <ul class="pb-footer-links">
+            <li><a href="index.html">Estaciones</a></li>
+            <li><a href="Erreserbak.html">Mis reservas</a></li>
+            <li><a href="Erabiltzailea.html">Mi cuenta</a></li>
+          </ul>
+        </div>
+
+        <div class="col-6 col-lg-3">
+          <h3 class="pb-footer-title">Ayuda</h3>
+          <ul class="pb-footer-links">
+            <li><a href="#">Preguntas frecuentes</a></li>
+            <li><a href="#">Contacto</a></li>
+            <li><a href="#">Términos y privacidad</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-3">
+          <h3 class="pb-footer-title">Contacto</h3>
+          <ul class="pb-footer-contact">
+            <li><i class="fas fa-envelope"></i> hola@powerbank.eus</li>
+            <li><i class="fas fa-phone"></i> +34 943 00 00 00</li>
+            <li><i class="fas fa-location-dot"></i> Donostia · Zarautz</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="pb-footer-bottom">
+      <div class="pb-shell d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+        <span>© 2026 Powerbank Inc. Todos los derechos reservados.</span>
+        <div class="d-flex gap-3">
+          <a href="#">Privacidad</a>
+          <a href="#">Cookies</a>
+          <a href="#">Aviso legal</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="js/reservas.js"></script>
+</body>
+
+</html>

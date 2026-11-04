@@ -31,11 +31,15 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarMain">
-          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-1">
+          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-1 pb-nav-pill">
             <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-location-dot"></i>Estaciones</a></li>
-            <li class="nav-item"><a class="nav-link active" href="Erabiltzailea.html"><i class="fas fa-calendar-check"></i>Mi cuenta</a></li>
+            <li class="nav-item"><a class="nav-link" href="Erreserbak.html"><i class="fas fa-calendar-check"></i>Reservas</a></li>
+            <li class="nav-item"><a class="nav-link active" href="Erabiltzailea.html"><i class="fas fa-user"></i>Mi cuenta</a></li>
           </ul>
           <div class="pb-nav-actions">
+            <a class="btn btn-primary pb-qr-quick d-none" id="qrQuickButton" href="Erreserbak.html">
+              <i class="fas fa-qrcode me-2"></i><span>Usar QR</span>
+            </a>
             <a class="btn btn-outline-primary px-3" href="Login.html" id="btnCuenta">Iniciar sesión</a>
           </div>
         </div>
@@ -58,9 +62,14 @@
             <p class="pb-muted mb-2" id="profileEmail">—</p>
             <span class="pb-badge pb-badge-primary" id="profileRole">Usuario</span>
           </div>
-          <a class="btn btn-outline-primary px-4" href="index.html">
-            <i class="fas fa-location-dot me-2"></i>Buscar estación
-          </a>
+          <div class="d-flex flex-column flex-sm-row gap-2">
+            <a class="btn btn-primary px-4" href="Erreserbak.html">
+              <i class="fas fa-calendar-check me-2"></i>Mis reservas
+            </a>
+            <a class="btn btn-outline-primary px-4" href="index.html">
+              <i class="fas fa-location-dot me-2"></i>Buscar estación
+            </a>
+          </div>
         </div>
       </section>
 
@@ -72,11 +81,6 @@
                 data-bs-target="#v-pills-info" type="button" role="tab" aria-controls="v-pills-info"
                 aria-selected="true">
                 <i class="fas fa-user me-2"></i>Información personal
-              </button>
-              <button class="nav-link text-start" id="v-pills-reservas-tab" data-bs-toggle="pill"
-                data-bs-target="#v-pills-reservas" type="button" role="tab" aria-controls="v-pills-reservas"
-                aria-selected="false">
-                <i class="fas fa-calendar-check me-2"></i>Mis reservas
               </button>
               <button class="nav-link text-start" id="v-pills-seguridad-tab" data-bs-toggle="pill"
                 data-bs-target="#v-pills-seguridad" type="button" role="tab" aria-controls="v-pills-seguridad"
@@ -129,54 +133,6 @@
               </div>
             </section>
 
-            <section class="tab-pane fade" id="v-pills-reservas" role="tabpanel"
-              aria-labelledby="v-pills-reservas-tab">
-              <div class="pb-card p-4 p-lg-5">
-                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
-                  <div>
-                    <h2 class="h4 fw-bold mb-1">Mis reservas</h2>
-                    <p class="pb-muted small mb-0">Solo puedes cancelar reservas que aún no han empezado.</p>
-                  </div>
-                  <button type="button" class="btn btn-outline-secondary btn-sm" id="btnRefrescarReservas">
-                    <i class="fas fa-rotate me-1"></i>Actualizar
-                  </button>
-                </div>
-
-                <div class="reservation-stats mb-4">
-                  <div class="stat-card">
-                    <span class="stat-value" id="statTotal">0</span>
-                    <span class="stat-label">Totales</span>
-                  </div>
-                  <div class="stat-card stat-card-active">
-                    <span class="stat-value" id="statActive">0</span>
-                    <span class="stat-label">Activas</span>
-                  </div>
-                  <div class="stat-card stat-card-success">
-                    <span class="stat-value" id="statFinished">0</span>
-                    <span class="stat-label">Finalizadas</span>
-                  </div>
-                  <div class="stat-card stat-card-muted">
-                    <span class="stat-value" id="statCancelled">0</span>
-                    <span class="stat-label">Canceladas</span>
-                  </div>
-                </div>
-
-                <div class="reservation-filters mb-4" role="group" aria-label="Filtrar reservas">
-                  <button type="button" class="filter-btn is-active" data-reservation-filter="all">Todas</button>
-                  <button type="button" class="filter-btn" data-reservation-filter="active">Activas</button>
-                  <button type="button" class="filter-btn" data-reservation-filter="finished">Finalizadas</button>
-                  <button type="button" class="filter-btn" data-reservation-filter="cancelled">Canceladas</button>
-                </div>
-
-                <div id="reservasLista" class="reservations-list" aria-live="polite">
-                  <div class="pb-empty">
-                    <i class="fas fa-calendar-days"></i>
-                    <p class="mb-0">Cargando tus reservas…</p>
-                  </div>
-                </div>
-              </div>
-            </section>
-
             <section class="tab-pane fade" id="v-pills-seguridad" role="tabpanel"
               aria-labelledby="v-pills-seguridad-tab">
               <div class="pb-card p-4 p-lg-5">
@@ -222,23 +178,6 @@
     </div>
   </main>
 
-  <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content qr-modal-content">
-        <div class="modal-header border-secondary border-opacity-25">
-          <h5 class="modal-title" id="qrModalTitle">QR de la reserva</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-            aria-label="Cerrar"></button>
-        </div>
-        <div class="modal-body text-center">
-          <div id="qrCode" class="qr-box d-inline-flex align-items-center justify-content-center"></div>
-          <p class="pb-muted small mt-3 mb-0" id="qrInfo"></p>
-          <p class="pb-muted small mt-2 mb-0">Muestra este código en el puesto para abrir la taquilla.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <footer class="pb-footer">
     <div class="pb-shell pb-footer-main">
       <div class="row g-4">
@@ -265,8 +204,8 @@
           <h3 class="pb-footer-title">Explora</h3>
           <ul class="pb-footer-links">
             <li><a href="index.html">Estaciones</a></li>
+            <li><a href="Erreserbak.html">Mis reservas</a></li>
             <li><a href="Erabiltzailea.html">Mi cuenta</a></li>
-            <li><a href="puesto-Carga.html">Reservar</a></li>
           </ul>
         </div>
 
@@ -303,7 +242,6 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="js/user.js"></script>
 </body>
 
