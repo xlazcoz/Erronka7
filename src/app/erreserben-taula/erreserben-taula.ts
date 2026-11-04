@@ -1,9 +1,11 @@
 import {
   ChangeDetectorRef,
   Component,
+  ElementRef,
   inject,
   OnInit,
   signal,
+  viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -36,8 +38,10 @@ export class ErreserbenTaula implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   protected auth = inject(AuthService);
 
+  private ezeztatuDialog = viewChild<ElementRef<HTMLDialogElement>>('erreserbaEzeztatu');
+
   erreserbak = signal<Erreserba[]>([]);
-  totalItems = signal<number>(0);
+  erreserbaEzeztatzeko: Erreserba | null = null;
   isLoading = signal<boolean>(false);
   currentPage = signal<number>(1);
   perPage = signal<number>(10);
@@ -46,7 +50,7 @@ export class ErreserbenTaula implements OnInit {
   feedback = signal<{ mota: 'ok' | 'error'; testua: string } | null>(null);
 
   headers: PaginableTableHeader[] = [
-    { property: 'id', title: 'ID', sortable: true, width: 70 },
+    { property: 'id', title: 'ID', sortable: true, width: 90 },
     { property: 'erabiltzailea_id', title: 'Erabiltzailea', sortable: true, width: 120 },
     { property: 'powerbank_id', title: 'Powerbank', sortable: true, width: 110 },
     { property: 'hasiera_data_ordua', title: 'Hasiera', sortable: true },
@@ -72,7 +76,6 @@ export class ErreserbenTaula implements OnInit {
     this.apiService.getErreserbak().subscribe({
       next: (data) => {
         this.erreserbak.set(data);
-        this.totalItems.set(data.length);
         this.isLoading.set(false);
         this.cdr.detectChanges();
       },
@@ -84,8 +87,14 @@ export class ErreserbenTaula implements OnInit {
     });
   }
 
-  ezeztatu(erreserba: Erreserba): void {
-    if (!window.confirm(`${erreserba.id}. erreserba ezeztatu nahi duzu?`)) {
+  irekiEzeztatzea(erreserba: Erreserba): void {
+    this.erreserbaEzeztatzeko = erreserba;
+    this.ezeztatuDialog()?.nativeElement.showModal();
+  }
+
+  ezeztatu(): void {
+    const erreserba = this.erreserbaEzeztatzeko;
+    if (!erreserba) {
       return;
     }
 
@@ -93,6 +102,8 @@ export class ErreserbenTaula implements OnInit {
       .aldatuErreserbenEgoera(erreserba.id, { egoera: 'ezeztatua' })
       .subscribe({
         next: () => {
+          this.ezeztatuDialog()?.nativeElement.close();
+          this.erreserbaEzeztatzeko = null;
           this.feedback.set({ mota: 'ok', testua: 'Erreserba ongi ezeztatu da.' });
           this.kargatu();
         },
@@ -145,7 +156,7 @@ export class ErreserbenTaula implements OnInit {
     }
   }
 
-  dataFormatua(data: string): string {
+  dataFormatua(data: string | Date): string {
     if (!data) {
       return '-';
     }

@@ -43,7 +43,6 @@ export class Kargaguneak implements OnInit {
   readonly postuEgoerak = ['hutsa', 'kargatuta', 'kargatzen'];
 
   kargaguneak = signal<KargaguneaTaulan[]>([]);
-  totalItems = signal<number>(0);
   isLoading = signal<boolean>(false);
   currentPage = signal<number>(1);
   perPage = signal<number>(10);
@@ -53,7 +52,7 @@ export class Kargaguneak implements OnInit {
   feedback = signal<{ mota: 'ok' | 'error'; testua: string } | null>(null);
 
   headers: PaginableTableHeader[] = [
-    { property: 'id', title: 'ID', sortable: true, width: 70 },
+    { property: 'id', title: 'ID', sortable: true, width: 90 },
     { property: 'izena', title: 'Izena', sortable: true },
     { property: 'helbidea', title: 'Helbidea', sortable: true },
     { property: 'egoera_etiketa', title: 'Egoera', sortable: true },
@@ -93,7 +92,6 @@ export class Kargaguneak implements OnInit {
       next: (data) => {
         const prestatuak = data.map((kargagunea) => this.taularakoPrestatu(kargagunea));
         this.kargaguneak.set(prestatuak);
-        this.totalItems.set(prestatuak.length);
 
         if (this.kargaguneaHautatua) {
           this.kargaguneaHautatua =

@@ -41,7 +41,6 @@ export class Powerbanks implements OnInit {
   powerbanks = signal<PowerbankTaulan[]>([]);
   postuak = signal<KargaPostua[]>([]);
   guneak = signal<Kargagunea[]>([]);
-  totalItems = signal<number>(0);
   isLoading = signal<boolean>(false);
   currentPage = signal<number>(1);
   perPage = signal<number>(10);
@@ -50,7 +49,7 @@ export class Powerbanks implements OnInit {
   feedback = signal<{ mota: 'ok' | 'error'; testua: string } | null>(null);
 
   headers: PaginableTableHeader[] = [
-    { property: 'id', title: 'ID', sortable: true, width: 80 },
+    { property: 'id', title: 'ID', sortable: true, width: 90 },
     { property: 'karga_maila', title: 'Karga maila', sortable: true, width: 160 },
     { property: 'karga_postua_id', title: 'Takilla ID', sortable: true, width: 120 },
     { property: 'tokia_etiketa', title: 'Kokapena', sortable: true },
@@ -99,7 +98,6 @@ export class Powerbanks implements OnInit {
         }));
 
         this.powerbanks.set(prestatuak);
-        this.totalItems.set(prestatuak.length);
         this.isLoading.set(false);
         this.cdr.detectChanges();
       },

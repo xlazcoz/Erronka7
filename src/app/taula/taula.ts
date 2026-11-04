@@ -39,7 +39,6 @@ export class Taula implements OnInit {
     viewChild<ElementRef<HTMLDialogElement>>('erabiltzaileaAldatu');
 
   users = signal<ErabiltzaileaTaulan[]>([]);
-  totalItems = signal<number>(0);
   isLoading = signal<boolean>(false);
   currentPage = signal<number>(1);
   perPage = signal<number>(10);
@@ -50,7 +49,7 @@ export class Taula implements OnInit {
   readonly rolak = ['user', 'admin'];
 
   headers: PaginableTableHeader[] = [
-    { property: 'id', title: 'ID', sortable: true, width: 70 },
+    { property: 'id', title: 'ID', sortable: true, width: 90 },
     { property: 'izena', title: 'Izena', sortable: true },
     { property: 'abizena', title: 'Abizena', sortable: true },
     { property: 'login_email', title: 'Emaila', sortable: true },
@@ -105,7 +104,6 @@ export class Taula implements OnInit {
         }));
 
         this.users.set(prestatuak);
-        this.totalItems.set(prestatuak.length);
         this.isLoading.set(false);
         this.cdr.detectChanges();
       },
