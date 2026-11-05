@@ -19,7 +19,13 @@
   position: absolute;
   inset: auto 0 0 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.6), rgba(6, 182, 212, 0.5), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(59, 130, 246, 0.6),
+    rgba(6, 182, 212, 0.5),
+    transparent
+  );
 }
 
 .hero-grid {
@@ -112,7 +118,10 @@
   justify-content: center;
   gap: 0.55rem;
   min-height: 46px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 .hero-actions .btn:hover {
@@ -178,21 +187,36 @@
   background: linear-gradient(150deg, rgba(27, 35, 49, 0.72), rgba(15, 23, 42, 0.55));
   overflow: hidden;
   animation: heroUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
-  transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease;
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease,
+    background 0.22s ease;
 }
 
 .stat-card::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 12% 8%, var(--stat-glow, rgba(59, 130, 246, 0.22)), transparent 62%);
+  background: radial-gradient(
+    circle at 12% 8%,
+    var(--stat-glow, rgba(59, 130, 246, 0.22)),
+    transparent 62%
+  );
   pointer-events: none;
 }
 
-.stat-card:nth-child(1) { animation-delay: 0.24s; }
-.stat-card:nth-child(2) { animation-delay: 0.32s; }
-.stat-card:nth-child(3) { animation-delay: 0.4s; }
-.stat-card:nth-child(4) { animation-delay: 0.48s; }
+.stat-card:nth-child(1) {
+  animation-delay: 0.24s;
+}
+.stat-card:nth-child(2) {
+  animation-delay: 0.32s;
+}
+.stat-card:nth-child(3) {
+  animation-delay: 0.4s;
+}
+.stat-card:nth-child(4) {
+  animation-delay: 0.48s;
+}
 
 .stat-card:hover {
   transform: translateY(-3px);
@@ -404,7 +428,11 @@
   color: var(--pb-muted);
   font-size: 0.82rem;
   font-weight: 700;
-  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .filter-btn:hover {
@@ -427,7 +455,9 @@
   font-size: 0.68rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .filter-btn.is-active {
@@ -461,7 +491,10 @@
     radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.07), transparent 45%),
     rgba(15, 23, 42, 0.6);
   overflow: hidden;
-  transition: border-color 0.22s ease, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.22s ease;
+  transition:
+    border-color 0.22s ease,
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.22s ease;
   animation: cardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: calc(min(var(--i, 0), 9) * 55ms);
 }
@@ -487,7 +520,9 @@
   background: radial-gradient(circle, var(--state-glow, rgba(59, 130, 246, 0.18)), transparent 68%);
   opacity: 0;
   transform: scale(0.7);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
   pointer-events: none;
 }
 
@@ -524,7 +559,9 @@
   border: 1px solid rgba(96, 165, 250, 0.3);
   color: #93c5fd;
   font-size: 1.05rem;
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
 }
 
 .reservation-card:hover .reservation-icon {

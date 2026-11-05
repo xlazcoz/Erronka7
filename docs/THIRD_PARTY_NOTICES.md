@@ -118,6 +118,6 @@ OpenStreetMap-en teselen erabilera-politika: https://operations.osmfoundation.or
 ## Beste oharrak
 
 - `web/img/flores.png` fitxategia **ezabatu** zen 2026-11-04an, jatorria eta lizentzia ezezagunak zirelako. Ez dago erreferentziarik kodean.
-- Irudiak Wikimedia Commons-etik zuzenean kargatzen dira. Ekoizpenean, kopiak lokalizatzea eta kreditu-orri bat gehitzea gomendatzen da.
-- CC BY-SA lizentziek lan eratorriak lizentzia berean partekatzea eskatzen dute. Proiektuak ez ditu irudiak aldatzen; thumbnail tamaina Wikimedia-k egokitzen du.
+- Irudiak Wikimedia Commons-etik deskargatu eta WebP formatura optimizatu dira (`web/assets/stations/` eta `admin_atala/public/assets/stations/`). Kredituak goiko taulan eta atal honetan daude.
+- WebP bertsioak `docs/optimize_station_images.py` scriptarekin sortzen dira. CC BY-SA lizentziek lan eratorriak lizentzia berean partekatzea eskatzen dute; beraz, WebP bertsio hauek CC BY-SA baldintza berberetan banatzen dira.
 - Dokumentu hau ez da aholku juridikoa. Argitaratu aurretik, egiaztatu lizentziak berriro.

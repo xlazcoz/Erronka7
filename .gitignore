@@ -13,6 +13,7 @@
 
 # Node
 /admin_atala/node_modules
+/web/node_modules
 npm-debug.log
 yarn-error.log
 

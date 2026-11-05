@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from database import get_session
-from models.models import Erabiltzailea, Erreserba, KargaPostua, Kargagunea
+from models.models import Erabiltzailea, Erreserba, Kargagunea, KargaPostua
 from schemas.schemas import QrScanRequest
 from services.auth import require_admin
 from services.erreserbak import (

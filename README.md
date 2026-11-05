@@ -115,7 +115,73 @@ Benetako produkzioan:
 - Irudien igoerak magic bytes bidez balioztatzen dira (JPG, PNG, GIF, WebP, AVIF) eta tamaina-muga dute.
 - Erantzunek `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` eta `Permissions-Policy` cabeceras dituzte.
 - APIak `/health` osasun-egiaztapena du.
-- CIak APIaren testak eta Angular build-a exekutatzen ditu (`.github/workflows/ci.yml`).
+- CIak APIaren testak, webaren lint/layout-a eta Angular build-a exekutatzen ditu (`.github/workflows/ci.yml`).
+
+## Garapena eta mantentze-lanak
+
+### Datu-basearen migrazioak (Alembic)
+
+```bash
+cd api_erronka
+uv run alembic upgrade head
+```
+
+Migrazio berri bat sortzeko:
+
+```bash
+uv run alembic revision --autogenerate -m "aldaketaren deskribapena"
+```
+
+Aplikazioa abiaraztean `bootstrap_database()` funtzioak automatikoki aplikatzen
+ditu migrazioak. Lehendik `create_all`/`ensure_schema` erabili zuen datu-basea
+badago, eskema normalizatu eta `stamp head` egiten du.
+
+### Testak
+
+```bash
+cd api_erronka
+uv run python -m unittest discover -s tests -p "test_*.py" -v
+```
+
+Integrazio-testek PostgreSQL behar dute. Docker bidez:
+
+```bash
+docker compose -f docker-compose.test.yml up -d
+```
+
+PowerShell:
+
+```powershell
+$env:TEST_DATABASE_URL="postgresql+psycopg://postgres:postgres@localhost:5433/alokairu_test"
+cd api_erronka
+uv run python -m unittest discover -s tests -p "test_*.py" -v
+```
+
+`TEST_DATABASE_URL` ez badago, integrazio-testak saltatzen dira.
+
+### Web publikoa
+
+Header/footer partialak `web/partials/` karpetan daude. Orriak sinkronizatzeko:
+
+```bash
+cd web
+npm ci
+npm run layout
+npm run lint
+npm run format
+```
+
+`npm run layout:check` CIan erabiltzen da partialekin desinkronizatuta dauden
+orriak detektatzeko.
+
+### Kargaguneen irudiak
+
+Irudiak WebP formatuan daude `web/assets/stations/` eta
+`admin_atala/public/assets/stations/` karpetetan. Berriz sortzeko:
+
+```bash
+uv run --with pillow python docs/optimize_station_images.py
+```
 
 ## Demo erabiltzaileak
 

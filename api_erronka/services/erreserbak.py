@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
-from models.models import Erreserba, KargaPostua, Kargagunea, Powerbank
+from models.models import Erreserba, Kargagunea, KargaPostua, Powerbank
 from schemas.schemas import ErreserbakResponse
 
 # Negozioaren ordu-eremua. Erreserbak Madrid-eko ordu-eremuaren arabera

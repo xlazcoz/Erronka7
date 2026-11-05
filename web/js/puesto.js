@@ -92,7 +92,6 @@ function updateReturnLimits(start) {
   const returnDate = document.getElementById("FechaDevolucion");
   const returnTime = document.getElementById("HoraDevolucion");
 
-  const minEnd = new Date(start.getTime() + MIN_DURATION_MS);
   const maxEnd = new Date(start.getTime() + MAX_DURATION_MS);
 
   returnDate.min = toDateInputValue(start);
@@ -109,11 +108,11 @@ function updateReturnLimits(start) {
 function updateSummary() {
   const start = combineDateTime(
     document.getElementById("FechaReserva").value,
-    document.getElementById("horaReserva").value,
+    document.getElementById("horaReserva").value
   );
   const end = combineDateTime(
     document.getElementById("FechaDevolucion").value,
-    document.getElementById("HoraDevolucion").value,
+    document.getElementById("HoraDevolucion").value
   );
   const durationElement = document.getElementById("reservationDuration");
   const availabilityElement = document.getElementById("reservationAvailability");
@@ -128,7 +127,8 @@ function updateSummary() {
   const minutes = Math.round((end - start) / 60000);
   const hours = Math.floor(minutes / 60);
   const rest = minutes % 60;
-  durationElement.textContent = hours === 0 ? `${rest} min` : rest === 0 ? `${hours} ordu` : `${hours} ordu ${rest} min`;
+  durationElement.textContent =
+    hours === 0 ? `${rest} min` : rest === 0 ? `${hours} ordu` : `${hours} ordu ${rest} min`;
 
   scheduleAvailabilityCheck(start, end);
 }
@@ -168,8 +168,8 @@ function validateReservationWindow(start, end) {
 async function checkAvailability(start, end) {
   const data = await apiRequest(
     `/kargaguneak/${posteId}/erreserbagarritasuna?hasiera=${encodeURIComponent(
-      toLocalIsoString(start),
-    )}&amaiera=${encodeURIComponent(toLocalIsoString(end))}`,
+      toLocalIsoString(start)
+    )}&amaiera=${encodeURIComponent(toLocalIsoString(end))}`
   );
   return data;
 }
@@ -196,7 +196,7 @@ function scheduleAvailabilityCheck(start, end) {
         availabilityElement.textContent = "Ez dago erabilgarririk ordutegi horretan";
         availabilityElement.classList.add("is-busy");
       }
-    } catch (error) {
+    } catch {
       availabilityElement.textContent = "Ezin izan da egiaztatu";
       availabilityElement.classList.remove("is-free", "is-busy");
     }
@@ -269,7 +269,7 @@ function cambiarImagenes(ruta1, ruta2, ruta3) {
 document.getElementById("FechaReserva").addEventListener("change", () => {
   const start = combineDateTime(
     document.getElementById("FechaReserva").value,
-    document.getElementById("horaReserva").value,
+    document.getElementById("horaReserva").value
   );
   if (start) updateReturnLimits(start);
   updateSummary();
@@ -278,7 +278,7 @@ document.getElementById("FechaReserva").addEventListener("change", () => {
 document.getElementById("horaReserva").addEventListener("change", () => {
   const start = combineDateTime(
     document.getElementById("FechaReserva").value,
-    document.getElementById("horaReserva").value,
+    document.getElementById("horaReserva").value
   );
   if (start) updateReturnLimits(start);
   updateSummary();
@@ -297,11 +297,11 @@ document.getElementById("reservationForm").addEventListener("submit", async (eve
 
   const start = combineDateTime(
     document.getElementById("FechaReserva").value,
-    document.getElementById("horaReserva").value,
+    document.getElementById("horaReserva").value
   );
   const end = combineDateTime(
     document.getElementById("FechaDevolucion").value,
-    document.getElementById("HoraDevolucion").value,
+    document.getElementById("HoraDevolucion").value
   );
 
   if (!start || !end) {
@@ -321,7 +321,9 @@ document.getElementById("reservationForm").addEventListener("submit", async (eve
   try {
     const availability = await checkAvailability(start, end);
     if (!availability.erabilgarri) {
-      showFeedback("Ez dago powerbankik erabilgarri ordutegi horretan. Probatu beste ordutegi bat.");
+      showFeedback(
+        "Ez dago powerbankik erabilgarri ordutegi horretan. Probatu beste ordutegi bat."
+      );
       setLoading(submit, false);
       return;
     }
@@ -342,7 +344,7 @@ document.getElementById("reservationForm").addEventListener("submit", async (eve
   } catch (error) {
     if (error.status === 401) {
       window.location.href = `Login.html?next=${encodeURIComponent(
-        `puesto-Carga.html?id=${posteId}&reservar=1`,
+        `puesto-Carga.html?id=${posteId}&reservar=1`
       )}`;
       return;
     }
@@ -353,7 +355,7 @@ document.getElementById("reservationForm").addEventListener("submit", async (eve
         {
           title: "Erreserba aktiboa",
           type: "info",
-        },
+        }
       );
       return;
     }

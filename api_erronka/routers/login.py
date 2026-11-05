@@ -7,9 +7,9 @@ from database import get_session
 from models.models import AuthSession, Erabiltzailea, Erreserba
 from schemas.schemas import (
     ErabiltzaileaResponse,
+    LoginRequest,
     PasswordChange,
     ProfileUpdate,
-    LoginRequest,
     RegisterRequest,
 )
 from services.auth import (

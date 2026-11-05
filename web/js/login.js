@@ -30,7 +30,7 @@ function setMode(mode) {
   clearFieldErrors();
   try {
     history.replaceState(null, "", isRegister ? "#registro" : "#acceso");
-  } catch (error) {
+  } catch {
     // Algunos navegadores no permiten replaceState en file://.
   }
 
@@ -38,14 +38,6 @@ function setMode(mode) {
     ? document.getElementById("registerName")
     : document.getElementById("Email");
   firstField?.focus();
-}
-
-function registrar() {
-  setMode("register");
-}
-
-function iniciarSesion() {
-  setMode("login");
 }
 
 function showFeedback(message, type = "error") {

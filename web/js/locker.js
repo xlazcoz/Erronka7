@@ -89,11 +89,9 @@ async function iniciarTaquilla() {
 }
 
 function mostrarSeccion(id) {
-  ["lockerLoading", "lockerUnauthorized", "lockerSetup", "lockerPanel"].forEach(
-    (sectionId) => {
-      document.getElementById(sectionId).classList.toggle("d-none", sectionId !== id);
-    },
-  );
+  ["lockerLoading", "lockerUnauthorized", "lockerSetup", "lockerPanel"].forEach((sectionId) => {
+    document.getElementById(sectionId).classList.toggle("d-none", sectionId !== id);
+  });
 }
 
 async function cargarEstaciones() {
@@ -109,9 +107,7 @@ async function cargarEstaciones() {
   lockerStations.forEach((station) => {
     const option = document.createElement("option");
     option.value = String(station.id);
-    option.textContent = [station.izena, station.udalerria_izena]
-      .filter(Boolean)
-      .join(" · ");
+    option.textContent = [station.izena, station.udalerria_izena].filter(Boolean).join(" · ");
     select.appendChild(option);
   });
 }
@@ -176,7 +172,7 @@ function extraerToken(texto) {
   try {
     const url = new URL(texto);
     return url.searchParams.get("token") || "";
-  } catch (error) {
+  } catch {
     const match = texto.match(/[a-f0-9]{32}/i);
     return match ? match[0] : "";
   }
@@ -271,7 +267,7 @@ function mostrarResultado(data) {
   if (data?.status === "returned_late" && data.extra_fee != null) {
     const importe = Number(data.extra_fee).toFixed(2).replace(".", ",");
     result.appendChild(
-      crearDetalle("Gastu gehigarria", `${importe} € (${data.late_hours} hasitako ordu)`),
+      crearDetalle("Gastu gehigarria", `${importe} € (${data.late_hours} hasitako ordu)`)
     );
   }
 
@@ -282,7 +278,7 @@ function mostrarResultado(data) {
           status: "closed",
           message: "Taquilla itxita. Erreserba erabiltzen geratzen da itzuli arte.",
         });
-      }),
+      })
     );
   }
 
@@ -297,7 +293,7 @@ function mostrarResultado(data) {
     result.appendChild(
       crearBoton("Itxi taquilla", "btn btn-primary w-100 mt-2", () => {
         mostrarResultado({ status: "closed", message: mensaje });
-      }),
+      })
     );
   }
 
@@ -306,7 +302,7 @@ function mostrarResultado(data) {
       crearBoton("Eskaneatu beste QR bat", "btn btn-outline-primary w-100 mt-2", () => {
         mostrarResultado({ status: "idle" });
         document.getElementById("lockerScanButton").focus();
-      }),
+      })
     );
   }
 }
@@ -397,27 +393,26 @@ async function iniciarEscaner() {
         const token = extraerToken(decodedText);
         if (!token || processingToken) return;
         detenerEscaner().then(() => procesarToken(token));
-      },
+      }
     );
     scannerRunning = true;
     scanButton.classList.add("d-none");
     stopButton.classList.remove("d-none");
     badge.textContent = "Kamera aktibo";
     badge.className = "pb-badge pb-badge-success";
-  } catch (error) {
+  } catch {
     scanButton.disabled = false;
     badge.textContent = "Prest";
     badge.className = "pb-badge pb-badge-primary";
     try {
       qrScanner?.clear();
-    } catch (clearError) {
+    } catch {
       // Ignorar.
     }
     qrScanner = null;
     mostrarResultado({
       status: "error",
-      message:
-        "Ezin izan da kamera ireki. Erabili mugikorraren kamera edo itsatsi QR kodea.",
+      message: "Ezin izan da kamera ireki. Erabili mugikorraren kamera edo itsatsi QR kodea.",
     });
   }
 }
@@ -431,7 +426,7 @@ async function detenerEscaner() {
     try {
       await qrScanner.stop();
       qrScanner.clear();
-    } catch (error) {
+    } catch {
       // La cámara ya estaba parada.
     }
   }
@@ -448,7 +443,7 @@ async function detenerEscaner() {
 async function cerrarSesion() {
   try {
     await apiRequest("/login/logout", { method: "POST" });
-  } catch (error) {
+  } catch {
     // Aunque falle, volvemos al login.
   }
   window.location.href = "Login.html";

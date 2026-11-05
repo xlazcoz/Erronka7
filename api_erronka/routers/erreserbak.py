@@ -5,13 +5,13 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from database import get_session
-from models.models import Erreserba, KargaPostua, Kargagunea, Powerbank, Erabiltzailea
+from models.models import Erabiltzailea, Erreserba, Kargagunea, KargaPostua, Powerbank
 from schemas.schemas import (
     ErreserbakCreate,
-    ErreserbakResponse,
     ErreserbakEgoeraUpdate,
     ErreserbakItzuliUpdate,
     ErreserbakOrdutegiaUpdate,
+    ErreserbakResponse,
 )
 from services.auth import can_manage_municipality, get_current_user, require_admin, require_manager
 from services.erreserbak import (

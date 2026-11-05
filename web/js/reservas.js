@@ -101,7 +101,7 @@ function formatearRango(reserva) {
       year: "numeric",
     })} · ${start.toLocaleTimeString("eu", { hour: "2-digit", minute: "2-digit" })} – ${end.toLocaleTimeString(
       "eu",
-      { hour: "2-digit", minute: "2-digit" },
+      { hour: "2-digit", minute: "2-digit" }
     )}`;
   }
 
@@ -187,24 +187,21 @@ function renderizarProxima(reserva) {
   const head = crearElemento("div", "reservation-next-head");
   head.append(
     crearElemento("span", "pb-eyebrow", "Hurrengo erreserba"),
-    crearElemento("span", `pb-badge ${estado.badge}`, estado.label),
+    crearElemento("span", `pb-badge ${estado.badge}`, estado.label)
   );
 
   const titulo = crearElemento(
     "h2",
     "reservation-next-title",
-    reserva.kargagunea_izena || "Kargagunea",
+    reserva.kargagunea_izena || "Kargagunea"
   );
 
   const meta = crearElemento("div", "reservation-next-meta");
   meta.append(
     crearMeta("fa-calendar-days", formatearRango(reserva)),
-    crearMeta(
-      "fa-plug",
-      (reserva.karga_postua_izena || "Postua").replace(/^Puesto\b/, "Postua"),
-    ),
+    crearMeta("fa-plug", (reserva.karga_postua_izena || "Postua").replace(/^Puesto\b/, "Postua")),
     crearMeta("fa-battery-full", `Powerbank #${reserva.powerbank_id}`),
-    crearMeta("fa-clock", formatearDuracion(reserva)),
+    crearMeta("fa-clock", formatearDuracion(reserva))
   );
 
   const actions = crearElemento("div", "reservation-next-actions");
@@ -264,12 +261,9 @@ function combineDateTime(dateValue, timeValue) {
 function toLocalIsoString(date) {
   return [
     `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
-      date.getDate(),
+      date.getDate()
     ).padStart(2, "0")}`,
-    `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(
-      2,
-      "0",
-    )}:00`,
+    `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:00`,
   ].join("T");
 }
 
@@ -341,11 +335,11 @@ async function guardarModificacion(event) {
 
   const start = combineDateTime(
     document.getElementById("modifyStartDate").value,
-    document.getElementById("modifyStartTime").value,
+    document.getElementById("modifyStartTime").value
   );
   const end = combineDateTime(
     document.getElementById("modifyEndDate").value,
-    document.getElementById("modifyEndTime").value,
+    document.getElementById("modifyEndTime").value
   );
 
   if (!start || !end) {
@@ -397,7 +391,7 @@ function renderizarReservas() {
       if (estado.key === "cancelled") acc.cancelled += 1;
       return acc;
     },
-    { total: 0, active: 0, finished: 0, cancelled: 0 },
+    { total: 0, active: 0, finished: 0, cancelled: 0 }
   );
 
   animarValor(document.getElementById("statTotal"), conteos.total);
@@ -413,8 +407,7 @@ function renderizarReservas() {
   const proxima =
     reservas
       .filter((reserva) => reserva.egoera === "aktiboa")
-      .sort((a, b) => new Date(a.hasiera_data_ordua) - new Date(b.hasiera_data_ordua))[0] ||
-    null;
+      .sort((a, b) => new Date(a.hasiera_data_ordua) - new Date(b.hasiera_data_ordua))[0] || null;
 
   renderizarProxima(proxima);
 
@@ -428,7 +421,8 @@ function renderizarReservas() {
     const icon = crearElemento("i", "fas fa-calendar-days");
     let mensaje = "Ez dago erreserbarik iragazki honekin.";
     if (reservas.length === 0) {
-      mensaje = "Oraindik ez duzu erreserbarik. Bilatu kargagune bat eta erreserbatu zure powerbank.";
+      mensaje =
+        "Oraindik ez duzu erreserbarik. Bilatu kargagune bat eta erreserbatu zure powerbank.";
     } else if (proxima) {
       mensaje = "Ez dago beste erreserbarik.";
     }
@@ -457,8 +451,12 @@ function renderizarReservas() {
     const dot = crearElemento("span", "status-dot");
     badge.append(dot, document.createTextNode(estado.label));
     title.append(
-      crearElemento("span", "", reserva.kargagunea_izena || `Kargagunea #${reserva.kargagunea_id || "—"}`),
-      badge,
+      crearElemento(
+        "span",
+        "",
+        reserva.kargagunea_izena || `Kargagunea #${reserva.kargagunea_id || "—"}`
+      ),
+      badge
     );
 
     const meta = crearElemento("div", "reservation-meta");
@@ -468,11 +466,11 @@ function renderizarReservas() {
         "fa-plug",
         (reserva.karga_postua_izena || `Postua #${reserva.hasierako_karga_postua}`).replace(
           /^Puesto\b/,
-          "Postua",
-        ),
+          "Postua"
+        )
       ),
       crearMeta("fa-battery-full", `Powerbank #${reserva.powerbank_id}`),
-      crearMeta("fa-clock", `Iraupena: ${formatearDuracion(reserva)}`),
+      crearMeta("fa-clock", `Iraupena: ${formatearDuracion(reserva)}`)
     );
 
     const fecha = crearElemento("div", "reservation-meta mt-1");
@@ -482,25 +480,37 @@ function renderizarReservas() {
 
     if (reserva.egikaritze_data_ordua) {
       const recogido = crearElemento("div", "reservation-meta mt-1");
-      recogido.append(crearMeta("fa-hand-holding", `Jasota: ${formatearFechaHora(reserva.egikaritze_data_ordua)}`));
+      recogido.append(
+        crearMeta("fa-hand-holding", `Jasota: ${formatearFechaHora(reserva.egikaritze_data_ordua)}`)
+      );
       main.appendChild(recogido);
     }
 
-    if (reserva.egoera === "amaitua" && reserva.amaitze_data_ordua && reserva.egikaritze_data_ordua) {
+    if (
+      reserva.egoera === "amaitua" &&
+      reserva.amaitze_data_ordua &&
+      reserva.egikaritze_data_ordua
+    ) {
       const devuelto = crearElemento("div", "reservation-meta mt-1");
-      devuelto.append(crearMeta("fa-circle-check", `Itzulita: ${formatearFechaHora(reserva.amaitze_data_ordua)}`));
+      devuelto.append(
+        crearMeta("fa-circle-check", `Itzulita: ${formatearFechaHora(reserva.amaitze_data_ordua)}`)
+      );
       main.appendChild(devuelto);
 
       if (reserva.bukaerako_kargagunea_izena) {
         const lugar = crearElemento("div", "reservation-meta mt-1");
-        lugar.append(crearMeta("fa-location-dot", `Itzulia hemen: ${reserva.bukaerako_kargagunea_izena}`));
+        lugar.append(
+          crearMeta("fa-location-dot", `Itzulia hemen: ${reserva.bukaerako_kargagunea_izena}`)
+        );
         main.appendChild(lugar);
       }
     }
 
     if (reserva.egoera === "amaitua" && reserva.berandu) {
       const extra = crearElemento("div", "reservation-meta mt-1");
-      const importe = Number(reserva.karga_extra || 0).toFixed(2).replace(".", ",");
+      const importe = Number(reserva.karga_extra || 0)
+        .toFixed(2)
+        .replace(".", ",");
       extra.append(crearMeta("fa-triangle-exclamation", `Gastu gehigarria: ${importe} €`));
       main.appendChild(extra);
     }
@@ -564,11 +574,12 @@ function mostrarQR(reserva) {
   if (typeof QRCode === "undefined") {
     info.textContent = "Ezin izan da QR sortzailea kargatu.";
   } else if (!reserva.qr_token) {
-    info.textContent = "Erreserba honek ez du QRrik. Kargatu orria berriro edo jarri harremanetan laguntzarekin.";
+    info.textContent =
+      "Erreserba honek ez du QRrik. Kargatu orria berriro edo jarri harremanetan laguntzarekin.";
   } else {
     qrUrlActual = new URL(
       `locker.html?token=${encodeURIComponent(reserva.qr_token)}`,
-      window.location.href,
+      window.location.href
     ).href;
 
     new QRCode(container, {

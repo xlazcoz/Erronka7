@@ -9,8 +9,8 @@ from models.models import AuthSession, Erabiltzailea, Udalerria
 from schemas.schemas import (
     ErabiltzaileaCreate,
     ErabiltzaileaResponse,
-    ErabiltzaileaUpdate,
     ErabiltzaileaRolaUpdate,
+    ErabiltzaileaUpdate,
     ErreserbakResponse,
 )
 from services.auth import get_current_user, hash_password, require_admin

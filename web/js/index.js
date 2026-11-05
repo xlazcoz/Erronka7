@@ -64,7 +64,7 @@ async function Datuak({ silencioso = false } = {}) {
   if (!silencioso) btnRefresh.classList.add("is-loading");
 
   const anteriores = new Map(
-    todasLasEstaciones.map((poste) => [String(poste.id), claveEstado(poste)]),
+    todasLasEstaciones.map((poste) => [String(poste.id), claveEstado(poste)])
   );
 
   try {
@@ -294,7 +294,7 @@ function renderizarLista(elementos, animarEntrada) {
       filtrosActivos() ? "mb-3" : "mb-0",
       filtrosActivos()
         ? "Ez dago kargagunerik hautatutako iragazkiekin bat egiten duenik."
-        : "Ez dago kargagunerik iragazki honetarako.",
+        : "Ez dago kargagunerik iragazki honetarako."
     );
     empty.appendChild(texto);
 
@@ -313,7 +313,10 @@ function renderizarLista(elementos, animarEntrada) {
     const estado = estadoEstacion(poste);
     const id = String(poste.id);
 
-    const a = crearElemento("a", `estacion-item ${estado.cardClass}${animarEntrada ? " animate-in" : ""}`);
+    const a = crearElemento(
+      "a",
+      `estacion-item ${estado.cardClass}${animarEntrada ? " animate-in" : ""}`
+    );
     a.href = `puesto-Carga.html?id=${poste.id}&reservar=1`;
     a.dataset.clave = id;
     a.style.setProperty("--i", String(indice));
@@ -344,8 +347,8 @@ function renderizarLista(elementos, animarEntrada) {
     direccion.append(
       iconoDireccion,
       document.createTextNode(
-        [poste.udalerria_izena, poste.helbidea].filter(Boolean).join(" · ") || "Helbiderik gabe",
-      ),
+        [poste.udalerria_izena, poste.helbidea].filter(Boolean).join(" · ") || "Helbiderik gabe"
+      )
     );
     info.append(titleRow, direccion);
     lead.append(icon, info);
@@ -357,10 +360,8 @@ function renderizarLista(elementos, animarEntrada) {
       crearElemento(
         "span",
         "station-availability-label",
-        estado.total > 0
-          ? `${estado.total} powerbanketatik`
-          : "powerbankik ez",
-      ),
+        estado.total > 0 ? `${estado.total} powerbanketatik` : "powerbankik ez"
+      )
     );
     disponibilidad.append(cabecera, crearBateria(estado));
 
@@ -378,7 +379,7 @@ function crearBateria(estado) {
   bateria.setAttribute("role", "img");
   bateria.setAttribute(
     "aria-label",
-    `Erabilgarritasuna: ${estado.porcentaje}%. ${estado.libres} powerbank libre ${estado.total} powerbanketatik`,
+    `Erabilgarritasuna: ${estado.porcentaje}%. ${estado.libres} powerbank libre ${estado.total} powerbanketatik`
   );
 
   if (estado.operativa && estado.libres > 0) {
@@ -462,12 +463,12 @@ function actualizarEstadisticas() {
 
   const municipiosActivos = municipios.filter((municipio) => municipio.aktiboa !== false).length;
   const municipiosDistintos = new Set(
-    todasLasEstaciones.map((poste) => poste.udalerria_izena).filter(Boolean),
+    todasLasEstaciones.map((poste) => poste.udalerria_izena).filter(Boolean)
   ).size;
   const totalMunicipios = municipiosActivos || municipiosDistintos;
 
   const operativas = todasLasEstaciones.filter(
-    (poste) => (poste.egoera || "").toLowerCase() === "erabilgarri",
+    (poste) => (poste.egoera || "").toLowerCase() === "erabilgarri"
   ).length;
   const porcentaje = total > 0 ? Math.round((operativas / total) * 100) : 0;
 
@@ -497,7 +498,7 @@ function configurarReveal() {
         observador.unobserve(entrada.target);
       });
     },
-    { threshold: 0.12 },
+    { threshold: 0.12 }
   );
 
   elementos.forEach((elemento) => observador.observe(elemento));
@@ -558,7 +559,7 @@ function configurarVisibilidadMapa() {
     (entradas) => {
       mapaVisible = entradas.some((entrada) => entrada.isIntersecting);
     },
-    { threshold: 0.25 },
+    { threshold: 0.25 }
   );
 
   observador.observe(contenedor);
@@ -573,11 +574,9 @@ function resaltarEstacion(poste) {
   if (!mapa || !mapaVisible) return;
   if (poste.latitud == null || poste.longitud == null) return;
 
-  mapa.flyTo(
-    [Number(poste.latitud), Number(poste.longitud)],
-    Math.max(mapa.getZoom(), 14),
-    { duration: 0.7 },
-  );
+  mapa.flyTo([Number(poste.latitud), Number(poste.longitud)], Math.max(mapa.getZoom(), 14), {
+    duration: 0.7,
+  });
 }
 
 function quitarResaltado(poste) {
@@ -591,7 +590,10 @@ function crearMapa() {
     return;
   }
 
-  mapa = L.map("map", { scrollWheelZoom: false, zoomControl: false }).setView([43.3183, -1.9812], 12);
+  mapa = L.map("map", { scrollWheelZoom: false, zoomControl: false }).setView(
+    [43.3183, -1.9812],
+    12
+  );
   L.control.zoom({ position: "bottomright" }).addTo(mapa);
 
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -613,14 +615,14 @@ function crearPopup(poste) {
     crearElemento(
       "div",
       "map-popup-address",
-      [poste.udalerria_izena, poste.helbidea].filter(Boolean).join(" · "),
-    ),
+      [poste.udalerria_izena, poste.helbidea].filter(Boolean).join(" · ")
+    )
   );
 
   const badge = crearElemento(
     "span",
     `pb-badge ${estado.badge}`,
-    estado.operativa && estado.libres > 0 ? `${estado.libres} erabilgarri` : estado.etiqueta,
+    estado.operativa && estado.libres > 0 ? `${estado.libres} erabilgarri` : estado.etiqueta
   );
   popup.appendChild(badge);
 
@@ -649,15 +651,15 @@ function renderizarMapa(elementos) {
   if (!mapa) crearMapa();
   if (!mapa || !capaMarcadores) return;
 
-  const conUbicacion = elementos.filter(
-    (poste) => poste.latitud != null && poste.longitud != null,
-  );
+  const conUbicacion = elementos.filter((poste) => poste.latitud != null && poste.longitud != null);
 
   const firmaPuntos = conUbicacion
     .map((poste) => `${poste.id}:${poste.latitud}:${poste.longitud}`)
     .join("|");
   const firmaEstado = conUbicacion
-    .map((poste) => `${poste.id}:${poste.egoera}:${poste.libres}:${(poste.karga_postuak || []).length}`)
+    .map(
+      (poste) => `${poste.id}:${poste.egoera}:${poste.libres}:${(poste.karga_postuak || []).length}`
+    )
     .join("|");
 
   mapEmpty.classList.toggle("d-none", conUbicacion.length > 0);

@@ -1,9 +1,11 @@
 from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+
 from database import get_session
-from models.models import Erabiltzailea, Erreserba, KargaPostua, Kargagunea, Powerbank
+from models.models import Erabiltzailea, Erreserba, Kargagunea, KargaPostua, Powerbank
 from schemas.schemas import PowerbankCreate, PowerbankResponse, PowerbankUpdate
 from services.auth import can_manage_municipality, require_manager
 

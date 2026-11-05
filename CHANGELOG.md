@@ -18,6 +18,11 @@ Formatu hau [Keep a Changelog](https://keepachangelog.com/eu/1.1.0/) estandarrea
 - Docker Compose, nginx konfigurazioa eta CI workflow-a.
 - Administrazio-panelaren 401 interceptorra.
 - Test berriak segurtasun-zerbitzuetarako.
+- Alembic migrazioak eta `bootstrap_database()` (baseline + irudi lokaletarako migrazioa).
+- APIaren integrazio-testak PostgreSQL-rekin eta CIko Postgres zerbitzua.
+- Ruff, ESLint eta Prettier konfigurazioak eta CI egiaztapenak.
+- Header/footer partialak eta `web/scripts/sync-layout.js` sinkronizazio-scripta.
+- Kargaguneen irudi lokalak WebP formatuan (`docs/optimize_station_images.py`).
 
 ### Aldatuta
 

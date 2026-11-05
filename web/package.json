@@ -1,0 +1,19 @@
+{
+  "name": "powerbank-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Powerbank web publikoa: HTML, CSS eta JavaScript.",
+  "scripts": {
+    "layout": "node scripts/sync-layout.js",
+    "layout:check": "node scripts/sync-layout.js --check",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "eslint": "^10.0.0",
+    "globals": "^17.0.0",
+    "prettier": "^3.9.0"
+  }
+}

@@ -1,8 +1,19 @@
+import os
 from datetime import datetime, timedelta
 
-from database import SessionLocal, engine, ensure_schema
+from sqlalchemy import select
+
+from database import SessionLocal, bootstrap_database, engine
 from media import IRUDIAK
-from models.models import Base, Erabiltzailea, Erreserba, KargaPostua, Kargagunea, Powerbank, Udalerria
+from models.models import (
+    Base,
+    Erabiltzailea,
+    Erreserba,
+    Kargagunea,
+    KargaPostua,
+    Powerbank,
+    Udalerria,
+)
 from services.auth import hash_password
 
 ERABILTZAILEAK = [
@@ -54,9 +65,28 @@ ESTACIONES = [
 ]
 
 
+def _check_destructive_environment() -> None:
+    """Segurtasun-hesia: produkzioan seed suntsitzailea eragotzi."""
+    is_production = os.getenv("APP_ENV", "development").strip().lower() in {
+        "production",
+        "prod",
+    }
+    explicitly_allowed = os.getenv("ALLOW_DESTRUCTIVE_SEED", "false").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+    if is_production and not explicitly_allowed:
+        raise SystemExit(
+            "seed.py datu guztiak ezabatzen ditu. Produkzioan exekutatzeko, "
+            "ezarri ALLOW_DESTRUCTIVE_SEED=true."
+        )
+
+
 def poblar_base_de_datos():
+    _check_destructive_environment()
     Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
+    bootstrap_database()
 
     with SessionLocal.begin() as session:
         user_ids = []
@@ -74,9 +104,13 @@ def poblar_base_de_datos():
 
         udalerriak = {}
         for izena in ("Donostia", "Zarautz"):
-            udalerria = Udalerria(izena=izena, aktiboa=True)
-            session.add(udalerria)
-            session.flush()
+            udalerria = session.scalar(
+                select(Udalerria).where(Udalerria.izena == izena)
+            )
+            if udalerria is None:
+                udalerria = Udalerria(izena=izena, aktiboa=True)
+                session.add(udalerria)
+                session.flush()
             udalerriak[izena] = udalerria
 
         # Udalerri-administratzaile demoak.
@@ -155,10 +189,6 @@ def poblar_base_de_datos():
                 bukaerako_karga_postua=None,
                 egoera="aktiboa",
             ))
-
-    # Murrizketa bereziak (adibidez, gainjarpenen aurkakoak) datuak
-    # txertatu ondoren aplikatzen dira.
-    ensure_schema()
 
     print("Seed completado: usuarios, estaciones, puestos, powerbanks y reservas.")
 

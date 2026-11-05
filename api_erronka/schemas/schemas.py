@@ -1,6 +1,13 @@
 from datetime import datetime, timedelta
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, ValidationInfo, field_validator, model_validator
-from typing import Optional, List
+
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    Field,
+    field_validator,
+    model_validator,
+)
 
 from constants import (
     ERRESERBA_EGOERAK,
@@ -11,28 +18,29 @@ from constants import (
     ROLAK,
 )
 
+
 class ErreserbakResponse(BaseModel):
     id: int
     erabiltzailea_id: int
     powerbank_id: int
     hasiera_data_ordua: datetime
     amaiera_data_ordua: datetime
-    egikaritze_data_ordua: Optional[datetime] = None
-    amaitze_data_ordua: Optional[datetime] = None
+    egikaritze_data_ordua: datetime | None = None
+    amaitze_data_ordua: datetime | None = None
     hasierako_karga_postua: int
-    bukaerako_karga_postua: Optional[int] = None
+    bukaerako_karga_postua: int | None = None
     egoera: str
     qr_token: str = ""
     berandu: bool = False
     karga_extra: float = 0.0
 
     # Erabiltzailearen konturako laguntza-eremuak.
-    kargagunea_id: Optional[int] = None
-    kargagunea_izena: Optional[str] = None
-    karga_postua_izena: Optional[str] = None
-    bukaerako_kargagunea_izena: Optional[str] = None
-    bukaerako_karga_postua_izena: Optional[str] = None
-    powerbank_karga_maila: Optional[float] = None
+    kargagunea_id: int | None = None
+    kargagunea_izena: str | None = None
+    karga_postua_izena: str | None = None
+    bukaerako_kargagunea_izena: str | None = None
+    bukaerako_karga_postua_izena: str | None = None
+    powerbank_karga_maila: float | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -78,13 +86,13 @@ class QrScanRequest(BaseModel):
 
 
 class ErreserbakUpdate(BaseModel):
-    hasiera_data_ordua: Optional[datetime] = None
-    amaiera_data_ordua: Optional[datetime] = None
-    egikaritze_data_ordua: Optional[datetime] = None
-    amaitze_data_ordua: Optional[datetime] = None
-    hasierako_karga_postua: Optional[int] = None
-    bukaerako_karga_postua: Optional[int] = None
-    egoera: Optional[str] = None
+    hasiera_data_ordua: datetime | None = None
+    amaiera_data_ordua: datetime | None = None
+    egikaritze_data_ordua: datetime | None = None
+    amaitze_data_ordua: datetime | None = None
+    hasierako_karga_postua: int | None = None
+    bukaerako_karga_postua: int | None = None
+    egoera: str | None = None
 
     @field_validator("egoera")
     @classmethod
@@ -118,9 +126,9 @@ class ErabiltzaileaResponse(BaseModel):
     login_email: str
     rola: str
     aktiboa: bool = True
-    udalerria_id: Optional[int] = None
-    udalerria_izena: Optional[str] = None
-    erreserbak: List[ErreserbakResponse] = []
+    udalerria_id: int | None = None
+    udalerria_izena: str | None = None
+    erreserbak: list[ErreserbakResponse] = []
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -132,7 +140,7 @@ class ErabiltzaileaCreate(BaseModel):
     login_pasahitza: str = Field(min_length=1, max_length=100)
     rola: str = Field(default="user", min_length=1, max_length=100)
     aktiboa: bool = True
-    udalerria_id: Optional[int] = Field(default=None, gt=0)
+    udalerria_id: int | None = Field(default=None, gt=0)
 
     @field_validator("rola")
     @classmethod
@@ -143,17 +151,17 @@ class ErabiltzaileaCreate(BaseModel):
 
 
 class ErabiltzaileaUpdate(BaseModel):
-    izena: Optional[str] = None
-    abizena: Optional[str] = None
-    login_email: Optional[str] = None
-    login_pasahitza: Optional[str] = None  
-    rola: Optional[str] = None
-    aktiboa: Optional[bool] = None
-    udalerria_id: Optional[int] = Field(default=None, gt=0)
+    izena: str | None = None
+    abizena: str | None = None
+    login_email: str | None = None
+    login_pasahitza: str | None = None
+    rola: str | None = None
+    aktiboa: bool | None = None
+    udalerria_id: int | None = Field(default=None, gt=0)
 
     @field_validator("rola")
     @classmethod
-    def rola_balidatu(cls, value: Optional[str]) -> Optional[str]:
+    def rola_balidatu(cls, value: str | None) -> str | None:
         if value is not None and value not in ROLAK:
             raise ValueError("Rola hauetako bat izan behar da: user, udalerri_admin, admin")
         return value
@@ -161,7 +169,7 @@ class ErabiltzaileaUpdate(BaseModel):
 
 class ErabiltzaileaRolaUpdate(BaseModel):
     rola: str = Field(min_length=1, max_length=100)
-    udalerria_id: Optional[int] = Field(default=None, gt=0)
+    udalerria_id: int | None = Field(default=None, gt=0)
 
     @field_validator("rola")
     @classmethod
@@ -184,8 +192,8 @@ class UdalerriaCreate(BaseModel):
 
 
 class UdalerriaUpdate(BaseModel):
-    izena: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    aktiboa: Optional[bool] = None
+    izena: str | None = Field(default=None, min_length=1, max_length=100)
+    aktiboa: bool | None = None
 
 
 class KargaguneaResponse(BaseModel):
@@ -196,12 +204,12 @@ class KargaguneaResponse(BaseModel):
     irudia2: str
     irudia3: str
     egoera: str
-    udalerria_id: Optional[int] = None
-    udalerria_izena: Optional[str] = None
-    latitud: Optional[float] = None
-    longitud: Optional[float] = None
+    udalerria_id: int | None = None
+    udalerria_izena: str | None = None
+    latitud: float | None = None
+    longitud: float | None = None
     libres: int = 0
-    karga_postuak: List[KargaPostuaResponse] = []
+    karga_postuak: list[KargaPostuaResponse] = []
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -212,9 +220,9 @@ class KargaguneaCreate(BaseModel):
     irudia2: str = Field(min_length=1, max_length=1000)
     irudia3: str = Field(min_length=1, max_length=1000)
     egoera: str = Field(min_length=1, max_length=100)
-    udalerria_id: Optional[int] = Field(default=None, gt=0)
-    latitud: Optional[float] = Field(default=None, ge=-90, le=90)
-    longitud: Optional[float] = Field(default=None, ge=-180, le=180)
+    udalerria_id: int | None = Field(default=None, gt=0)
+    latitud: float | None = Field(default=None, ge=-90, le=90)
+    longitud: float | None = Field(default=None, ge=-180, le=180)
 
     @field_validator("egoera")
     @classmethod
@@ -225,19 +233,19 @@ class KargaguneaCreate(BaseModel):
         return normalized
 
 class KargaguneaUpdate(BaseModel):
-    izena: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    helbidea: Optional[str] = Field(default=None, min_length=1, max_length=255)
-    irudia1: Optional[str] = Field(default=None, min_length=1, max_length=1000)
-    irudia2: Optional[str] = Field(default=None, min_length=1, max_length=1000)
-    irudia3: Optional[str] = Field(default=None, min_length=1, max_length=1000)
-    egoera: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    udalerria_id: Optional[int] = Field(default=None, gt=0)
-    latitud: Optional[float] = Field(default=None, ge=-90, le=90)
-    longitud: Optional[float] = Field(default=None, ge=-180, le=180)
+    izena: str | None = Field(default=None, min_length=1, max_length=100)
+    helbidea: str | None = Field(default=None, min_length=1, max_length=255)
+    irudia1: str | None = Field(default=None, min_length=1, max_length=1000)
+    irudia2: str | None = Field(default=None, min_length=1, max_length=1000)
+    irudia3: str | None = Field(default=None, min_length=1, max_length=1000)
+    egoera: str | None = Field(default=None, min_length=1, max_length=100)
+    udalerria_id: int | None = Field(default=None, gt=0)
+    latitud: float | None = Field(default=None, ge=-90, le=90)
+    longitud: float | None = Field(default=None, ge=-180, le=180)
 
     @field_validator("egoera")
     @classmethod
-    def egoera_balidatu(cls, value: Optional[str]) -> Optional[str]:
+    def egoera_balidatu(cls, value: str | None) -> str | None:
         if value is not None:
             normalized = value.strip().lower().replace(" ", "-")
             if normalized not in KARGAGUNEA_EGOERAK:
@@ -246,16 +254,16 @@ class KargaguneaUpdate(BaseModel):
         return value
 
 class KargaguneaIrudiaUpdate(BaseModel):
-    irudia1: Optional[str] = Field(default=None, min_length=1, max_length=1000)
-    irudia2: Optional[str] = Field(default=None, min_length=1, max_length=1000)
-    irudia3: Optional[str] = Field(default=None, min_length=1, max_length=1000)
+    irudia1: str | None = Field(default=None, min_length=1, max_length=1000)
+    irudia2: str | None = Field(default=None, min_length=1, max_length=1000)
+    irudia3: str | None = Field(default=None, min_length=1, max_length=1000)
 
 
 
 class KargaPostuaResponse(BaseModel):
     id: int
     egoera: str
-    tamaina: Optional[str] = None
+    tamaina: str | None = None
     kargagunea_id: int
 
     model_config = ConfigDict(from_attributes=True)
@@ -283,12 +291,12 @@ class KargaPostuaCreate(BaseModel):
 
 
 class KargaPostuaUpdate(BaseModel):
-    egoera: Optional[str] = Field(default=None, min_length=1, max_length=100)
-    tamaina: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    egoera: str | None = Field(default=None, min_length=1, max_length=100)
+    tamaina: str | None = Field(default=None, min_length=1, max_length=100)
 
     @field_validator("egoera")
     @classmethod
-    def egoera_balidatu(cls, value: Optional[str]) -> Optional[str]:
+    def egoera_balidatu(cls, value: str | None) -> str | None:
         if value is not None:
             normalized = value.strip().lower()
             if normalized not in KARGA_POSTUA_EGOERAK:
@@ -298,7 +306,7 @@ class KargaPostuaUpdate(BaseModel):
 
     @field_validator("tamaina")
     @classmethod
-    def tamaina_balidatu(cls, value: Optional[str]) -> Optional[str]:
+    def tamaina_balidatu(cls, value: str | None) -> str | None:
         if value is not None:
             normalized = value.strip().lower()
             if normalized not in KARGA_POSTU_TAMAINAK:
@@ -331,13 +339,13 @@ class PowerbankCreate(PowerbankBase):
     pass
 
 class PowerbankUpdate(BaseModel):
-    karga_maila: Optional[float] = Field(default=None, ge=0, le=100)
-    karga_postua_id: Optional[int] = Field(default=None, gt=0)
-    egoera: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    karga_maila: float | None = Field(default=None, ge=0, le=100)
+    karga_postua_id: int | None = Field(default=None, gt=0)
+    egoera: str | None = Field(default=None, min_length=1, max_length=100)
 
     @field_validator("egoera")
     @classmethod
-    def egoera_balidatu(cls, value: Optional[str]) -> Optional[str]:
+    def egoera_balidatu(cls, value: str | None) -> str | None:
         if value is not None:
             normalized = value.strip().lower()
             if normalized not in POWERBANK_EGOERAK:
@@ -384,13 +392,13 @@ class LoginRequest(BaseModel):
 
 
 class ProfileUpdate(BaseModel):
-    izena: Optional[str] = Field(default=None, min_length=2, max_length=100)
-    abizena: Optional[str] = Field(default=None, max_length=100)
-    login_email: Optional[EmailStr] = None
+    izena: str | None = Field(default=None, min_length=2, max_length=100)
+    abizena: str | None = Field(default=None, max_length=100)
+    login_email: EmailStr | None = None
 
     @field_validator("izena", "abizena")
     @classmethod
-    def garbitu_izena(cls, value: Optional[str]) -> Optional[str]:
+    def garbitu_izena(cls, value: str | None) -> str | None:
         return value.strip() if isinstance(value, str) else value
 
     @field_validator("login_email", mode="before")

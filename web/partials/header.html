@@ -1,0 +1,36 @@
+<header class="pb-header">
+  <nav class="navbar navbar-expand-md navbar-dark pb-navbar">
+    <div class="container">
+      <a class="pb-brand" href="index.html">
+        <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
+        <span class="pb-brand-text">
+          <span class="pb-brand-name">POWERBANK</span>
+          <span class="pb-brand-tagline">Energia behar duzunean</span>
+        </span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
+        aria-controls="navbarMain" aria-expanded="false" aria-label="Ireki menua">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-1 pb-nav-pill">
+          <li class="nav-item"><a class="nav-link{{HOME_ACTIVE}}"{{HOME_ARIA}} href="index.html"><i class="fas fa-house"></i>Hasiera</a></li>
+          <li class="nav-item"><a class="nav-link{{STATIONS_ACTIVE}}"{{STATIONS_ARIA}} href="Kargaguneak.html"><i class="fas fa-location-dot"></i>Kargaguneak</a></li>
+          <li class="nav-item" data-auth-only hidden><a class="nav-link{{RESERVATIONS_ACTIVE}}"{{RESERVATIONS_ARIA}} href="Erreserbak.html"><i class="fas fa-calendar-check"></i>Erreserbak</a></li>
+          <li class="nav-item" data-auth-only hidden><a class="nav-link{{ACCOUNT_ACTIVE}}"{{ACCOUNT_ARIA}} href="Erabiltzailea.html"><i class="fas fa-user"></i>Nire kontua</a></li>
+        </ul>
+        <div class="pb-nav-actions">
+          <a class="btn btn-primary pb-qr-quick d-none" id="qrQuickButton" href="Erreserbak.html">
+            <i class="fas fa-qrcode me-2"></i><span>Erabili QR</span>
+          </a>
+          <a class="btn btn-outline-primary px-3" href="Login.html" id="btnCuenta">Hasi saioa</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <script src="js/api.js"></script>
+  <script src="js/dialogos.js"></script>
+  <script src="js/auth.js?v=6"></script>
+</header>

@@ -16,6 +16,7 @@ Karpeta honetan Powerbank Alokairu Sistemaren dokumentazio teknikoa dago.
 | `assets/estiloa.css` | PDFaren estiloa |
 | `build_pdf.py` | Hiru dokumentazio-bertsioak sortzeko scripta |
 | `build_ia_pdf.py` | IAren erabileraren txostena sortzeko scripta |
+| `optimize_station_images.py` | Kargaguneen irudiak deskargatu eta WebP formatura optimizatzeko scripta |
 
 ## PDFak berriro sortzea
 

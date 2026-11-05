@@ -1,4 +1,8 @@
-from sqlalchemy import create_engine, text
+from pathlib import Path
+
+from alembic import command
+from alembic.config import Config
+from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.orm import sessionmaker
 
 from config import DATABASE_URL
@@ -7,6 +11,39 @@ from media import IRUDIAK
 engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
 
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
+
+ALEMBIC_INI = Path(__file__).resolve().parent / "alembic.ini"
+
+
+def _alembic_config() -> Config:
+    config = Config(str(ALEMBIC_INI))
+    config.set_main_option("sqlalchemy.url", DATABASE_URL.replace("%", "%%"))
+    return config
+
+
+def bootstrap_database() -> None:
+    """Datu-basea Alembic bidez prestatu.
+
+    - Datu-base hutsa: migrazio guztiak aplikatu.
+    - Dagoeneko migratuta: `alembic upgrade head`.
+    - Lehendik `create_all`/`ensure_schema` erabili duen datu-basea:
+      eskema normalizatu eta baseline gisa markatu (`stamp head`).
+    """
+    config = _alembic_config()
+    tables = set(inspect(engine).get_table_names())
+
+    if "alembic_version" in tables:
+        command.upgrade(config, "head")
+        return
+
+    if not tables:
+        # Datu-base hutsa: baselineak ereduetako eskema osoa sortzen du.
+        command.upgrade(config, "head")
+        return
+
+    # Legacy datu-basea: aurreko migrazio arina aplikatu eta markatu.
+    ensure_schema()
+    command.stamp(config, "head")
 
 
 STATION_COORDINATES = {
@@ -123,10 +160,21 @@ def ensure_schema():
                 IRUDIAK[station_id % len(IRUDIAK)],
                 IRUDIAK[(station_id + 1) % len(IRUDIAK)],
             ]
+            # Erabiltzaileek igotako irudiak ez dira gainidazten; soilik
+            # balio hutsak edo Wikimedia-ko URL zaharrak eguneratzen dira.
             connection.execute(
                 text(
-                    "UPDATE kargaguneak SET irudia1 = :irudia1, irudia2 = :irudia2, "
-                    "irudia3 = :irudia3 WHERE id = :id"
+                    "UPDATE kargaguneak SET "
+                    "irudia1 = CASE WHEN irudia1 IS NULL "
+                    "OR irudia1 LIKE 'https://thumb.wikimedia.org/%' "
+                    "THEN :irudia1 ELSE irudia1 END, "
+                    "irudia2 = CASE WHEN irudia2 IS NULL "
+                    "OR irudia2 LIKE 'https://thumb.wikimedia.org/%' "
+                    "THEN :irudia2 ELSE irudia2 END, "
+                    "irudia3 = CASE WHEN irudia3 IS NULL "
+                    "OR irudia3 LIKE 'https://thumb.wikimedia.org/%' "
+                    "THEN :irudia3 ELSE irudia3 END "
+                    "WHERE id = :id"
                 ),
                 {
                     "irudia1": images[0],

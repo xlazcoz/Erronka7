@@ -51,11 +51,8 @@
       if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
 
       elemento.animate(
-        [
-          { transform: `translate(${dx}px, ${dy}px)` },
-          { transform: "translate(0, 0)" },
-        ],
-        { duration: duracion, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+        [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "translate(0, 0)" }],
+        { duration: duracion, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }
       );
     });
   }

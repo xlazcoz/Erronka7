@@ -1,3 +1,5 @@
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
@@ -13,8 +15,7 @@ from config import (
     DOCS_ENABLED,
     IS_PRODUCTION,
 )
-from database import engine, ensure_schema
-from models.models import Base
+from database import bootstrap_database, engine
 from routers import (
     erabiltzaileak,
     erreserbak,
@@ -26,11 +27,17 @@ from routers import (
     udalerriak,
 )
 
-Base.metadata.create_all(engine)
-ensure_schema()
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    """Aplikazioa abiaraztean datu-basea migratzen du."""
+    bootstrap_database()
+    yield
+
 
 app = FastAPI(
     title="Powerbank Alokairu API",
+    lifespan=lifespan,
     description=(
         "Powerbank alokairu sistemaren APIa: erabiltzaileak, kargaguneak, "
         "powerbankak, erreserbak eta QR bidezko taquilla-fluxua."
@@ -106,5 +113,7 @@ def health():
         with engine.connect() as connection:
             connection.execute(text("SELECT 1"))
     except Exception:  # pragma: no cover - datu-basea erortzean
-        raise HTTPException(status_code=503, detail="Datu-basea ez dago erabilgarri")
+        raise HTTPException(
+            status_code=503, detail="Datu-basea ez dago erabilgarri"
+        ) from None
     return {"status": "ok"}

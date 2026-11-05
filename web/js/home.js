@@ -25,15 +25,14 @@ async function Datuak() {
 
     const municipiosActivos = municipios.filter((municipio) => municipio.aktiboa !== false).length;
     const municipiosDistintos = new Set(
-      estaciones.map((estacion) => estacion.udalerria_izena).filter(Boolean),
+      estaciones.map((estacion) => estacion.udalerria_izena).filter(Boolean)
     ).size;
 
     const operativas = estaciones.filter(
-      (estacion) => (estacion.egoera || "").toLowerCase() === "erabilgarri",
+      (estacion) => (estacion.egoera || "").toLowerCase() === "erabilgarri"
     ).length;
-    const porcentaje = estaciones.length > 0
-      ? Math.round((operativas / estaciones.length) * 100)
-      : 0;
+    const porcentaje =
+      estaciones.length > 0 ? Math.round((operativas / estaciones.length) * 100) : 0;
 
     document.querySelectorAll("[data-stat]").forEach((elemento) => {
       const clave = elemento.dataset.stat;

@@ -1,5 +1,5 @@
 import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from fastapi import Cookie, Depends, HTTPException
 from pwdlib import PasswordHash
@@ -32,11 +32,11 @@ def _load_active_session(session: Session, session_id: str) -> AuthSession | Non
 
     created_at = auth_session.created_at
     if created_at is None:
-        created_at = datetime.now(timezone.utc)
+        created_at = datetime.now(UTC)
     elif created_at.tzinfo is None:
-        created_at = created_at.replace(tzinfo=timezone.utc)
+        created_at = created_at.replace(tzinfo=UTC)
 
-    if datetime.now(timezone.utc) - created_at > timedelta(seconds=SESSION_MAX_AGE_SECONDS):
+    if datetime.now(UTC) - created_at > timedelta(seconds=SESSION_MAX_AGE_SECONDS):
         session.delete(auth_session)
         session.commit()
         return None

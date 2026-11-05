@@ -9,8 +9,13 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from database import get_session
-from models.models import Erabiltzailea, Erreserba, KargaPostua, Kargagunea, Powerbank, Udalerria
-from schemas.schemas import KargaguneaCreate, KargaguneaResponse, KargaguneaUpdate, KargaguneaIrudiaUpdate
+from models.models import Erabiltzailea, Erreserba, Kargagunea, KargaPostua, Powerbank, Udalerria
+from schemas.schemas import (
+    KargaguneaCreate,
+    KargaguneaIrudiaUpdate,
+    KargaguneaResponse,
+    KargaguneaUpdate,
+)
 from services.auth import can_manage_municipality, get_optional_user, require_manager
 from services.erreserbak import normalize_datetime, now_local
 from services.uploads import validate_image_upload
