@@ -170,7 +170,7 @@ def build_html(meta: dict[str, str], body: str, toc_html: str) -> str:
       </div>
       <div class="cover-meta">
         <table>
-          <tr><td>Egilea</td><td>{author}</td></tr>
+          <tr><td>Egileak</td><td>{author}</td></tr>
           <tr><td>Bertsioa</td><td>{version}</td></tr>
           <tr><td>Data</td><td>{date}</td></tr>
           <tr><td>Hizkuntza</td><td>Euskara</td></tr>
@@ -228,7 +228,7 @@ def add_metadata(pdf_path: Path) -> None:
     writer.add_metadata(
         {
             "/Title": "Powerbank Alokairu Sistema - Dokumentazio teknikoa",
-            "/Author": "Powerbank Inc.",
+            "/Author": "Xabier Lazcoz, Aitor Mindeguia",
             "/Subject": (
                 "Dokumentazio teknikoa eta hirugarrenen baliabideen lizentzien erregistroa"
             ),

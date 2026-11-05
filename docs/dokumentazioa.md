@@ -1,7 +1,7 @@
 ---
 title: "Powerbank Alokairu Sistema"
 subtitle: "Dokumentazio teknikoa eta hirugarrenen baliabideen lizentzien erregistroa"
-author: "____________________"
+author: "Xabier Lazcoz eta Aitor Mindeguia"
 date: "2026ko azaroa"
 version: "1.0"
 project: "Erronka 7 · Administrazio Atala"
@@ -1482,6 +1482,7 @@ Oharra: `psycopg` LGPL-3.0 lizentziapean dago. Banaketetan, lizentzia-testua eta
 | Eremua | Balioa |
 |---|---|
 | Izenburua | Powerbank Alokairu Sistema — Dokumentazio teknikoa |
+| Egileak | Xabier Lazcoz eta Aitor Mindeguia |
 | Bertsioa | 1.0 |
 | Data | 2026ko azaroa |
 | Proiektua | Erronka 7 · Administrazio Atala |

@@ -2,6 +2,8 @@
 
 Powerbank-en alokairua kudeatzeko sistema osoa: erabiltzaileentzako web aplikazioa, administrazio-panel angularra, FastAPI bidezko API bat eta PostgreSQL datu-basea.
 
+**Egileak:** Xabier Lazcoz eta Aitor Mindeguia.
+
 Sistemak bi udalerri (Donostia eta Zarautz), hamar kargagune, karga-postuak, powerbankak, erreserbak eta QR bidezko taquilla-fluxua kudeatzen ditu.
 
 ## Arkitektura
