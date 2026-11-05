@@ -7,4 +7,5 @@ dependencies = [
     "psycopg[binary]>=3.3.6",
     "sqlalchemy>=2.1.6",
     "pwdlib[argon2]",
+    "tzdata>=2026.5",
 ]

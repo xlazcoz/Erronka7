@@ -238,6 +238,12 @@
   color: #94a3b8;
 }
 
+/* Oculta la bandera que Leaflet añade junto a su logotipo.
+   Leaflet-ek `display: inline !important` ezartzen du, beraz `!important` behar da. */
+.station-map .leaflet-control-attribution .leaflet-attribution-flag {
+  display: none !important;
+}
+
 .station-map .leaflet-control-attribution a {
   color: #94a3b8;
 }
@@ -300,8 +306,16 @@
   animation: markerPing 2.4s ease-out infinite;
 }
 
-.station-marker:hover .station-marker-core {
-  transform: scale(1.15);
+.station-marker:hover .station-marker-core,
+.station-marker.is-active .station-marker-core,
+.station-marker.is-linked .station-marker-core {
+  transform: scale(1.6);
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.16), 0 0 26px currentColor;
+}
+
+.station-marker.is-active,
+.station-marker.is-linked {
+  z-index: 1200 !important;
 }
 
 /* ---------- Cabecera del listado ---------- */
@@ -438,6 +452,11 @@
 
 /* Fila de estación */
 .estacion-item {
+  --rx: 0deg;
+  --ry: 0deg;
+  --mx: 50%;
+  --my: 50%;
+  --lift: 0px;
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 190px auto;
@@ -450,15 +469,51 @@
   background: rgba(15, 23, 42, 0.5) !important;
   color: var(--pb-text) !important;
   text-decoration: none;
-  transition: background 0.22s ease, border-color 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
+  transition: background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease,
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Halo que sigue al cursor. */
+.estacion-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    230px circle at var(--mx) var(--my),
+    rgba(59, 130, 246, 0.18),
+    transparent 65%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.estacion-item > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Mientras el cursor se mueve no se interpola el tilt para que no vaya con retraso. */
+.estacion-item.is-tilting {
+  transition: background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
 }
 
 .estacion-item:hover,
-.estacion-item:focus-visible {
+.estacion-item:focus-visible,
+.estacion-item.is-linked {
+  --lift: -2px;
+  transform: perspective(1000px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(var(--lift));
   background: rgba(22, 32, 50, 0.72) !important;
   border-color: var(--pb-border-strong) !important;
-  transform: translateY(-1px);
   box-shadow: 0 14px 32px rgba(2, 6, 23, 0.35);
+}
+
+.estacion-item:hover::before,
+.estacion-item:focus-visible::before,
+.estacion-item.is-linked::before {
+  opacity: 1;
 }
 
 .estacion-item:focus-visible {
@@ -466,9 +521,14 @@
   outline-offset: 3px;
 }
 
+/* Aviso suave cuando el auto-refresco detecta cambios. */
+.estacion-item.is-updated {
+  animation: updatedFlash 1.4s ease both;
+}
+
 /* Entrada escalonada de las filas */
 .estacion-item.animate-in {
-  animation: cardIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: cardIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
   animation-delay: calc(min(var(--i, 0), 9) * 45ms);
 }
 
@@ -584,29 +644,84 @@
   color: #94a3b8;
 }
 
-.station-meter {
-  height: 4px;
-  border-radius: 999px;
-  background: rgba(148, 163, 184, 0.16);
+/* Batería de disponibilidad */
+.station-battery {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--segmentos, 5), minmax(0, 1fr)) 4px;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+  height: 18px;
+  margin-top: 0.15rem;
   overflow: hidden;
+  border-radius: 4px;
 }
 
-.station-meter span {
-  display: block;
+.station-battery-segment {
   height: 100%;
-  width: var(--fill, 0%);
-  border-radius: inherit;
+  border-radius: 3px;
+  background: rgba(148, 163, 184, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.3);
   transform-origin: left center;
-  background: linear-gradient(90deg, #2563eb, #22d3ee);
-  animation: meterGrow 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: background 0.25s ease, box-shadow 0.25s ease;
 }
 
-.estacion-item.is-empty .station-meter span {
-  background: linear-gradient(90deg, #f59e0b, #ef4444);
+.station-battery-segment.is-on {
+  background: linear-gradient(180deg, #60a5fa, #22d3ee);
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.35);
 }
 
-.estacion-item.is-closed .station-meter span {
-  background: linear-gradient(90deg, #475569, #64748b);
+.station-battery-cap {
+  width: 4px;
+  height: 60%;
+  border-radius: 0 2px 2px 0;
+  background: rgba(148, 163, 184, 0.4);
+}
+
+.station-battery.is-charging::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 15%,
+    rgba(255, 255, 255, 0.32) 50%,
+    transparent 85%
+  );
+  transform: translateX(-120%);
+  animation: batteryShine 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.estacion-item.animate-in .station-battery-segment.is-on {
+  animation: batteryFill 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(180ms + var(--delay, 0ms));
+}
+
+.estacion-item.is-empty .station-battery-segment.is-on {
+  background: linear-gradient(180deg, #fcd34d, #f59e0b);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+/* Sin stock: las celdas vacías se tiñen para que se siga viendo la capacidad. */
+.estacion-item.is-empty .station-battery-segment {
+  background: rgba(245, 158, 11, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.3);
+}
+
+.estacion-item.is-closed .station-battery-segment {
+  background: rgba(100, 116, 139, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(100, 116, 139, 0.32);
+}
+
+.estacion-item.is-closed .station-battery-segment.is-on {
+  background: rgba(100, 116, 139, 0.55);
+  box-shadow: none;
+}
+
+.estacion-item.is-closed .station-battery.is-charging::after {
+  display: none;
 }
 
 .station-cta {
@@ -726,12 +841,37 @@
   }
 }
 
-@keyframes meterGrow {
+@keyframes batteryFill {
   from {
-    transform: scaleX(0);
+    opacity: 0.25;
+    transform: scaleX(0.15);
   }
   to {
+    opacity: 1;
     transform: scaleX(1);
+  }
+}
+
+@keyframes batteryShine {
+  0%,
+  58% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes updatedFlash {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0);
+  }
+  22% {
+    border-color: rgba(34, 211, 238, 0.55);
+    box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.22), 0 14px 34px rgba(2, 6, 23, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0);
   }
 }
 

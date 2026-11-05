@@ -13,8 +13,8 @@ function getAppDialog() {
             <h2 class="dialogo-titulo" id="dialogoTitulo"></h2>
             <p class="dialogo-mensaje" id="dialogoMensaje"></p>
             <div class="dialogo-acciones">
-                <button class="dialogo-btn dialogo-btn-cancelar" type="button">Volver</button>
-                <button class="dialogo-btn dialogo-btn-confirmar" type="button">Aceptar</button>
+                <button class="dialogo-btn dialogo-btn-cancelar" type="button">Itzuli</button>
+                <button class="dialogo-btn dialogo-btn-confirmar" type="button">Onartu</button>
             </div>
         </div>
     `;
@@ -50,7 +50,7 @@ function abrirSiguienteDialogo() {
     dialog.querySelector("#dialogoMensaje").textContent = currentDialog.message;
     dialog.querySelector(".dialogo-btn-cancelar").hidden = !confirmation;
     dialog.querySelector(".dialogo-btn-confirmar").textContent =
-        confirmation ? "Sí, continuar" : "Entendido";
+        confirmation ? "Bai, jarraitu" : "Ulertuta";
     dialog.showModal();
 }
 

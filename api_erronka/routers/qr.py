@@ -58,7 +58,7 @@ def eskaneatu(
         return _reply(
             404,
             "invalid",
-            "QR no válido. No corresponde a ninguna reserva.",
+            "QR baliogabea. Ez dator bat erreserba batekin.",
         )
 
     station = session.get(Kargagunea, data.kargagunea_id)
@@ -66,11 +66,11 @@ def eskaneatu(
         return _reply(
             404,
             "invalid_station",
-            "La estación de esta taquilla no existe.",
+            "Taquilla honen kargagunea ez da existitzen.",
         )
 
     reservation = _reservation_json(session, erreserba)
-    station_label = f"Estación {station.id} · {station.izena}"
+    station_label = f"Kargagunea {station.id} · {station.izena}"
 
     start_slot = session.get(KargaPostua, erreserba.hasierako_karga_postua)
     start_station = (
@@ -84,7 +84,7 @@ def eskaneatu(
         return _reply(
             409,
             "cancelled",
-            "Esta reserva está cancelada.",
+            "Erreserba hau ezeztatuta dago.",
             reservation=reservation,
             station=_station_json(station),
         )
@@ -94,14 +94,14 @@ def eskaneatu(
             return _reply(
                 410,
                 "expired",
-                "QR expirado: la reserva no se recogió a tiempo.",
+                "QR iraungita: erreserba ez zen garaiz jaso.",
                 reservation=reservation,
                 station=_station_json(station),
             )
         return _reply(
             200,
             "already_returned",
-            "Esta powerbank ya fue devuelta.",
+            "Powerbank hau dagoeneko itzuli da.",
             reservation=reservation,
             station=_station_json(station),
         )
@@ -113,8 +113,8 @@ def eskaneatu(
                 409,
                 "too_early",
                 (
-                    "Todavía no es la hora. Tu reserva empieza a las "
-                    f"{erreserba.hasiera_data_ordua:%H:%M}."
+                    "Oraindik ez da ordua. Zure erreserba "
+                    f"{erreserba.hasiera_data_ordua:%H:%M}-etan hasten da."
                 ),
                 reservation=reservation,
                 station=_station_json(station),
@@ -128,8 +128,8 @@ def eskaneatu(
                 410,
                 "expired",
                 (
-                    "QR expirado: la reserva terminó a las "
-                    f"{erreserba.amaiera_data_ordua:%H:%M}."
+                    "QR iraungita: erreserba "
+                    f"{erreserba.amaiera_data_ordua:%H:%M}-etan amaitu zen."
                 ),
                 reservation=_reservation_json(session, erreserba),
                 station=_station_json(station),
@@ -141,9 +141,8 @@ def eskaneatu(
                 409,
                 "wrong_station",
                 (
-                    "Esta reserva es de "
-                    f"{start_station.izena if start_station else 'otra estación'}. "
-                    "Escanea el QR en esa estación para recogerla."
+                    f"Erreserba {start_station.izena if start_station else 'beste kargagune bat'}"
+                    " kargagunekoa da. Eskaneatu QR kodea kargagune horretan jasotzeko."
                 ),
                 reservation=reservation,
                 station=_station_json(station),
@@ -158,8 +157,8 @@ def eskaneatu(
             200,
             "in_use",
             (
-                f"Taquilla #{locker.id} abierta. "
-                f"Coge la powerbank #{erreserba.powerbank_id} y cierra la taquilla."
+                f"Taquilla #{locker.id} irekita. "
+                f"Hartu #{erreserba.powerbank_id} powerbanka eta itxi taquilla."
             ),
             reservation=_reservation_json(session, erreserba),
             station=_station_json(station),
@@ -175,8 +174,8 @@ def eskaneatu(
             409,
             "no_free_locker",
             (
-                f"No hay taquillas libres en {station_label}. "
-                "Prueba en otra estación."
+                f"Ez dago taquilla librerik {station_label} kargagunean. "
+                "Probatu beste kargagune bat."
             ),
             reservation=reservation,
             station=_station_json(station),
@@ -193,9 +192,9 @@ def eskaneatu(
             200,
             "returned_late",
             (
-                f"Powerbank entregada en {station_label} con retraso. "
-                f"Se te aplicará un cargo extra de "
-                f"{extra_fee_txt} € ({late_hours} hora(s) empezada(s))."
+                f"Powerbank {station_label} kargagunean berandu emanda. "
+                "Gastu gehigarria: "
+                f"{extra_fee_txt} € ({late_hours} hasitako ordu)."
             ),
             reservation=_reservation_json(session, erreserba),
             station=_station_json(station),
@@ -208,7 +207,7 @@ def eskaneatu(
     return _reply(
         200,
         "returned",
-        f"Powerbank entregada en {station_label}. ¡Gracias!",
+        f"Powerbank {station_label} kargagunean emanda. Eskerrik asko!",
         reservation=_reservation_json(session, erreserba),
         station=_station_json(station),
         locker_id=return_slot.id,

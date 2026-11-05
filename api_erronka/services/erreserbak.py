@@ -1,5 +1,6 @@
 import math
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from fastapi import HTTPException
 from sqlalchemy import select, update
@@ -7,6 +8,10 @@ from sqlalchemy.orm import Session
 
 from models.models import Erreserba, KargaPostua, Kargagunea, Powerbank
 from schemas.schemas import ErreserbakResponse
+
+# Negozioaren ordu-eremua. Erreserbak Madrid-eko ordu-eremuaren arabera
+# gordetzen dira, zerbitzariaren TZ konfigurazioa edozein dela ere.
+BUSINESS_TZ = ZoneInfo("Europe/Madrid")
 
 # Negozio-arauak:
 # - Erreserba egun berean hasi behar da (gaur).
@@ -22,15 +27,15 @@ LATE_FEE_PER_HOUR = 5.0
 
 
 def now_local() -> datetime:
-    """Erreserben orduak modu lokalean gordetzen dira, frontendak bezala."""
-    return datetime.now()
+    """Erreserben orduak Madrid-eko ordu-eremuan kudeatzen dira."""
+    return datetime.now(BUSINESS_TZ).replace(tzinfo=None)
 
 
 def normalize_datetime(value: datetime | None) -> datetime | None:
     if value is None:
         return None
     if value.tzinfo is not None:
-        return value.astimezone().replace(tzinfo=None)
+        return value.astimezone(BUSINESS_TZ).replace(tzinfo=None)
     return value
 
 
@@ -242,12 +247,12 @@ def reservation_response(session: Session, erreserba: Erreserba) -> ErreserbakRe
         update={
             "kargagunea_id": station.id if station is not None else None,
             "kargagunea_izena": station.izena if station is not None else None,
-            "karga_postua_izena": f"Puesto #{slot.id}" if slot is not None else None,
+            "karga_postua_izena": f"Postua #{slot.id}" if slot is not None else None,
             "bukaerako_kargagunea_izena": (
                 return_station.izena if return_station is not None else None
             ),
             "bukaerako_karga_postua_izena": (
-                f"Puesto #{return_slot.id}" if return_slot is not None else None
+                f"Postua #{return_slot.id}" if return_slot is not None else None
             ),
             "powerbank_karga_maila": powerbank.karga_maila if powerbank is not None else None,
         }

@@ -170,7 +170,7 @@ def build_html(meta: dict[str, str], body: str, toc_html: str) -> str:
       </div>
       <div class="cover-meta">
         <table>
-          <tr><td>Egilea</td><td>{author}</td></tr>
+          <tr><td>Egileak</td><td>{author}</td></tr>
           <tr><td>Bertsioa</td><td>{version}</td></tr>
           <tr><td>Data</td><td>{date}</td></tr>
           <tr><td>Hizkuntza</td><td>Euskara</td></tr>
@@ -202,7 +202,13 @@ def build_html(meta: dict[str, str], body: str, toc_html: str) -> str:
 """
 
 
-def render_pdf(html_text: str, output: Path, chrome: str) -> None:
+def render_pdf(
+    html_text: str,
+    output: Path,
+    chrome: str,
+    header_template: str = HEADER_TEMPLATE,
+    footer_template: str = FOOTER_TEMPLATE,
+) -> None:
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(executable_path=chrome, headless=True)
         page = browser.new_page()
@@ -213,22 +219,23 @@ def render_pdf(html_text: str, output: Path, chrome: str) -> None:
             format="A4",
             print_background=True,
             display_header_footer=True,
-            header_template=HEADER_TEMPLATE,
-            footer_template=FOOTER_TEMPLATE,
+            header_template=header_template,
+            footer_template=footer_template,
             margin={"top": "20mm", "bottom": "18mm", "left": "17mm", "right": "17mm"},
         )
         browser.close()
 
 
-def add_metadata(pdf_path: Path) -> None:
+def add_metadata(pdf_path: Path, metadata: dict[str, str] | None = None) -> None:
     """Add document metadata that Chrome's print-to-PDF does not expose."""
     reader = PdfReader(str(pdf_path))
     writer = PdfWriter()
     writer.append(reader)
     writer.add_metadata(
-        {
+        metadata
+        or {
             "/Title": "Powerbank Alokairu Sistema - Dokumentazio teknikoa",
-            "/Author": "Powerbank Inc.",
+            "/Author": "Xabier Lazcoz, Aitor Mindeguia",
             "/Subject": (
                 "Dokumentazio teknikoa eta hirugarrenen baliabideen lizentzien erregistroa"
             ),

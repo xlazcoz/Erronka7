@@ -7,7 +7,7 @@ async function actualizarBotonNavbar() {
     try {
         const usuario = await apiRequest("/login/me");
         btnCuenta.className = "btn btn-outline-danger px-3";
-        btnCuenta.innerHTML = '<i class="fas fa-right-from-bracket me-2"></i>Cerrar sesión';
+        btnCuenta.innerHTML = '<i class="fas fa-right-from-bracket me-2"></i>Amaitu saioa';
         btnCuenta.href = "#";
         btnCuenta.onclick = async (event) => {
             event.preventDefault();
@@ -15,23 +15,32 @@ async function actualizarBotonNavbar() {
         };
         actualizarBotonQR(usuario);
         actualizarEnlaceTaquilla(usuario);
+        mostrarEnlacesPrivados(true);
     } catch (error) {
         if (error.status !== 401) {
-            console.error("No se pudo comprobar la sesión:", error);
-            btnCuenta.innerHTML = '<i class="fas fa-right-to-bracket me-2"></i>Iniciar sesión';
+            console.error("Ezin izan da saioa egiaztatu:", error);
+            btnCuenta.innerHTML = '<i class="fas fa-right-to-bracket me-2"></i>Hasi saioa';
             btnCuenta.title = error.message;
             ocultarBotonQR();
             ocultarEnlaceTaquilla();
+            mostrarEnlacesPrivados(false);
             return;
         }
 
         btnCuenta.className = "btn btn-outline-primary px-3";
-        btnCuenta.innerHTML = '<i class="fas fa-right-to-bracket me-2"></i>Iniciar sesión';
+        btnCuenta.innerHTML = '<i class="fas fa-right-to-bracket me-2"></i>Hasi saioa';
         btnCuenta.href = "Login.html";
         btnCuenta.onclick = null;
         ocultarBotonQR();
         ocultarEnlaceTaquilla();
+        mostrarEnlacesPrivados(false);
     }
+}
+
+function mostrarEnlacesPrivados(visible) {
+    document.querySelectorAll("[data-auth-only]").forEach((elemento) => {
+        elemento.hidden = !visible;
+    });
 }
 
 function actualizarBotonQR(usuario) {
@@ -57,9 +66,9 @@ function actualizarBotonQR(usuario) {
     const etiqueta = btnQR.querySelector("span");
 
     btnQR.href = `Erreserbak.html?qr=${proxima.id}`;
-    btnQR.title = minutos > 0 ? `Tu reserva empieza en ${minutos} min` : "Abrir QR de la reserva";
+    btnQR.title = minutos > 0 ? `Zure erreserba ${minutos} minutu barru hasiko da` : "Ireki erreserbaren QR kodea";
     if (etiqueta) {
-        etiqueta.textContent = minutos > 0 ? `QR · ${minutos} min` : "Usar QR";
+        etiqueta.textContent = minutos > 0 ? `QR · ${minutos} min` : "Erabili QR";
     }
     btnQR.classList.remove("d-none");
 }
@@ -104,12 +113,12 @@ async function cerrarSesion() {
         window.location.href = "index.html";
     } catch (error) {
         if (typeof mostrarDialogo === "function") {
-            await mostrarDialogo(`No se pudo cerrar la sesión: ${error.message}`, {
-                title: "Error al cerrar sesión",
+            await mostrarDialogo(`Ezin izan da saioa amaitu: ${error.message}`, {
+                title: "Errorea saioa amaitzean",
                 type: "error",
             });
         } else {
-            console.error("No se pudo cerrar la sesión:", error);
+            console.error("Ezin izan da saioa amaitu:", error);
         }
     }
 }

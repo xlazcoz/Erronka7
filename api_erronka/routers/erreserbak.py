@@ -11,11 +11,11 @@ from schemas.schemas import (
     ErreserbakResponse,
     ErreserbakEgoeraUpdate,
     ErreserbakItzuliUpdate,
+    ErreserbakOrdutegiaUpdate,
 )
 from services.auth import can_manage_municipality, get_current_user, require_admin, require_manager
 from services.erreserbak import (
     expire_stale_reservations,
-    now_local,
     pickup_reservation,
     reservation_response,
     return_reservation,
@@ -187,6 +187,74 @@ def sortu_erreserba(
     return reservation_response(session, erreserba)
 
 
+@router.patch("/{id}/ordutegia", response_model=ErreserbakResponse, status_code=200)
+def aldatu_erreserbaren_ordutegia(
+    session: SessionDep,
+    data: ErreserbakOrdutegiaUpdate,
+    current_user: CurrentUser,
+    id: int,
+):
+    """Aldatu erreserba baten hasiera- eta amaiera-orduak, powerbanka aldatu gabe."""
+    expire_stale_reservations(session)
+    erreserba = session.get(Erreserba, id)
+    if not erreserba:
+        raise HTTPException(status_code=404, detail="Erreserba ez da aurkitzen")
+    if not _can_manage(session, current_user, erreserba):
+        raise HTTPException(status_code=403, detail="Ez duzu erreserba hau aldatzeko baimenik")
+    if erreserba.egoera != "aktiboa":
+        raise HTTPException(status_code=409, detail="Erreserba hau ez dago aktibo")
+    if erreserba.egikaritze_data_ordua is not None:
+        raise HTTPException(
+            status_code=409,
+            detail="Powerbanka jaso da; ezin da ordutegia aldatu",
+        )
+
+    hasiera, amaiera = validate_reservation_window(
+        data.hasiera_data_ordua,
+        data.amaiera_data_ordua,
+    )
+
+    user_overlap = session.scalar(
+        select(Erreserba.id)
+        .where(
+            Erreserba.erabiltzailea_id == erreserba.erabiltzailea_id,
+            Erreserba.egoera == "aktiboa",
+            Erreserba.id != erreserba.id,
+            Erreserba.hasiera_data_ordua < amaiera,
+            Erreserba.amaiera_data_ordua > hasiera,
+        )
+        .limit(1)
+    )
+    if user_overlap is not None:
+        raise HTTPException(
+            status_code=409,
+            detail="Baduzu beste erreserba bat ordutegi horretan",
+        )
+
+    powerbank_overlap = session.scalar(
+        select(Erreserba.id)
+        .where(
+            Erreserba.powerbank_id == erreserba.powerbank_id,
+            Erreserba.egoera == "aktiboa",
+            Erreserba.id != erreserba.id,
+            Erreserba.hasiera_data_ordua < amaiera,
+            Erreserba.amaiera_data_ordua > hasiera,
+        )
+        .limit(1)
+    )
+    if powerbank_overlap is not None:
+        raise HTTPException(
+            status_code=409,
+            detail="Powerbank hori ez dago erabilgarri ordutegi horretan",
+        )
+
+    erreserba.hasiera_data_ordua = hasiera
+    erreserba.amaiera_data_ordua = amaiera
+    session.commit()
+    session.refresh(erreserba)
+    return reservation_response(session, erreserba)
+
+
 @router.patch("/{id}/egoera", response_model=ErreserbakResponse, status_code=200)
 def erreserben_egoera_kudeatu(
     session: SessionDep,
@@ -209,18 +277,15 @@ def erreserben_egoera_kudeatu(
         )
 
     if data.egoera == "ezeztatua":
-        if erreserba.egoera != "aktiboa":
-            raise HTTPException(status_code=409, detail="Erreserba hau ez dago aktibo")
+        # Powerbanka jaso ez bada, erreserba ezeztatu daiteke hasiera-ordua
+        # igaro ondoren ere. Jasota badago, itzuli egin behar da.
         if erreserba.egikaritze_data_ordua is not None:
             raise HTTPException(
                 status_code=409,
-                detail="Erreserba hasita dago; itzuli powerbanka ezeztatu beharrean",
+                detail="Powerbanka jaso da; itzuli ezazu ezeztatu beharrean",
             )
-        if current_user.rola != "admin" and erreserba.hasiera_data_ordua <= now_local():
-            raise HTTPException(
-                status_code=400,
-                detail="Erreserba hasi ondoren ezin da ezeztatu",
-            )
+        if erreserba.egoera not in ("aktiboa", "amaitua"):
+            raise HTTPException(status_code=409, detail="Erreserba hau ez dago aktibo")
 
         # Datuak zaharretatik datozen erreserbak konpontzeko: lehen bertsioak
         # postua 'hutsa' uzten zuen erreserbatzeko orduan.
@@ -324,4 +389,4 @@ def borrar_erreserba(
 
     session.delete(erreserba)
     session.commit()
-    return {"mensaje": "Reserva eliminada de la base de datos"}
+    return {"mensaje": "Erreserba datu-basetik ezabatu da"}

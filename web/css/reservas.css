@@ -308,6 +308,82 @@
 }
 
 /* ---------- Filtros ---------- */
+.reservation-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.reservation-toolbar .reservation-filters {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+/* ---------- Hurrengo erreserba ---------- */
+.reservation-next-card {
+  padding: 1.15rem 1.35rem;
+  border: 1px solid rgba(59, 130, 246, 0.42);
+  border-radius: 1rem;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.18), transparent 45%),
+    rgba(15, 23, 42, 0.82);
+  box-shadow: 0 14px 30px rgba(2, 6, 23, 0.32);
+}
+
+.reservation-next-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.45rem;
+}
+
+.reservation-next-title {
+  margin: 0 0 0.4rem;
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.reservation-next-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  margin-bottom: 0.9rem;
+  color: var(--pb-muted);
+  font-size: 0.84rem;
+}
+
+.reservation-next-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.reservation-next-meta i {
+  color: #93c5fd;
+}
+
+.reservation-next-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reservation-next-actions .reservation-hint {
+  font-size: 0.8rem;
+  color: var(--pb-muted);
+}
+
 .reservation-filters {
   display: flex;
   flex-wrap: wrap;

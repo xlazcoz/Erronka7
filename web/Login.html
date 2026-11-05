@@ -1,54 +1,56 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="eu">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Accede a tu cuenta de Powerbank o crea una nueva.">
+  <meta name="description" content="Sartu zure Powerbank kontuan edo sortu berri bat.">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/base.css?v=14">
   <link rel="stylesheet" href="css/login.css">
   <link rel="stylesheet" href="css/dialogos.css">
-  <title>Powerbank · Acceso</title>
+  <title>Powerbank · Saioa</title>
+  <script src="js/movimiento.js"></script>
 </head>
 
 <body class="pb-page d-flex flex-column min-vh-100">
   <header class="pb-header">
-    <nav class="navbar navbar-expand-lg navbar-dark pb-navbar">
+    <nav class="navbar navbar-expand-md navbar-dark pb-navbar">
       <div class="container">
         <a class="pb-brand" href="index.html">
           <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
           <span class="pb-brand-text">
             <span class="pb-brand-name">POWERBANK</span>
-            <span class="pb-brand-tagline">Energía bajo demanda</span>
+            <span class="pb-brand-tagline">Energia behar duzunean</span>
           </span>
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
-          aria-controls="navbarMain" aria-expanded="false" aria-label="Abrir menú">
+          aria-controls="navbarMain" aria-expanded="false" aria-label="Ireki menua">
           <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarMain">
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-1 pb-nav-pill">
-            <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-location-dot"></i>Estaciones</a></li>
-            <li class="nav-item"><a class="nav-link" href="Erreserbak.html"><i class="fas fa-calendar-check"></i>Reservas</a></li>
-            <li class="nav-item"><a class="nav-link" href="Erabiltzailea.html"><i class="fas fa-user"></i>Mi cuenta</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-house"></i>Hasiera</a></li>
+            <li class="nav-item"><a class="nav-link" href="Kargaguneak.html"><i class="fas fa-location-dot"></i>Kargaguneak</a></li>
+            <li class="nav-item" data-auth-only hidden><a class="nav-link" href="Erreserbak.html"><i class="fas fa-calendar-check"></i>Erreserbak</a></li>
+            <li class="nav-item" data-auth-only hidden><a class="nav-link" href="Erabiltzailea.html"><i class="fas fa-user"></i>Nire kontua</a></li>
           </ul>
           <div class="pb-nav-actions">
             <a class="btn btn-primary pb-qr-quick d-none" id="qrQuickButton" href="Erreserbak.html">
-              <i class="fas fa-qrcode me-2"></i><span>Usar QR</span>
+              <i class="fas fa-qrcode me-2"></i><span>Erabili QR</span>
             </a>
-            <a class="btn btn-outline-primary px-3" href="Login.html" id="btnCuenta">Iniciar sesión</a>
+            <a class="btn btn-outline-primary px-3" href="Login.html" id="btnCuenta">Hasi saioa</a>
           </div>
         </div>
       </div>
     </nav>
     <script src="js/api.js"></script>
     <script src="js/dialogos.js"></script>
-    <script src="js/auth.js"></script>
+    <script src="js/auth.js?v=6"></script>
   </header>
 
   <main class="flex-grow-1 d-flex align-items-center py-4 py-lg-5">
@@ -56,17 +58,17 @@
       <div class="auth-layout">
 
         <section class="auth-hero pb-card p-4 p-lg-5" aria-labelledby="authHeroTitle">
-          <span class="pb-eyebrow">Energía cuando la necesitas</span>
-          <h1 class="auth-hero-title mt-3" id="authHeroTitle">Reserva tu powerbank en segundos.</h1>
+          <span class="pb-eyebrow">Energia behar duzunean</span>
+          <h1 class="auth-hero-title mt-3" id="authHeroTitle">Erreserbatu zure powerbank segundo batzuetan.</h1>
           <p class="pb-muted mt-3 mb-4">
-            Consulta las estaciones disponibles, reserva para hoy y recoge tu powerbank sin esperas.
+            Egiaztatu erabilgarri dauden kargaguneak, erreserbatu gaurko eta jaso zure powerbank itxaron gabe.
           </p>
 
           <ul class="auth-benefits list-unstyled mb-0">
-            <li><i class="fas fa-location-dot"></i><span>Estaciones repartidas por la ciudad.</span></li>
-            <li><i class="fas fa-clock"></i><span>Reserva para hoy con hasta 6 horas de antelación.</span></li>
-            <li><i class="fas fa-battery-three-quarters"></i><span>Hasta 6 horas de alquiler por reserva.</span></li>
-            <li><i class="fas fa-shield-halved"></i><span>Tu cuenta y tus reservas, siempre bajo control.</span></li>
+            <li><i class="fas fa-location-dot"></i><span>Hirian banatutako kargaguneak.</span></li>
+            <li><i class="fas fa-clock"></i><span>Erreserbatu gaurko, 6 ordu arte aurretik.</span></li>
+            <li><i class="fas fa-battery-three-quarters"></i><span>Gehienez 6 orduko alokairua erreserba bakoitzeko.</span></li>
+            <li><i class="fas fa-shield-halved"></i><span>Zure kontua eta erreserbak, beti kontrolpean.</span></li>
           </ul>
 
           <div class="auth-hero-glow" aria-hidden="true"></div>
@@ -75,18 +77,18 @@
         <section class="auth-panel pb-card p-3 p-sm-4 p-lg-5" aria-labelledby="authPanelTitle">
           <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
             <div>
-              <span class="pb-eyebrow" id="authPanelEyebrow">Bienvenido de nuevo</span>
-              <h2 class="h3 fw-bold mt-2 mb-1" id="authPanelTitle">Inicia sesión</h2>
-              <p class="pb-muted small mb-0" id="authPanelSubtitle">Accede para gestionar tus reservas.</p>
+              <span class="pb-eyebrow" id="authPanelEyebrow">Ongi etorri berriro</span>
+              <h2 class="h3 fw-bold mt-2 mb-1" id="authPanelTitle">Hasi saioa</h2>
+              <p class="pb-muted small mb-0" id="authPanelSubtitle">Sartu zure erreserbak kudeatzeko.</p>
             </div>
             <span class="auth-panel-icon" aria-hidden="true"><i class="fas fa-user-astronaut"></i></span>
           </div>
 
-          <div class="auth-switch mb-4" role="tablist" aria-label="Acceso o registro">
+          <div class="auth-switch mb-4" role="tablist" aria-label="Saioa hasi edo erregistratu">
             <button type="button" class="auth-switch-btn is-active" data-auth-mode="login" role="tab"
-              aria-selected="true">Iniciar sesión</button>
+              aria-selected="true">Hasi saioa</button>
             <button type="button" class="auth-switch-btn" data-auth-mode="register" role="tab"
-              aria-selected="false">Crear cuenta</button>
+              aria-selected="false">Sortu kontua</button>
           </div>
 
           <div id="authFeedback" class="pb-feedback mb-3" role="alert" aria-live="polite"></div>
@@ -94,23 +96,23 @@
           <div id="Login">
             <form id="loginForm" novalidate>
               <div class="mb-3">
-                <label class="form-label" for="Email">Correo electrónico</label>
+                <label class="form-label" for="Email">Helbide elektronikoa</label>
                 <div class="input-group auth-input-group">
                   <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                   <input type="email" id="Email" class="form-control" autocomplete="email"
-                    placeholder="tu@correo.com" required>
+                    placeholder="zure@posta.eus" required>
                 </div>
                 <div class="invalid-feedback d-block auth-field-error" data-error-for="Email"></div>
               </div>
 
               <div class="mb-3">
-                <label class="form-label" for="loginPassword">Contraseña</label>
+                <label class="form-label" for="loginPassword">Pasahitza</label>
                 <div class="input-group auth-input-group">
                   <span class="input-group-text"><i class="fas fa-lock"></i></span>
                   <input type="password" id="loginPassword" class="form-control" autocomplete="current-password"
-                    placeholder="Tu contraseña" required>
+                    placeholder="Zure pasahitza" required>
                   <button type="button" class="btn btn-outline-secondary password-toggle"
-                    data-toggle-password="loginPassword" aria-label="Mostrar contraseña">
+                    data-toggle-password="loginPassword" aria-label="Erakutsi pasahitza">
                     <i class="fas fa-eye"></i>
                   </button>
                 </div>
@@ -118,14 +120,14 @@
               </div>
 
               <button type="submit" id="loginSubmit" class="btn btn-primary w-100 py-3 mt-2">
-                <span class="btn-label">Entrar en mi cuenta</span>
+                <span class="btn-label">Sartu nire kontuan</span>
                 <span class="pb-spinner d-none ms-2" aria-hidden="true"></span>
               </button>
 
               <p class="text-center pb-muted small mt-4 mb-0">
-                ¿Aún no tienes cuenta?
+                Oraindik ez duzu konturik?
                 <button type="button" class="btn btn-link p-0 align-baseline auth-link" data-auth-mode="register">
-                  Regístrate aquí
+                  Erregistratu hemen
                 </button>
               </p>
             </form>
@@ -135,13 +137,13 @@
             <form id="registerForm" novalidate>
               <div class="row g-3">
                 <div class="col-sm-6">
-                  <label class="form-label" for="registerName">Nombre</label>
+                  <label class="form-label" for="registerName">Izena</label>
                   <input type="text" id="registerName" class="form-control" autocomplete="given-name"
                     placeholder="Alex" minlength="2" required>
                   <div class="invalid-feedback d-block auth-field-error" data-error-for="registerName"></div>
                 </div>
                 <div class="col-sm-6">
-                  <label class="form-label" for="registerSurname">Apellido</label>
+                  <label class="form-label" for="registerSurname">Abizena</label>
                   <input type="text" id="registerSurname" class="form-control" autocomplete="family-name"
                     placeholder="Johnson">
                   <div class="invalid-feedback d-block auth-field-error" data-error-for="registerSurname"></div>
@@ -149,23 +151,23 @@
               </div>
 
               <div class="mt-3">
-                <label class="form-label" for="Email2">Correo electrónico</label>
+                <label class="form-label" for="Email2">Helbide elektronikoa</label>
                 <div class="input-group auth-input-group">
                   <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                   <input type="email" id="Email2" class="form-control" autocomplete="email"
-                    placeholder="tu@correo.com" required>
+                    placeholder="zure@posta.eus" required>
                 </div>
                 <div class="invalid-feedback d-block auth-field-error" data-error-for="Email2"></div>
               </div>
 
               <div class="mt-3">
-                <label class="form-label" for="registerPassword">Contraseña</label>
+                <label class="form-label" for="registerPassword">Pasahitza</label>
                 <div class="input-group auth-input-group">
                   <span class="input-group-text"><i class="fas fa-lock"></i></span>
                   <input type="password" id="registerPassword" class="form-control" autocomplete="new-password"
-                    placeholder="Mínimo 8 caracteres" minlength="8" required>
+                    placeholder="Gutxienez 8 karaktere" minlength="8" required>
                   <button type="button" class="btn btn-outline-secondary password-toggle"
-                    data-toggle-password="registerPassword" aria-label="Mostrar contraseña">
+                    data-toggle-password="registerPassword" aria-label="Erakutsi pasahitza">
                     <i class="fas fa-eye"></i>
                   </button>
                 </div>
@@ -174,13 +176,13 @@
               </div>
 
               <div class="mt-3">
-                <label class="form-label" for="repeatPassword">Repetir contraseña</label>
+                <label class="form-label" for="repeatPassword">Errepikatu pasahitza</label>
                 <div class="input-group auth-input-group">
                   <span class="input-group-text"><i class="fas fa-lock"></i></span>
                   <input type="password" id="repeatPassword" class="form-control" autocomplete="new-password"
-                    placeholder="Repite la contraseña" required>
+                    placeholder="Errepikatu pasahitza" required>
                   <button type="button" class="btn btn-outline-secondary password-toggle"
-                    data-toggle-password="repeatPassword" aria-label="Mostrar contraseña">
+                    data-toggle-password="repeatPassword" aria-label="Erakutsi pasahitza">
                     <i class="fas fa-eye"></i>
                   </button>
                 </div>
@@ -190,20 +192,20 @@
               <div class="form-check mt-4">
                 <input class="form-check-input" type="checkbox" id="registerTerms">
                 <label class="form-check-label small pb-muted" for="registerTerms">
-                  Acepto los <a href="#" class="auth-link">términos y condiciones</a> y la política de privacidad.
+                  Onartzen ditut <a href="#" class="auth-link">erabilera-baldintzak</a> eta pribatutasun-politika.
                 </label>
                 <div class="invalid-feedback d-block auth-field-error" data-error-for="registerTerms"></div>
               </div>
 
               <button type="submit" id="registerSubmit" class="btn btn-primary w-100 py-3 mt-4">
-                <span class="btn-label">Crear mi cuenta</span>
+                <span class="btn-label">Sortu nire kontua</span>
                 <span class="pb-spinner d-none ms-2" aria-hidden="true"></span>
               </button>
 
               <p class="text-center pb-muted small mt-4 mb-0">
-                ¿Ya tienes una cuenta?
+                Dagoeneko baduzu konturik?
                 <button type="button" class="btn btn-link p-0 align-baseline auth-link" data-auth-mode="login">
-                  Inicia sesión
+                  Hasi saioa
                 </button>
               </p>
             </form>
@@ -213,71 +215,26 @@
     </div>
   </main>
 
-  <footer class="pb-footer">
-    <div class="pb-shell pb-footer-main">
-      <div class="row g-4">
-        <div class="col-lg-4">
-          <a class="pb-brand pb-footer-brand" href="index.html">
-            <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
-            <span class="pb-brand-text">
-              <span class="pb-brand-name">POWERBANK</span>
-              <span class="pb-brand-tagline">Energía bajo demanda</span>
-            </span>
-          </a>
-          <p class="pb-footer-text">
-            Powerbanks para tus dispositivos, disponibles en Donostia y Zarautz.
-            Reserva en segundos y recoge cuando la necesites.
-          </p>
-          <div class="pb-socials">
-            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-            <a href="#" aria-label="X"><i class="fab fa-x-twitter"></i></a>
-            <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
-          </div>
-        </div>
-
-        <div class="col-6 col-lg-2">
-          <h3 class="pb-footer-title">Explora</h3>
-          <ul class="pb-footer-links">
-            <li><a href="index.html">Estaciones</a></li>
-            <li><a href="Erreserbak.html">Mis reservas</a></li>
-            <li><a href="Erabiltzailea.html">Mi cuenta</a></li>
-          </ul>
-        </div>
-
-        <div class="col-6 col-lg-3">
-          <h3 class="pb-footer-title">Ayuda</h3>
-          <ul class="pb-footer-links">
-            <li><a href="#">Preguntas frecuentes</a></li>
-            <li><a href="#">Contacto</a></li>
-            <li><a href="#">Términos y privacidad</a></li>
-          </ul>
-        </div>
-
-        <div class="col-lg-3">
-          <h3 class="pb-footer-title">Contacto</h3>
-          <ul class="pb-footer-contact">
-            <li><i class="fas fa-envelope"></i> hola@powerbank.eus</li>
-            <li><i class="fas fa-phone"></i> +34 943 00 00 00</li>
-            <li><i class="fas fa-location-dot"></i> Donostia · Zarautz</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="pb-footer-bottom">
-      <div class="pb-shell d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
-        <span>© 2026 Powerbank Inc. Todos los derechos reservados.</span>
-        <div class="d-flex gap-3">
-          <a href="#">Privacidad</a>
-          <a href="#">Cookies</a>
-          <a href="#">Aviso legal</a>
-        </div>
+    <footer class="pb-footer pb-footer-compact">
+    <div class="pb-shell pb-footer-line">
+      <a class="pb-brand pb-footer-brand" href="index.html">
+        <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
+        <span class="pb-brand-name">POWERBANK</span>
+      </a>
+      <nav class="pb-footer-compact-links" aria-label="Laguntza eta kontaktua">
+        <a href="#">Laguntza</a>
+        <a href="mailto:hola@powerbank.eus">Kontaktua</a>
+      </nav>
+      <div class="pb-socials">
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="X"><i class="fab fa-x-twitter"></i></a>
+        <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
       </div>
     </div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="js/login.js"></script>
+  <script src="js/login.js?v=6"></script>
 </body>
 
 </html>

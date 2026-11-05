@@ -1,7 +1,7 @@
 ---
 title: "Powerbank Alokairu Sistema"
 subtitle: "Dokumentazio teknikoa eta hirugarrenen baliabideen lizentzien erregistroa"
-author: "____________________"
+author: "Xabier Lazcoz eta Aitor Mindeguia"
 date: "2026ko azaroa"
 version: "1.0"
 project: "Erronka 7 · Administrazio Atala"
@@ -197,7 +197,8 @@ erronka7/
 │       ├── app.config.ts
 │       └── app.ts
 ├── web/                         # Erabiltzailearen web estatikoa
-│   ├── index.html
+│   ├── index.html               # Hasiera (Home)
+│   ├── Kargaguneak.html         # Estazioak
 │   ├── Login.html
 │   ├── Erreserbak.html
 │   ├── Erabiltzailea.html
@@ -246,7 +247,8 @@ Web estatikoa da: ez du konpilazio-pausorik behar, eta edozein zerbitzari estati
 
 | Orria | Fitxategia | Eginkizuna |
 |---|---|---|
-| Estazioak | `index.html` | Estazioen zerrenda, bilaketa, iragazkiak, mapa eta estatistikak |
+| Hasiera | `index.html` | Webgunearen aurkezpena, estatistiken laburpena eta erreserbarako sarrera |
+| Estazioak | `Kargaguneak.html` | Estazioen zerrenda, bilaketa, iragazkiak, mapa eta estatistikak |
 | Saioa | `Login.html` | Saioa hasi eta erregistratu |
 | Erreserbak | `Erreserbak.html` | Erabiltzailearen erreserbak, QR kodea, ezeztapena |
 | Nire kontua | `Erabiltzailea.html` | Profila eta pasahitza aldatzea |
@@ -570,7 +572,7 @@ Saioak `session_id` cookiean oinarritzen dira. Cookiea `HttpOnly`, `SameSite=Lax
 
 ### 6.1.2 Estazioen zerrenda, bilaketa, iragazkiak eta mapa
 
-`index.html` orriak `GET /kargaguneak` eta `GET /udalerriak` deitzen ditu. Emaitzekin:
+`Kargaguneak.html` orriak `GET /kargaguneak` eta `GET /udalerriak` deitzen ditu. Emaitzekin:
 
 - Estazioen zerrenda erakusten du.
 - Estatistikak kalkulatzen ditu: estazioak, powerbank libreak, udalerriak eta sare operatiboa.
@@ -620,7 +622,7 @@ Erreserba ondo sortzen bada, `POST /erreserbak` erantzunak `qr_token` bat dakar.
 
 QR kodea `qrcodejs` bidez sortzen da. Edukia `locker.html?token={qr_token}` URL osoa da. Erabiltzaileak QR-a deskargatu (PNG) edo inprimatu dezake.
 
-Ezeztapena `PATCH /erreserbak/{id}/egoera` bidez egiten da, `{ "egoera": "ezeztatua" }` bidalita. Erabiltzaileek soilik ezeztatu dezakete erreserba hasi aurretik. Administratzaile orokorrak beste egoera batzuk ere aldatu ditzake.
+Ezeztapena `PATCH /erreserbak/{id}/egoera` bidez egiten da, `{ "egoera": "ezeztatua" }` bidalita. Erabiltzaileek powerbanka jaso aurretik ezeztatu dezakete erreserba, baita hasiera-ordua igaro ondoren ere. Administratzaile orokorrak beste egoera batzuk ere aldatu ditzake.
 
 ### 6.1.5 Profila eta pasahitza
 
@@ -1023,7 +1025,7 @@ uv run python seed.py
 
 Aukerak:
 
-- VS Code Live Server: `web/index.html` → `http://localhost:5500`.
+- VS Code Live Server: `web/index.html` (Hasiera) edo `web/` → `http://localhost:5500`.
 - Edozein zerbitzari estatiko: `python -m http.server 5500` `web/` karpetan.
 
 APIa martxan egon behar da. `web/js/api.js` fitxategiak automatikoki hautatzen du `http://host:8000`.
@@ -1482,6 +1484,7 @@ Oharra: `psycopg` LGPL-3.0 lizentziapean dago. Banaketetan, lizentzia-testua eta
 | Eremua | Balioa |
 |---|---|
 | Izenburua | Powerbank Alokairu Sistema — Dokumentazio teknikoa |
+| Egileak | Xabier Lazcoz eta Aitor Mindeguia |
 | Bertsioa | 1.0 |
 | Data | 2026ko azaroa |
 | Proiektua | Erronka 7 · Administrazio Atala |

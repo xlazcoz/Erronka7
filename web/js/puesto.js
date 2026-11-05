@@ -31,6 +31,16 @@ function toTimeInputValue(date) {
   ].join(":");
 }
 
+// Ordu lokala ISO formatuan bidaltzen dugu, UTC bihurtu gabe. Horrela
+// zerbitzariaren ordu-eremuak ez du erreserbaren ordua aldatzen.
+function toLocalIsoString(date) {
+  const pad = (value) => String(value).padStart(2, "0");
+  return [
+    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`,
+    `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`,
+  ].join("T");
+}
+
 function combineDateTime(dateValue, timeValue) {
   if (!dateValue || !timeValue) return null;
   const value = new Date(`${dateValue}T${timeValue}:00`);
@@ -118,7 +128,7 @@ function updateSummary() {
   const minutes = Math.round((end - start) / 60000);
   const hours = Math.floor(minutes / 60);
   const rest = minutes % 60;
-  durationElement.textContent = hours === 0 ? `${rest} min` : rest === 0 ? `${hours} h` : `${hours} h ${rest} min`;
+  durationElement.textContent = hours === 0 ? `${rest} min` : rest === 0 ? `${hours} ordu` : `${hours} ordu ${rest} min`;
 
   scheduleAvailabilityCheck(start, end);
 }
@@ -128,28 +138,28 @@ function validateReservationWindow(start, end) {
   const today = toDateInputValue(now);
 
   if (toDateInputValue(start) !== today) {
-    return "Solo puedes reservar para hoy. Elige la fecha de hoy.";
+    return "Gaurko erreserbatu dezakezu soilik. Aukeratu gaurko data.";
   }
 
   if (start < new Date(now.getTime() - 60 * 1000)) {
-    return "La hora de recogida no puede estar en el pasado.";
+    return "Jasotzeko ordua ezin da iraganekoa izan.";
   }
 
   if (start > new Date(now.getTime() + MAX_ADVANCE_MS)) {
-    return "Solo puedes reservar con un máximo de 6 horas de antelación.";
+    return "Gehienez 6 ordu lehenago erreserbatu dezakezu.";
   }
 
   if (end <= start) {
-    return "La devolución debe ser posterior a la recogida.";
+    return "Itzultzeko ordua jasotzekoa baino beranduagoa izan behar da.";
   }
 
   const duration = end - start;
   if (duration < MIN_DURATION_MS) {
-    return "La reserva debe durar al menos 15 minutos.";
+    return "Erreserbak gutxienez 15 minutu iraun behar du.";
   }
 
   if (duration > MAX_DURATION_MS) {
-    return "La reserva no puede durar más de 6 horas.";
+    return "Erreserbak ezin du 6 ordu baino gehiago iraun.";
   }
 
   return null;
@@ -158,8 +168,8 @@ function validateReservationWindow(start, end) {
 async function checkAvailability(start, end) {
   const data = await apiRequest(
     `/kargaguneak/${posteId}/erreserbagarritasuna?hasiera=${encodeURIComponent(
-      start.toISOString(),
-    )}&amaiera=${encodeURIComponent(end.toISOString())}`,
+      toLocalIsoString(start),
+    )}&amaiera=${encodeURIComponent(toLocalIsoString(end))}`,
   );
   return data;
 }
@@ -174,20 +184,20 @@ function scheduleAvailabilityCheck(start, end) {
   }
 
   availabilityTimer = setTimeout(async () => {
-    availabilityElement.textContent = "Comprobando…";
+    availabilityElement.textContent = "Egiaztatzen…";
     availabilityElement.classList.remove("is-free", "is-busy");
 
     try {
       const data = await checkAvailability(start, end);
       if (data.libres > 0) {
-        availabilityElement.textContent = `${data.libres} powerbank(s) disponible(s)`;
+        availabilityElement.textContent = `${data.libres} powerbank erabilgarri`;
         availabilityElement.classList.add("is-free");
       } else {
-        availabilityElement.textContent = "Sin disponibilidad en ese horario";
+        availabilityElement.textContent = "Ez dago erabilgarririk ordutegi horretan";
         availabilityElement.classList.add("is-busy");
       }
     } catch (error) {
-      availabilityElement.textContent = "No se pudo comprobar";
+      availabilityElement.textContent = "Ezin izan da egiaztatu";
       availabilityElement.classList.remove("is-free", "is-busy");
     }
   }, 450);
@@ -196,7 +206,7 @@ function scheduleAvailabilityCheck(start, end) {
 async function Datuak() {
   try {
     if (!posteId) {
-      throw new Error("No se ha indicado una estación.");
+      throw new Error("Ez da kargagunerik adierazi.");
     }
 
     const datos = await apiRequest(`/kargaguneak/${posteId}`);
@@ -204,8 +214,15 @@ async function Datuak() {
     numeroEstado(datos.libres, datos.egoera);
     linkMaps(datos.helbidea, datos.udalerria_izena);
     cambiarImagenes(datos.irudia1, datos.irudia2, datos.irudia3);
+
+    if (urlParams.get("reservar") === "1" && !reservationButton.disabled) {
+      window.setTimeout(() => {
+        document.getElementById("Reserva").showPopover();
+        document.getElementById("reservationSubmit")?.focus();
+      }, 150);
+    }
   } catch (error) {
-    console.error("No se pudo cargar la estación:", error);
+    console.error("Ezin izan da kargagunea kargatu:", error);
     titulo.textContent = error.message;
     estado.textContent = "";
     reservationButton.disabled = true;
@@ -220,11 +237,11 @@ function numeroEstado(numero, estadoEstacion) {
   circulo.classList.toggle("bg-danger", disponibles === 0);
 
   if (!operativa) {
-    estado.textContent = "Estación no disponible en este momento";
+    estado.textContent = "Kargagunea ez dago erabilgarri momentu honetan";
   } else if (disponibles === 0) {
-    estado.textContent = "No hay ninguna powerbank disponible ahora; puedes probar otro horario";
+    estado.textContent = "Orain ez dago powerbankik erabilgarri; probatu beste ordutegi bat";
   } else {
-    estado.textContent = `Disponibles ahora: ${disponibles}`;
+    estado.textContent = `Orain erabilgarri: ${disponibles}`;
   }
 
   reservationButton.disabled = !operativa;
@@ -288,7 +305,7 @@ document.getElementById("reservationForm").addEventListener("submit", async (eve
   );
 
   if (!start || !end) {
-    showFeedback("Selecciona la fecha y la hora de recogida y devolución.");
+    showFeedback("Aukeratu jasotzeko eta itzultzeko data eta ordua.");
     return;
   }
 
@@ -304,7 +321,7 @@ document.getElementById("reservationForm").addEventListener("submit", async (eve
   try {
     const availability = await checkAvailability(start, end);
     if (!availability.erabilgarri) {
-      showFeedback("No hay ninguna powerbank disponible en ese horario. Prueba otro horario.");
+      showFeedback("Ez dago powerbankik erabilgarri ordutegi horretan. Probatu beste ordutegi bat.");
       setLoading(submit, false);
       return;
     }
@@ -313,44 +330,35 @@ document.getElementById("reservationForm").addEventListener("submit", async (eve
       method: "POST",
       body: {
         kargagunea_id: Number(posteId),
-        hasiera_data_ordua: start.toISOString(),
-        amaiera_data_ordua: end.toISOString(),
+        hasiera_data_ordua: toLocalIsoString(start),
+        amaiera_data_ordua: toLocalIsoString(end),
       },
     });
 
     document.getElementById("Reserva").hidePopover();
-    await mostrarDialogo(
-      "Reserva creada correctamente. Guarda el QR que verás a continuación: lo necesitarás en la taquilla, incluso sin internet.",
-      {
-        title: "Reserva confirmada",
-        type: "success",
-      },
-    );
-
+    // QRra zuzenean erakusteko: ez da tarteko elkarrizketa-koadrorik behar.
     window.location.href = `Erreserbak.html?qr=${reserva.id}`;
     return;
   } catch (error) {
     if (error.status === 401) {
-      await mostrarDialogo("Inicia sesión para reservar.", {
-        title: "Inicia sesión",
-        type: "error",
-      });
-      window.location.href = `Login.html?next=${encodeURIComponent(`puesto-Carga.html?id=${posteId}`)}`;
+      window.location.href = `Login.html?next=${encodeURIComponent(
+        `puesto-Carga.html?id=${posteId}&reservar=1`,
+      )}`;
       return;
     }
 
     if (error.status === 409 && /erreserba aktibo/i.test(error.message)) {
       await mostrarDialogo(
-        "Ya tienes una reserva activa. Cancélala o devuélvela antes de crear otra.",
+        "Dagoeneko erreserba aktiboa duzu. Ezeztatu edo itzuli ezazu beste bat sortu aurretik.",
         {
-          title: "Reserva activa",
+          title: "Erreserba aktiboa",
           type: "info",
         },
       );
       return;
     }
 
-    showFeedback(error.message || "No se pudo crear la reserva.");
+    showFeedback(error.message || "Ezin izan da erreserba sortu.");
   } finally {
     setLoading(submit, false);
   }

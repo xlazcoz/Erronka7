@@ -20,11 +20,11 @@ function setMode(mode) {
     button.setAttribute("aria-selected", String(active));
   });
 
-  authPanelEyebrow.textContent = isRegister ? "Empieza gratis" : "Bienvenido de nuevo";
-  authPanelTitle.textContent = isRegister ? "Crea tu cuenta" : "Inicia sesión";
+  authPanelEyebrow.textContent = isRegister ? "Hasi doan" : "Ongi etorri berriro";
+  authPanelTitle.textContent = isRegister ? "Sortu zure kontua" : "Hasi saioa";
   authPanelSubtitle.textContent = isRegister
-    ? "Tarda menos de un minuto y empieza a reservar."
-    : "Accede para gestionar tus reservas.";
+    ? "Minutu bat baino gutxiago behar duzu erreserbatzen hasteko."
+    : "Sartu zure erreserbak kudeatzeko.";
 
   clearFeedback();
   clearFieldErrors();
@@ -84,15 +84,15 @@ function validateLoginForm() {
   const password = document.getElementById("loginPassword").value;
 
   if (!email) {
-    setFieldError("Email", "Escribe tu correo electrónico.");
+    setFieldError("Email", "Idatzi zure helbide elektronikoa.");
     valid = false;
   } else if (!validateEmail(email)) {
-    setFieldError("Email", "El correo no tiene un formato válido.");
+    setFieldError("Email", "Helbide elektronikoak ez du formatu baliozkoa.");
     valid = false;
   }
 
   if (!password) {
-    setFieldError("loginPassword", "Escribe tu contraseña.");
+    setFieldError("loginPassword", "Idatzi zure pasahitza.");
     valid = false;
   }
 
@@ -108,30 +108,30 @@ function validateRegisterForm() {
   const terms = document.getElementById("registerTerms").checked;
 
   if (name.length < 2) {
-    setFieldError("registerName", "El nombre debe tener al menos 2 caracteres.");
+    setFieldError("registerName", "Izenak gutxienez 2 karaktere izan behar ditu.");
     valid = false;
   }
 
   if (!email) {
-    setFieldError("Email2", "Escribe tu correo electrónico.");
+    setFieldError("Email2", "Idatzi zure helbide elektronikoa.");
     valid = false;
   } else if (!validateEmail(email)) {
-    setFieldError("Email2", "El correo no tiene un formato válido.");
+    setFieldError("Email2", "Helbide elektronikoak ez du formatu baliozkoa.");
     valid = false;
   }
 
   if (password.length < 8) {
-    setFieldError("registerPassword", "La contraseña debe tener al menos 8 caracteres.");
+    setFieldError("registerPassword", "Pasahitzak gutxienez 8 karaktere izan behar ditu.");
     valid = false;
   }
 
   if (repeatPassword !== password) {
-    setFieldError("repeatPassword", "Las contraseñas no coinciden.");
+    setFieldError("repeatPassword", "Pasahitzak ez datoz bat.");
     valid = false;
   }
 
   if (!terms) {
-    setFieldError("registerTerms", "Debes aceptar los términos y condiciones.");
+    setFieldError("registerTerms", "Erabilera-baldintzak onartu behar dituzu.");
     valid = false;
   }
 
@@ -153,7 +153,7 @@ document.querySelectorAll("[data-toggle-password]").forEach((button) => {
     if (!input) return;
     const showing = input.type === "text";
     input.type = showing ? "password" : "text";
-    button.setAttribute("aria-label", showing ? "Mostrar contraseña" : "Ocultar contraseña");
+    button.setAttribute("aria-label", showing ? "Erakutsi pasahitza" : "Ezkutatu pasahitza");
     button.querySelector("i")?.classList.toggle("fa-eye", showing);
     button.querySelector("i")?.classList.toggle("fa-eye-slash", !showing);
   });
@@ -193,7 +193,7 @@ document.getElementById("loginForm").addEventListener("submit", async (event) =>
     const next = new URLSearchParams(window.location.search).get("next") || "index.html";
     window.location.href = next;
   } catch (error) {
-    showFeedback(error.message || "No se pudo iniciar sesión.");
+    showFeedback(error.message || "Ezin izan da saioa hasi.");
     setLoading(submit, false);
   }
 });
@@ -226,7 +226,7 @@ document.getElementById("registerForm").addEventListener("submit", async (event)
     await apiRequest("/login", { method: "POST", body: credentials });
     window.location.href = "index.html";
   } catch (error) {
-    showFeedback(error.message || "No se pudo crear la cuenta.");
+    showFeedback(error.message || "Ezin izan da kontua sortu.");
     setLoading(submit, false);
   }
 });

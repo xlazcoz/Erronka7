@@ -12,14 +12,14 @@ function formatearErrorApi(result, status) {
             .map((item) => item?.msg || item?.message || String(item))
             .filter(Boolean)
             .join(". ");
-        return mensajes || `Error ${status}`;
+        return mensajes || `Errorea ${status}`;
     }
 
     if (detail && typeof detail === "object") {
-        return detail.msg || detail.message || `Error ${status}`;
+        return detail.msg || detail.message || `Errorea ${status}`;
     }
 
-    return detail || `Error ${status}`;
+    return detail || `Errorea ${status}`;
 }
 
 async function apiRequest(path, { body, ...options } = {}) {
@@ -38,7 +38,7 @@ async function apiRequest(path, { body, ...options } = {}) {
         });
     } catch (error) {
         const networkError = new Error(
-            "No se pudo conectar con el servidor. Comprueba que la API esté en marcha.",
+            "Ezin izan da zerbitzariarekin konektatu. Egiaztatu APIa martxan dagoela.",
         );
         networkError.status = 0;
         networkError.cause = error;

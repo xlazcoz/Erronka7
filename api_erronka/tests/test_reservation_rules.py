@@ -1,10 +1,10 @@
 import unittest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 
 from fastapi import HTTPException
 
-from services.erreserbak import validate_reservation_window
+from services.erreserbak import normalize_datetime, validate_reservation_window
 
 
 FIXED_NOW = datetime(2026, 11, 4, 10, 0, 0)
@@ -66,6 +66,17 @@ class ReservationWindowTests(unittest.TestCase):
         start = FIXED_NOW + timedelta(hours=1)
         end = start - timedelta(minutes=5)
         self.assert_invalid(start, end, "geroagokoa")
+
+
+class TimezoneTests(unittest.TestCase):
+    def test_utc_datetime_is_converted_to_madrid_local_time(self):
+        # 09:00 UTC = 10:00 Madrid (CET, UTC+1).
+        utc_value = datetime(2026, 11, 5, 9, 0, tzinfo=timezone.utc)
+        self.assertEqual(normalize_datetime(utc_value), datetime(2026, 11, 5, 10, 0))
+
+    def test_naive_datetime_is_kept_as_wall_clock(self):
+        naive_value = datetime(2026, 11, 5, 10, 0)
+        self.assertEqual(normalize_datetime(naive_value), naive_value)
 
 
 if __name__ == "__main__":
