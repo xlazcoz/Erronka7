@@ -34,6 +34,13 @@ def sortu_karga_postua(
 ):
     _check_station_permission(session, current_user, data.kargagunea_id)
 
+    station = session.get(Kargagunea, data.kargagunea_id)
+    if station.udalerria is not None and not station.udalerria.aktiboa:
+        raise HTTPException(
+            status_code=409,
+            detail="Udalerria desaktibatuta dago; ezin da karga-posturik sortu",
+        )
+
     karga_postua = KargaPostua(
         egoera=data.egoera,
         tamaina=data.tamaina,

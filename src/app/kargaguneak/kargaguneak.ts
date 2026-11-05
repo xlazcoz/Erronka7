@@ -78,7 +78,7 @@ export class Kargaguneak implements OnInit {
       : this.auth.udalerriaId() ?? undefined;
 
     forkJoin({
-      kargaguneak: this.apiService.getKargaguneak(udalerriaId),
+      kargaguneak: this.apiService.getKargaguneak(udalerriaId, true),
       udalerriak: this.apiService.getUdalerriak().pipe(catchError(() => of([]))),
     }).subscribe({
       next: ({ kargaguneak, udalerriak }) => {
@@ -109,7 +109,9 @@ export class Kargaguneak implements OnInit {
   irekiSortu(): void {
     this.kargaguneaBerria = this.kargaguneHutsa();
     if (!this.kargaguneaBerria.udalerria_id) {
-      this.kargaguneaBerria.udalerria_id = this.udalerriak()[0]?.id;
+      this.kargaguneaBerria.udalerria_id = this.udalerriak().find(
+        (udalerria) => udalerria.aktiboa,
+      )?.id;
     }
     this.kargaguneaSortuDialog()?.nativeElement.showModal();
   }

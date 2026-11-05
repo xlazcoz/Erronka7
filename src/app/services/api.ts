@@ -178,11 +178,20 @@ export class Api {
     }
 
     // KARGAGUNEAK DEIAK
-    getKargaguneak(udalerriaId?: number): Observable<Kargagunea[]>{
-        const params = udalerriaId
-            ? { udalerria_id: udalerriaId.toString() }
-            : undefined;
-        return this.http.get<Kargagunea[]>(this.apiKargaguneakGet, { params });
+    getKargaguneak(udalerriaId?: number, includeInactive = false): Observable<Kargagunea[]>{
+        const params: Record<string, string> = {};
+
+        if (udalerriaId) {
+            params['udalerria_id'] = udalerriaId.toString();
+        }
+
+        if (includeInactive) {
+            params['include_inactive'] = 'true';
+        }
+
+        return this.http.get<Kargagunea[]>(this.apiKargaguneakGet, {
+            params: Object.keys(params).length ? params : undefined,
+        });
     }
 
     sortuKargaguneak(kargagunea: Kargagunea): Observable<Kargagunea>{

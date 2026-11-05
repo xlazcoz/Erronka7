@@ -18,6 +18,23 @@ def pasahitza_egiaztatu(pasahitza_normal: str, hashed_pasahitza: str) -> bool:
 def create_session_id() -> str:
     return secrets.token_urlsafe(32)
 
+def get_optional_user(
+    session_id: str | None = Cookie(default=None),
+    session: Session = Depends(get_session),
+) -> Erabiltzailea | None:
+    if session_id is None:
+        return None
+
+    auth_session = session.get(AuthSession, session_id)
+    if auth_session is None:
+        return None
+
+    if not auth_session.erabiltzailea.aktiboa:
+        return None
+
+    return auth_session.erabiltzailea
+
+
 def get_current_user(session_id: str | None = Cookie(default=None), session: Session = Depends(get_session)) -> Erabiltzailea:
     if session_id is None:
         raise HTTPException(status_code=401, detail="Saioa hasi behar duzu")

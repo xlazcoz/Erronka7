@@ -132,7 +132,9 @@
         required
       >
         @for (udalerria of udalerriak(); track udalerria.id) {
-          <option [ngValue]="udalerria.id">{{ udalerria.izena }}</option>
+          @if (udalerria.aktiboa) {
+            <option [ngValue]="udalerria.id">{{ udalerria.izena }}</option>
+          }
         }
       </select>
     </div>

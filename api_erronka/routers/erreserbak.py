@@ -118,6 +118,12 @@ def sortu_erreserba(
             detail="Kargagunea ez dago erabilgarri",
         )
 
+    if kargagunea.udalerria is not None and not kargagunea.udalerria.aktiboa:
+        raise HTTPException(
+            status_code=409,
+            detail="Udalerria desaktibatuta dago; ezin da erreserbarik egin",
+        )
+
     # Erabiltzaile berak ezin ditu denboran gainjartzen diren bi erreserba izan.
     user_overlap = session.scalar(
         select(Erreserba.id)

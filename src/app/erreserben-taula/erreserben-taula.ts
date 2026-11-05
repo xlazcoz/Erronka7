@@ -81,7 +81,7 @@ export class ErreserbenTaula implements OnInit {
           : of([] as Erabiltzailea[])
       ).pipe(catchError(() => of([] as Erabiltzailea[]))),
       postuak: this.apiService.getKargaPostuak(),
-      guneak: this.apiService.getKargaguneak(),
+      guneak: this.apiService.getKargaguneak(undefined, true),
       udalerriak: this.apiService.getUdalerriak().pipe(catchError(() => of([]))),
     }).subscribe({
       next: ({ erreserbak, erabiltzaileak, postuak, guneak, udalerriak }) => {

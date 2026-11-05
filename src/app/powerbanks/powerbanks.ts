@@ -77,7 +77,7 @@ export class Powerbanks implements OnInit {
     forkJoin({
       powerbanks: this.apiService.getPowerbanks(),
       postuak: this.apiService.getKargaPostuak(),
-      guneak: this.apiService.getKargaguneak(),
+      guneak: this.apiService.getKargaguneak(undefined, true),
       udalerriak: this.apiService.getUdalerriak().pipe(catchError(() => of([]))),
     }).subscribe({
       next: ({ powerbanks, postuak, guneak, udalerriak }) => {
@@ -234,7 +234,7 @@ export class Powerbanks implements OnInit {
           placeholder: 'Udalerria',
         },
       },
-      { property: 'tokia_etiketa', title: 'Kokapena', sortable: true },
+      { property: 'tokia_etiketa', title: 'Kokapena', sortable: true, width: 280, wrapping: 'nowrap' },
       {
         property: 'ekintzak',
         title: 'Ekintzak',

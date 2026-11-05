@@ -37,6 +37,13 @@ def sortu_powerbank(
 ):
     _check_post_permission(session, current_user, data.karga_postua_id)
 
+    station = _post_station(session, data.karga_postua_id)
+    if station is not None and station.udalerria is not None and not station.udalerria.aktiboa:
+        raise HTTPException(
+            status_code=409,
+            detail="Udalerria desaktibatuta dago; ezin da powerbankik sortu",
+        )
+
     powerbank = Powerbank(
         karga_maila=data.karga_maila,
         egoera=data.egoera,
