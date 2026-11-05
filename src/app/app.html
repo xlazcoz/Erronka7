@@ -1,49 +1,101 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
-    <a
-      class="navbar-brand"
-      [routerLink]="auth.isSuperadmin() ? '/erabiltzaileak' : '/kargaguneak'"
-    >
-      Administrazio-atala
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      @if (auth.isAdmin()) {
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          @if (auth.isSuperadmin()) {
-            <li class="nav-item">
-              <a class="nav-link" routerLink="/erabiltzaileak">Erabiltzaileak</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" routerLink="/udalerriak">Udalerriak</a>
-            </li>
-          }
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/kargaguneak">Kargaguneak</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/powerbanks">Powerbank-ak</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/erreserbak">Erreserbak</a>
-          </li>
-        </ul>
-      }
+<header class="pb-header">
+  <nav class="navbar navbar-expand-lg navbar-dark pb-navbar">
+    <div class="container-fluid px-3 px-lg-4">
+      <a
+        class="pb-brand"
+        [routerLink]="auth.isSuperadmin() ? '/erabiltzaileak' : '/kargaguneak'"
+      >
+        <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
+        <span class="pb-brand-text">
+          <span class="pb-brand-name">POWERBANK</span>
+          <span class="pb-brand-tagline">Administrazio panela</span>
+        </span>
+      </a>
 
-      <div class="d-flex gap-2 align-items-center ms-auto">
+      <button
+        class="navbar-toggler"
+        type="button"
+        aria-controls="navbarNav"
+        [attr.aria-expanded]="menuaZabalik()"
+        aria-label="Menua ireki"
+        (click)="menuaAldatu()"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav" [class.show]="menuaZabalik()">
         @if (auth.isAdmin()) {
-          <span class="navbar-text me-2">
-            {{ auth.currentUser()?.izena }} ({{ auth.rolaEtiketa(auth.currentUser()?.rola) }})
-          </span>
-          <button type="button" class="btn btn-outline-danger" (click)="saioaItxi()">Saioa itxi</button>
-        } @else {
-          <button type="button" class="btn btn-primary" routerLink="/saioa-hasi">Saioa hasi</button>
+          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-1 pb-nav-pill">
+            @if (auth.isSuperadmin()) {
+              <li class="nav-item">
+                <a class="nav-link" routerLink="/erabiltzaileak" routerLinkActive="active" (click)="itxiMenua()">
+                  <i class="fas fa-users"></i>Erabiltzaileak
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" routerLink="/udalerriak" routerLinkActive="active" (click)="itxiMenua()">
+                  <i class="fas fa-map-location-dot"></i>Udalerriak
+                </a>
+              </li>
+            }
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/kargaguneak" routerLinkActive="active" (click)="itxiMenua()">
+                <i class="fas fa-charging-station"></i>Kargaguneak
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/powerbanks" routerLinkActive="active" (click)="itxiMenua()">
+                <i class="fas fa-battery-full"></i>Powerbank-ak
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/erreserbak" routerLinkActive="active" (click)="itxiMenua()">
+                <i class="fas fa-calendar-check"></i>Erreserbak
+              </a>
+            </li>
+          </ul>
         }
+
+        <div class="pb-nav-actions ms-auto">
+          @if (auth.isAdmin()) {
+            <span class="pb-user-chip">
+              <span class="pb-user-avatar">
+                <i class="fas fa-user-shield"></i>
+              </span>
+              <span class="pb-user-meta">
+                <span class="pb-user-name">{{ auth.currentUser()?.izena }}</span>
+                <span class="pb-user-role">{{ auth.rolaEtiketa(auth.currentUser()?.rola) }}</span>
+              </span>
+            </span>
+            <button type="button" class="btn btn-outline-danger" (click)="saioaItxi()">
+              <i class="fas fa-right-from-bracket me-2"></i>Saioa itxi
+            </button>
+          } @else {
+            <button type="button" class="btn btn-primary" routerLink="/saioa-hasi">
+              <i class="fas fa-right-to-bracket me-2"></i>Saioa hasi
+            </button>
+          }
+        </div>
       </div>
     </div>
-  </div>
-</nav>
+  </nav>
+</header>
 
-<router-outlet />
+<main class="pb-app-main">
+  <router-outlet />
+</main>
+
+<footer class="pb-footer">
+  <div class="pb-admin-footer">
+    <div class="container-fluid px-3 px-lg-4 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+      <a class="pb-brand pb-footer-brand" [routerLink]="auth.isSuperadmin() ? '/erabiltzaileak' : '/kargaguneak'">
+        <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
+        <span class="pb-brand-text">
+          <span class="pb-brand-name">POWERBANK</span>
+          <span class="pb-brand-tagline">Energía bajo demanda</span>
+        </span>
+      </a>
+      <span class="pb-muted small">© 2026 Powerbank · Administrazio-atala</span>
+    </div>
+  </div>
+</footer>

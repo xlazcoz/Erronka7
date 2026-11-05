@@ -1,9 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from './services/auth';
 
 @Component({
-  imports: [RouterOutlet, RouterLink],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',
@@ -11,8 +11,17 @@ import { AuthService } from './services/auth';
 export class App {
   protected readonly title = signal('administrazio-atala');
   protected readonly auth = inject(AuthService);
+  protected readonly menuaZabalik = signal(false);
 
   private router = inject(Router);
+
+  menuaAldatu(): void {
+    this.menuaZabalik.update((zabalik) => !zabalik);
+  }
+
+  itxiMenua(): void {
+    this.menuaZabalik.set(false);
+  }
 
   saioaItxi(): void {
     this.auth.logout().subscribe({
