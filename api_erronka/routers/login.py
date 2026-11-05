@@ -23,6 +23,17 @@ from services.rate_limit import ip_rate_limiter, login_rate_limiter
 
 router = APIRouter(prefix="/login", tags=["Login"])
 
+
+def _client_ip(request: Request) -> str:
+    """IP erreala lortu proxy baten atzetik (nginx/LB)."""
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    real_ip = request.headers.get("x-real-ip")
+    if real_ip:
+        return real_ip.strip()
+    return request.client.host if request.client else "unknown"
+
 SESSION_MAX_AGE = SESSION_MAX_AGE_SECONDS
 
 
@@ -78,7 +89,7 @@ def login(
     session: Session = Depends(get_session),
 ):
     email = data.login_email.strip().lower()
-    client_ip = request.client.host if request.client else "unknown"
+    client_ip = _client_ip(request)
     rate_key = f"{client_ip}:{email}"
     ip_key = f"ip:{client_ip}"
 
