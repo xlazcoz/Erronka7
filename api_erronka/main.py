@@ -1,28 +1,45 @@
-import os
 from pathlib import Path
 
-from fastapi import FastAPI, Request
-from fastapi.staticfiles import StaticFiles
-from models.models import Base
-from database import engine, ensure_schema
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
+
+from config import (
+    CORS_ORIGIN_REGEX,
+    CORS_ORIGINS,
+    DOCS_ENABLED,
+    IS_PRODUCTION,
+)
+from database import engine, ensure_schema
+from models.models import Base
 from routers import (
     erabiltzaileak,
-    kargaguneak,
-    powerbanks,
     erreserbak,
     karga_postuak,
+    kargaguneak,
     login,
-    udalerriak,
+    powerbanks,
     qr,
+    udalerriak,
 )
 
 Base.metadata.create_all(engine)
 ensure_schema()
 
-app = FastAPI()
+app = FastAPI(
+    title="Powerbank Alokairu API",
+    description=(
+        "Powerbank alokairu sistemaren APIa: erabiltzaileak, kargaguneak, "
+        "powerbankak, erreserbak eta QR bidezko taquilla-fluxua."
+    ),
+    version="1.0.0",
+    docs_url="/docs" if DOCS_ENABLED else None,
+    redoc_url="/redoc" if DOCS_ENABLED else None,
+    openapi_url="/openapi.json" if DOCS_ENABLED else None,
+)
 
 UPLOAD_DIR = Path(__file__).parent / "uploads"
 UPLOAD_DIR.mkdir(exist_ok=True)
@@ -38,6 +55,25 @@ async def integrity_error_handler(_request: Request, _exc: IntegrityError):
     )
 
 
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    """Oinarrizko segurtasun-cabeceras gehitzen ditu erantzun guztiei."""
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault(
+        "Permissions-Policy",
+        "geolocation=(self), camera=(self), microphone=(), payment=()",
+    )
+    if IS_PRODUCTION:
+        response.headers.setdefault(
+            "Strict-Transport-Security",
+            "max-age=31536000; includeSubDomains",
+        )
+    return response
+
+
 app.include_router(erabiltzaileak.router)
 app.include_router(kargaguneak.router)
 app.include_router(powerbanks.router)
@@ -47,33 +83,28 @@ app.include_router(login.router)
 app.include_router(udalerriak.router)
 app.include_router(qr.router)
 
-extra_origins = [
-    origin.strip()
-    for origin in os.getenv("CORS_ORIGINS", "").split(",")
-    if origin.strip()
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://127.0.0.1:5500",
-        "http://localhost:5500",
-        "http://localhost:4200",
-        "http://127.0.0.1:4200",
-        *extra_origins,
-    ],
-    # Permite probar desde el móvil en la red local (cualquier IP privada).
-    allow_origin_regex=os.getenv(
-        "CORS_ORIGIN_REGEX",
-        r"^http://(localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|"
-        r"10\.\d{1,3}\.\d{1,3}\.\d{1,3}|"
-        r"172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})(:\d+)?$",
-    ),
+    allow_origins=CORS_ORIGINS,
+    # Garapenean sare lokaleko IPak onartzen dira; produkzioan ez.
+    allow_origin_regex=CORS_ORIGIN_REGEX,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
-@app.get("/")
+
+@app.get("/", tags=["Sistema"])
 def main():
-    return {"mezua" : "Ongi etorri powerbank alokairu sistemara"}
+    return {"mezua": "Ongi etorri powerbank alokairu sistemara"}
+
+
+@app.get("/health", tags=["Sistema"])
+def health():
+    """Karga-balantzatzaileek eta Dockerrek erabiltzeko osasun-egiaztapena."""
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+    except Exception:  # pragma: no cover - datu-basea erortzean
+        raise HTTPException(status_code=503, detail="Datu-basea ez dago erabilgarri")
+    return {"status": "ok"}

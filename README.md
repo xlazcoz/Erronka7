@@ -16,7 +16,36 @@ Sistemak bi udalerri (Donostia eta Zarautz), hamar kargagune, karga-postuak, pow
 | Datu-basea | — | PostgreSQL |
 | Taquilla / QR irakurgailua | `web/locker.html` | html5-qrcode, qrcodejs |
 
+## Konfigurazioa
+
+Kopiatu `.env.example` fitxategia `.env` gisa eta bete balioak:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+| Aldagaia | Lehenetsia | Azalpena |
+|---|---|---|
+| `APP_ENV` | `development` | `production` ezartzean CORS eta cookieak gogortzen dira. |
+| `DATABASE_URL` | `postgresql+psycopg://postgres:@localhost:5432/alokairu_sistema` | PostgreSQL konexioa. |
+| `COOKIE_SECURE` | `true` produkzioan | Cookiea HTTPS bidez bakarrik bidaltzea. |
+| `DOCS_ENABLED` | `true` garapenean | Swagger/OpenAPI dokumentazioa. |
+| `CORS_ORIGINS` | — | Baimendutako jatorriak, komaz banatuta. |
+| `CORS_ORIGIN_REGEX` | garapenean sare lokala | Produkzioan ez da automatikoki onartzen. |
+| `LOGIN_MAX_ATTEMPTS` | `5` | Saio-hasieraren saiakera kopurua blokeatu aurretik. |
+| `LOGIN_WINDOW_SECONDS` | `900` | Saiakerak zenbatzeko leihoa. |
+| `LOGIN_BLOCK_SECONDS` | `900` | Blokeoaren iraupena. |
+| `SESSION_MAX_AGE_SECONDS` | `604800` | Saioaren iraupena zerbitzarian (7 egun). |
+| `MAX_IMAGE_UPLOAD_BYTES` | `5242880` | Irudien igoeraren muga (5 MB). |
+
+> **Inportantea:** `.env` ez da inoiz git-era igo behar. `.gitignore` fitxategiak jada baztertzen du.
+
 ## Abiarazte azkarra
+
+### 0. Ingurune-aldagaiak
+
+Sortu `.env` fitxategia aurreko atalean azaldu bezala. Garapenean balio lehenetsiek
+funtzionatzen dute PostgreSQL tokiko instalazioarekin.
 
 ### 1. Datu-basea
 
@@ -54,7 +83,43 @@ npm start
 
 Angular aplikazioa `http://localhost:4200` helbidean egongo da.
 
+## Produkzioan jartzea (Docker)
+
+Proiektuak `docker-compose.yml`, `deploy/nginx.conf` eta `deploy/nginx-admin.conf`
+barne hartzen ditu: PostgreSQL, FastAPI, web estatikoa eta administrazio-panelaren
+build-a, nginx bidez zerbitzatuta eta `/api` proxy-arekin.
+
+```bash
+Copy-Item .env.example .env
+# Editatu .env: APP_ENV=production, COOKIE_SECURE=true, POSTGRES_PASSWORD sendoa...
+docker compose up -d --build
+```
+
+- Web publikoa: `http://localhost:8080`
+- Administrazio-panela: `http://localhost:8081`
+
+Benetako produkzioan:
+
+1. Jarri nginx atzean HTTPS (Let's Encrypt / Caddy) eta aktibatu `Strict-Transport-Security`.
+2. Ezarri `COOKIE_SECURE=true` eta `APP_ENV=production`.
+3. Erabili `CORS_ORIGINS` jatorri zehatzekin eta utzi `CORS_ORIGIN_REGEX` hutsik.
+4. Aldatu `POSTGRES_PASSWORD` eta ez erabili demo pasahitzik.
+5. Egin `db_data` bolumenaren babeskopiak.
+6. Exekutatu `seed.py` soilik demo ingurune batean.
+
+> **Oharra:** `api_erronka/seed.py` fitxategiak taula guztiak ezabatzen ditu. Ez exekutatu produkzioan.
+
+## Kalitatea eta segurtasuna
+
+- Saio-hasierak abiadura-muga du (`LOGIN_MAX_ATTEMPTS`).
+- Irudien igoerak magic bytes bidez balioztatzen dira (JPG, PNG, GIF, WebP, AVIF) eta tamaina-muga dute.
+- Erantzunek `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` eta `Permissions-Policy` cabeceras dituzte.
+- APIak `/health` osasun-egiaztapena du.
+- CIak APIaren testak eta Angular build-a exekutatzen ditu (`.github/workflows/ci.yml`).
+
 ## Demo erabiltzaileak
+
+> **Kontuz:** hauek demo inguruneko kontuak dira. Produkzioan ezabatu edo aldatu pasahitzak.
 
 | Rola | Emaila | Pasahitza |
 |---|---|---|
@@ -83,6 +148,14 @@ Dokumentazio teknikoa PDF formatuan:
 - Iturriak: `docs/dokumentazioa.md`, `docs/dokumentazioa_ertaina.md`, `docs/dokumentazioa_laburra.md`
 - IAren erabileraren txostena: [`docs/IA_Erabileraren_Txostena.pdf`](docs/IA_Erabileraren_Txostena.pdf)
 - Hirugarrenen baliabideak: [`docs/THIRD_PARTY_NOTICES.md`](docs/THIRD_PARTY_NOTICES.md)
+- Lege-informazioa (web): [`web/legala.html`](web/legala.html)
+- Laguntza-zentroa (web): [`web/Laguntza.html`](web/Laguntza.html)
+- Segurtasun-politika: [`SECURITY.md`](SECURITY.md)
+- Laguntzeko gida: [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- Aldaketen erregistroa: [`CHANGELOG.md`](CHANGELOG.md)
+
+> **Oharra:** `web/legala.html` fitxategiko testua txantiloi bat da. Produkzioan jarri aurretik,
+> bete titularraren datuak eta berrikusi eduki juridikoa profesional batekin.
 
 ## Lizentzia
 

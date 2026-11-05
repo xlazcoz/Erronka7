@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="eu">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Powerbank alokairu sistemaren laguntza: ohiko galderak, erreserbak, QR bidezko jasotzea eta kontaktua.">
+  <meta name="theme-color" content="#070b14">
+  <title>Powerbank · Laguntza</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://powerbank.eus/Laguntza.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Powerbank">
+  <meta property="og:locale" content="eu_ES">
+  <meta property="og:title" content="Powerbank · Laguntza">
+  <meta property="og:description" content="Ohiko galderak, erreserbak, QR bidezko jasotzea eta kontaktua.">
+  <meta property="og:url" content="https://powerbank.eus/Laguntza.html">
+  <meta property="og:image" content="https://powerbank.eus/assets/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css?v=15">
+  <link rel="stylesheet" href="css/dialogos.css">
+  <script src="js/movimiento.js"></script>
+</head>
+
+<body class="pb-page d-flex flex-column min-vh-100">
+  <a class="pb-skip-link" href="#mainContent">Edukira salto egin</a>
+
+  <header class="pb-header">
+    <nav class="navbar navbar-expand-md navbar-dark pb-navbar">
+      <div class="container">
+        <a class="pb-brand" href="index.html">
+          <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
+          <span class="pb-brand-text">
+            <span class="pb-brand-name">POWERBANK</span>
+            <span class="pb-brand-tagline">Energia behar duzunean</span>
+          </span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
+          aria-controls="navbarMain" aria-expanded="false" aria-label="Ireki menua">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMain">
+          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-1 pb-nav-pill">
+            <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-house"></i>Hasiera</a></li>
+            <li class="nav-item"><a class="nav-link" href="Kargaguneak.html"><i class="fas fa-location-dot"></i>Kargaguneak</a></li>
+            <li class="nav-item" data-auth-only hidden><a class="nav-link" href="Erreserbak.html"><i class="fas fa-calendar-check"></i>Erreserbak</a></li>
+            <li class="nav-item" data-auth-only hidden><a class="nav-link" href="Erabiltzailea.html"><i class="fas fa-user"></i>Nire kontua</a></li>
+          </ul>
+          <div class="pb-nav-actions">
+            <a class="btn btn-outline-primary px-3" href="Login.html" id="btnCuenta">Hasi saioa</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <script src="js/api.js"></script>
+    <script src="js/dialogos.js"></script>
+    <script src="js/auth.js?v=6"></script>
+  </header>
+
+  <main class="container my-4 my-lg-5 flex-grow-1" id="mainContent" tabindex="-1">
+    <section class="pb-card p-4 p-lg-5 mb-4">
+      <span class="pb-eyebrow">Laguntza zentroa</span>
+      <h1 class="display-6 fw-bold mt-2 mb-3">Nola lagun zaitzakegu?</h1>
+      <p class="pb-muted mb-0">
+        Hemen dituzu ohiko galderak eta kontakturako bideak. Ez baduzu erantzuna aurkitzen,
+        idatzi iezaguzu eta ahalik eta azkarren erantzungo dizugu.
+      </p>
+    </section>
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <section class="pb-card p-4 p-lg-5" aria-labelledby="faqTitle">
+          <h2 class="h4 fw-bold mb-4" id="faqTitle">Ohiko galderak</h2>
+          <div class="accordion pb-accordion" id="faqAccordion">
+            <div class="accordion-item">
+              <h3 class="accordion-header" id="faqHeading1">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1"
+                  aria-expanded="true" aria-controls="faq1">
+                  Nola egin dezaket erreserba bat?
+                </button>
+              </h3>
+              <div id="faq1" class="accordion-collapse collapse show" aria-labelledby="faqHeading1"
+                data-bs-parent="#faqAccordion">
+                <div class="accordion-body pb-muted">
+                  Hasi saioa, ireki <a href="Kargaguneak.html">Kargaguneak</a> atala, aukeratu gune bat eta
+                  hautatu ordua. Erreserbak gaurko egunean bakarrik egin daitezke, gehienez 6 ordu aurretik,
+                  eta 15 minutu eta 6 ordu arteko iraupena izan dezake.
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header" id="faqHeading2">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#faq2" aria-expanded="false" aria-controls="faq2">
+                  Nola jaso dezaket powerbanka?
+                </button>
+              </h3>
+              <div id="faq2" class="accordion-collapse collapse" aria-labelledby="faqHeading2"
+                data-bs-parent="#faqAccordion">
+                <div class="accordion-body pb-muted">
+                  Joan kargagunera erreserbaren orduan eta erakutsi QR kodea taquillan. QR kodea zure
+                  <a href="Erreserbak.html">erreserbak</a> atalean aurkituko duzu. Taquillak kodea irakurri
+                  eta powerbanka emango dizu.
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header" id="faqHeading3">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#faq3" aria-expanded="false" aria-controls="faq3">
+                  Zenbat balio du alokairuak?
+                </button>
+              </h3>
+              <div id="faq3" class="accordion-collapse collapse" aria-labelledby="faqHeading3"
+                data-bs-parent="#faqAccordion">
+                <div class="accordion-body pb-muted">
+                  Alokairua doakoa da erreserbatutako denboran. Atzerapena badago, 5 € kobratzen dira
+                  hasitako ordu bakoitzeko. Tarifa osoa eta baldintzak
+                  <a href="legala.html#baldintzak">erabilera-baldintzetan</a> daude.
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header" id="faqHeading4">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#faq4" aria-expanded="false" aria-controls="faq4">
+                  Nola ezeztatu dezaket erreserba?
+                </button>
+              </h3>
+              <div id="faq4" class="accordion-collapse collapse" aria-labelledby="faqHeading4"
+                data-bs-parent="#faqAccordion">
+                <div class="accordion-body pb-muted">
+                  Powerbanka jaso aurretik, ireki <a href="Erreserbak.html">Nire erreserbak</a> eta sakatu
+                  "Ezeztatu". Hasiera-ordua igaro ondoren ere ezeztatu daiteke, betiere powerbanka jaso ez bada.
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <h3 class="accordion-header" id="faqHeading5">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#faq5" aria-expanded="false" aria-controls="faq5">
+                  Ahaztu dut pasahitza. Zer egin dezaket?
+                </button>
+              </h3>
+              <div id="faq5" class="accordion-collapse collapse" aria-labelledby="faqHeading5"
+                data-bs-parent="#faqAccordion">
+                <div class="accordion-body pb-muted">
+                  Momentuz, idatzi iezaguzu <a href="mailto:hola@powerbank.eus">hola@powerbank.eus</a>
+                  helbidera zure kontuaren posta elektronikoarekin. Pasahitza berrezartzen lagunduko dizugu.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="col-lg-4">
+        <section class="pb-card p-4 h-100" aria-labelledby="contactTitle">
+          <h2 class="h5 fw-bold mb-3" id="contactTitle">Kontaktua</h2>
+          <p class="pb-muted small">
+            Arreta-ordutegia: astelehenetik ostiralera, 09:00–18:00.
+          </p>
+          <ul class="list-unstyled pb-muted small d-grid gap-3 mb-4">
+            <li><i class="fas fa-envelope me-2"></i><a href="mailto:hola@powerbank.eus">hola@powerbank.eus</a></li>
+            <li><i class="fas fa-location-dot me-2"></i>Donostia eta Zarautz</li>
+          </ul>
+          <a class="btn btn-primary w-100" href="mailto:hola@powerbank.eus">
+            <i class="fas fa-paper-plane me-2"></i>Idatzi iezaguzu
+          </a>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="pb-footer pb-footer-compact">
+    <div class="pb-shell pb-footer-line">
+      <a class="pb-brand pb-footer-brand" href="index.html">
+        <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
+        <span class="pb-brand-name">POWERBANK</span>
+      </a>
+      <nav class="pb-footer-compact-links" aria-label="Laguntza, kontaktua eta lege-informazioa">
+        <a href="Laguntza.html">Laguntza</a>
+        <a href="mailto:hola@powerbank.eus">Kontaktua</a>
+        <a href="legala.html#pribatutasuna">Pribatutasuna</a>
+        <a href="legala.html#cookieak">Cookieak</a>
+        <a href="legala.html#baldintzak">Baldintzak</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

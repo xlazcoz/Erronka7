@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Cookie, Depends, HTTPException, Response
-import os
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
+from config import COOKIE_SECURE, SESSION_MAX_AGE_SECONDS
 from database import get_session
 from models.models import AuthSession, Erabiltzailea, Erreserba
 from schemas.schemas import (
@@ -19,10 +19,11 @@ from services.auth import (
     pasahitza_egiaztatu,
 )
 from services.erreserbak import expire_stale_reservations, reservation_response
+from services.rate_limit import ip_rate_limiter, login_rate_limiter
 
 router = APIRouter(prefix="/login", tags=["Login"])
 
-SESSION_MAX_AGE = 60 * 60 * 24 * 7  # 7 egun
+SESSION_MAX_AGE = SESSION_MAX_AGE_SECONDS
 
 
 def user_response(session: Session, erabiltzailea: Erabiltzailea) -> ErabiltzaileaResponse:
@@ -70,15 +71,42 @@ def erregistratu(data: RegisterRequest, session: Session = Depends(get_session))
 
 
 @router.post("")
-def login(data: LoginRequest, response: Response, session: Session = Depends(get_session)):
+def login(
+    data: LoginRequest,
+    response: Response,
+    request: Request,
+    session: Session = Depends(get_session),
+):
     email = data.login_email.strip().lower()
+    client_ip = request.client.host if request.client else "unknown"
+    rate_key = f"{client_ip}:{email}"
+    ip_key = f"ip:{client_ip}"
+
+    retry_after = max(
+        login_rate_limiter.blocked_for(rate_key),
+        ip_rate_limiter.blocked_for(ip_key),
+    )
+    if retry_after:
+        raise HTTPException(
+            status_code=429,
+            detail=(
+                "Saio-hasiera saiakera gehiegi egin dira. "
+                "Saiatu berriro minutu batzuen buruan."
+            ),
+            headers={"Retry-After": str(retry_after)},
+        )
+
     stmt = select(Erabiltzailea).where(func.lower(Erabiltzailea.login_email) == email)
     erabiltzailea = session.scalars(stmt).first()
 
     if erabiltzailea is None or not pasahitza_egiaztatu(
         data.login_pasahitza, erabiltzailea.login_pasahitza
     ):
+        login_rate_limiter.record_failure(rate_key)
+        ip_rate_limiter.record_failure(ip_key)
         raise HTTPException(status_code=401, detail="Emaila edo pasahitza ez da zuzena")
+
+    login_rate_limiter.reset(rate_key)
 
     if not erabiltzailea.aktiboa:
         raise HTTPException(status_code=403, detail="Erabiltzailea desaktibatuta dago")
@@ -94,7 +122,8 @@ def login(data: LoginRequest, response: Response, session: Session = Depends(get
         value=session_id,
         httponly=True,
         samesite="lax",
-        secure=os.getenv("COOKIE_SECURE", "false").lower() in {"1", "true", "yes"},
+        secure=COOKIE_SECURE,
+        path="/",
         max_age=SESSION_MAX_AGE,
     )
 

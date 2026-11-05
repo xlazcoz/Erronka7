@@ -1,22 +1,48 @@
-from fastapi import Cookie, Depends, HTTPException
-
-from pwdlib import PasswordHash
-from database import get_session
-from sqlalchemy.orm import Session
-from models.models import AuthSession, Erabiltzailea
 import secrets
+from datetime import datetime, timedelta, timezone
 
+from fastapi import Cookie, Depends, HTTPException
+from pwdlib import PasswordHash
+from sqlalchemy.orm import Session
+
+from config import SESSION_MAX_AGE_SECONDS
+from database import get_session
+from models.models import AuthSession, Erabiltzailea
 
 password_hash = PasswordHash.recommended()
+
 
 def hash_password(login_pasahitza: str) -> str:
     return password_hash.hash(login_pasahitza)
 
+
 def pasahitza_egiaztatu(pasahitza_normal: str, hashed_pasahitza: str) -> bool:
     return password_hash.verify(pasahitza_normal, hashed_pasahitza)
 
+
 def create_session_id() -> str:
     return secrets.token_urlsafe(32)
+
+
+def _load_active_session(session: Session, session_id: str) -> AuthSession | None:
+    """Saioa bilatu eta iraungita badago ezabatu."""
+    auth_session = session.get(AuthSession, session_id)
+    if auth_session is None:
+        return None
+
+    created_at = auth_session.created_at
+    if created_at is None:
+        created_at = datetime.now(timezone.utc)
+    elif created_at.tzinfo is None:
+        created_at = created_at.replace(tzinfo=timezone.utc)
+
+    if datetime.now(timezone.utc) - created_at > timedelta(seconds=SESSION_MAX_AGE_SECONDS):
+        session.delete(auth_session)
+        session.commit()
+        return None
+
+    return auth_session
+
 
 def get_optional_user(
     session_id: str | None = Cookie(default=None),
@@ -25,7 +51,7 @@ def get_optional_user(
     if session_id is None:
         return None
 
-    auth_session = session.get(AuthSession, session_id)
+    auth_session = _load_active_session(session, session_id)
     if auth_session is None:
         return None
 
@@ -35,18 +61,22 @@ def get_optional_user(
     return auth_session.erabiltzailea
 
 
-def get_current_user(session_id: str | None = Cookie(default=None), session: Session = Depends(get_session)) -> Erabiltzailea:
+def get_current_user(
+    session_id: str | None = Cookie(default=None),
+    session: Session = Depends(get_session),
+) -> Erabiltzailea:
     if session_id is None:
         raise HTTPException(status_code=401, detail="Saioa hasi behar duzu")
-    
-    auth_session = session.get(AuthSession, session_id)
+
+    auth_session = _load_active_session(session, session_id)
     if auth_session is None:
-        raise HTTPException(status_code=401)
+        raise HTTPException(status_code=401, detail="Saioa iraungi da; hasi berriro")
 
     if not auth_session.erabiltzailea.aktiboa:
         raise HTTPException(status_code=403, detail="Erabiltzailea desaktibatuta dago")
 
     return auth_session.erabiltzailea
+
 
 def require_admin(current_user: Erabiltzailea = Depends(get_current_user)) -> Erabiltzailea:
     if current_user.rola != "admin":

@@ -1,0 +1,13 @@
+.git/
+.gitignore
+.venv/
+**/.venv/
+**/node_modules/
+**/__pycache__/
+**/*.pyc
+**/dist/
+**/.angular/
+**/uploads/
+**/.env
+**/.env.*
+!**/.env.example

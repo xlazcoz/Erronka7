@@ -1,16 +1,10 @@
-import os
-
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
+from config import DATABASE_URL
 from media import IRUDIAK
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql+psycopg://postgres:@localhost:5432/alokairu_sistema",
-)
-
-engine = create_engine(DATABASE_URL, echo=False)
+engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
 
 SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
@@ -47,6 +41,10 @@ def ensure_schema():
     beraz mapa eta udalerriak gehitzeko beharrezko zutabeak hemen gehitzen ditugu.
     """
     with engine.begin() as connection:
+        connection.execute(text(
+            "ALTER TABLE auth_sessions ADD COLUMN IF NOT EXISTS created_at "
+            "TIMESTAMPTZ NOT NULL DEFAULT NOW()"
+        ))
         connection.execute(text(
             "ALTER TABLE kargaguneak ADD COLUMN IF NOT EXISTS udalerria_id INTEGER REFERENCES udalerriak(id)"
         ))

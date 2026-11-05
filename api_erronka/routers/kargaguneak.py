@@ -13,6 +13,7 @@ from models.models import Erabiltzailea, Erreserba, KargaPostua, Kargagunea, Pow
 from schemas.schemas import KargaguneaCreate, KargaguneaResponse, KargaguneaUpdate, KargaguneaIrudiaUpdate
 from services.auth import can_manage_municipality, get_optional_user, require_manager
 from services.erreserbak import normalize_datetime, now_local
+from services.uploads import validate_image_upload
 
 router = APIRouter(prefix="/kargaguneak", tags=["Kargaguneak"])
 
@@ -251,11 +252,8 @@ def igo_kargagunearen_irudia(
     if not can_manage_municipality(current_user, kargagunea.udalerria_id):
         raise HTTPException(status_code=403, detail="Ez duzu kargagune hau aldatzeko baimenik")
 
-    if not file.content_type or not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="Fitxategiak irudi bat izan behar du")
-
-    suffix = Path(file.filename or "").suffix.lower() or ".img"
-    filename = f"{uuid.uuid4().hex}{suffix}"
+    extension = validate_image_upload(file)
+    filename = f"{uuid.uuid4().hex}{extension}"
     destination = UPLOAD_DIR / filename
     with destination.open("wb") as buffer:
         shutil.copyfileobj(file.file, buffer)

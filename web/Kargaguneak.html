@@ -4,18 +4,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Aurkitu Powerbank kargaguneak Donostian eta Zarautzen: mapa, erabilgarritasun erreala eta erreserba egiteko aukera.">
+  <meta name="theme-color" content="#070b14">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="canonical" href="https://powerbank.eus/Kargaguneak.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Powerbank">
+  <meta property="og:locale" content="eu_ES">
+  <meta property="og:title" content="Powerbank · Kargaguneak">
+  <meta property="og:description" content="Aurkitu Powerbank kargaguneak Donostian eta Zarautzen: mapa, erabilgarritasun erreala eta erreserba egiteko aukera.">
+  <meta property="og:url" content="https://powerbank.eus/Kargaguneak.html">
+  <meta property="og:image" content="https://powerbank.eus/assets/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
   <title>Powerbank · Kargaguneak</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="css/base.css?v=14">
+  <link rel="stylesheet" href="css/base.css?v=15">
   <link rel="stylesheet" href="css/lista.css?v=5">
   <link rel="stylesheet" href="css/dialogos.css">
   <script src="js/movimiento.js"></script>
 </head>
 
 <body class="pb-page d-flex flex-column min-vh-100">
+  <a class="pb-skip-link" href="#mainContent">Edukira salto egin</a>
+
   <header class="pb-header">
     <nav class="navbar navbar-expand-md navbar-dark pb-navbar">
       <div class="container">
@@ -35,7 +50,7 @@
         <div class="collapse navbar-collapse" id="navbarMain">
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-1 pb-nav-pill">
                         <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-house"></i>Hasiera</a></li>
-            <li class="nav-item"><a class="nav-link active" href="Kargaguneak.html"><i class="fas fa-location-dot"></i>Kargaguneak</a></li>
+            <li class="nav-item"><a class="nav-link active" aria-current="page" href="Kargaguneak.html"><i class="fas fa-location-dot"></i>Kargaguneak</a></li>
             <li class="nav-item" data-auth-only hidden><a class="nav-link" href="Erreserbak.html"><i class="fas fa-calendar-check"></i>Erreserbak</a></li>
             <li class="nav-item" data-auth-only hidden><a class="nav-link" href="Erabiltzailea.html"><i class="fas fa-user"></i>Nire kontua</a></li>
           </ul>
@@ -53,7 +68,7 @@
     <script src="js/auth.js?v=6"></script>
   </header>
 
-  <main class="container my-4 my-lg-5 flex-grow-1">
+  <main class="container my-4 my-lg-5 flex-grow-1" id="mainContent" tabindex="-1">
     <section class="pb-card map-card p-3 p-lg-4 mb-4 reveal" aria-labelledby="mapTitle">
       <div class="map-card-head">
         <div>
@@ -139,15 +154,13 @@
         <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
         <span class="pb-brand-name">POWERBANK</span>
       </a>
-      <nav class="pb-footer-compact-links" aria-label="Laguntza eta kontaktua">
-        <a href="#">Laguntza</a>
+      <nav class="pb-footer-compact-links" aria-label="Laguntza, kontaktua eta lege-informazioa">
+        <a href="Laguntza.html">Laguntza</a>
         <a href="mailto:hola@powerbank.eus">Kontaktua</a>
+        <a href="legala.html#pribatutasuna">Pribatutasuna</a>
+        <a href="legala.html#cookieak">Cookieak</a>
+        <a href="legala.html#baldintzak">Baldintzak</a>
       </nav>
-      <div class="pb-socials">
-        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-        <a href="#" aria-label="X"><i class="fab fa-x-twitter"></i></a>
-        <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
-      </div>
     </div>
   </footer>
 

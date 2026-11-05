@@ -51,6 +51,11 @@ Thumbs.db
 # Uploaded files
 /api_erronka/uploads/
 
+# Environment files (never commit real secrets)
+.env
+.env.*
+!.env.example
+
 # Python
 __pycache__/
 *.pyc

@@ -1,0 +1,71 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-alokairu_sistema}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-alokairu_sistema}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./api_erronka
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      # nginx bakarrik sartzen da APIra; beraz, proxy-cabeceras fidagarriak dira.
+      FORWARDED_ALLOW_IPS: "*"
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-alokairu_sistema}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      DOCS_ENABLED: ${DOCS_ENABLED:-false}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+      LOGIN_MAX_ATTEMPTS: ${LOGIN_MAX_ATTEMPTS:-5}
+      LOGIN_WINDOW_SECONDS: ${LOGIN_WINDOW_SECONDS:-900}
+      LOGIN_BLOCK_SECONDS: ${LOGIN_BLOCK_SECONDS:-900}
+      SESSION_MAX_AGE_SECONDS: ${SESSION_MAX_AGE_SECONDS:-604800}
+      MAX_IMAGE_UPLOAD_BYTES: ${MAX_IMAGE_UPLOAD_BYTES:-5242880}
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  web:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    volumes:
+      - ./web:/usr/share/nginx/html:ro
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      api:
+        condition: service_healthy
+
+  admin:
+    build:
+      context: .
+      dockerfile: admin_atala/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${ADMIN_PORT:-8081}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  db_data:
+  uploads:

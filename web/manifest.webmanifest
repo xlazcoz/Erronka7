@@ -1,0 +1,19 @@
+{
+  "name": "Powerbank · Alokairu Sistema",
+  "short_name": "Powerbank",
+  "description": "Aurkitu kargagunea, erreserbatu powerbanka eta jaso QR bidez.",
+  "lang": "eu",
+  "start_url": "index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#070b14",
+  "theme_color": "#070b14",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

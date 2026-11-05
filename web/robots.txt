@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /locker.html
+Disallow: /Erreserbak.html
+Disallow: /Erabiltzailea.html
+
+Sitemap: https://powerbank.eus/sitemap.xml
