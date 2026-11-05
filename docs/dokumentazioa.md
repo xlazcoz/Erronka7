@@ -5,6 +5,8 @@ author: "Xabier Lazcoz eta Aitor Mindeguia"
 date: "2026ko azaroa"
 version: "1.0"
 project: "Erronka 7 · Administrazio Atala"
+content_start: "Powerbank Alokairu Sistema powerbank eramangarrien alokairua kudeatzeko web aplikazioa da."
+pdf_title: "Powerbank Alokairu Sistema - Dokumentazio teknikoa"
 ---
 
 # Laburpena

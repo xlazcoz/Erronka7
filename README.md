@@ -77,8 +77,10 @@ Angular aplikazioa `http://localhost:4200` helbidean egongo da.
 
 Dokumentazio teknikoa PDF formatuan:
 
-- [`docs/Powerbank_Dokumentazio_Teknikoa.pdf`](docs/Powerbank_Dokumentazio_Teknikoa.pdf)
-- Iturria: [`docs/dokumentazioa.md`](docs/dokumentazioa.md)
+- [`docs/Powerbank_Dokumentazio_Teknikoa.pdf`](docs/Powerbank_Dokumentazio_Teknikoa.pdf) — dokumentazio osoa (44 orrialde)
+- [`docs/Powerbank_Dokumentazio_Teknikoa_Ertaina.pdf`](docs/Powerbank_Dokumentazio_Teknikoa_Ertaina.pdf) — bertsio ertaina (20–24 orrialde)
+- [`docs/Powerbank_Dokumentazio_Teknikoa_Laburra.pdf`](docs/Powerbank_Dokumentazio_Teknikoa_Laburra.pdf) — bertsio laburra (12–15 orrialde)
+- Iturriak: `docs/dokumentazioa.md`, `docs/dokumentazioa_ertaina.md`, `docs/dokumentazioa_laburra.md`
 - IAren erabileraren txostena: [`docs/IA_Erabileraren_Txostena.pdf`](docs/IA_Erabileraren_Txostena.pdf)
 - Hirugarrenen baliabideak: [`docs/THIRD_PARTY_NOTICES.md`](docs/THIRD_PARTY_NOTICES.md)
 

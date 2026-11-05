@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
-"""Build the Powerbank technical documentation PDF.
+"""Build the Powerbank technical documentation PDFs.
 
 Usage (from the repository root):
 
     uv run --with markdown --with playwright --with pypdf python docs/build_pdf.py
 
-The script converts docs/dokumentazioa.md to a styled HTML document and prints it
-to A4 PDF with Google Chrome or Microsoft Edge through Playwright. It also tries
-to fill the table of contents with page numbers using a two-pass pypdf analysis.
+By default the script builds the full, medium and short versions. Use
+``--only full|medium|short`` to build just one. Each Markdown source is converted
+to a styled HTML document and printed to A4 PDF with Chrome or Edge through
+Playwright. The table of contents receives page numbers via a pypdf pass.
 """
 
 from __future__ import annotations
 
+import argparse
 import html
 import os
 import re
@@ -24,9 +26,22 @@ from playwright.sync_api import sync_playwright
 from pypdf import PdfReader, PdfWriter
 
 ROOT = Path(__file__).resolve().parent
-SOURCE = ROOT / "dokumentazioa.md"
 CSS_FILE = ROOT / "assets" / "estiloa.css"
-OUTPUT = ROOT / "Powerbank_Dokumentazio_Teknikoa.pdf"
+
+VERSIONS = {
+    "full": {
+        "source": ROOT / "dokumentazioa.md",
+        "output": ROOT / "Powerbank_Dokumentazio_Teknikoa.pdf",
+    },
+    "medium": {
+        "source": ROOT / "dokumentazioa_ertaina.md",
+        "output": ROOT / "Powerbank_Dokumentazio_Teknikoa_Ertaina.pdf",
+    },
+    "short": {
+        "source": ROOT / "dokumentazioa_laburra.md",
+        "output": ROOT / "Powerbank_Dokumentazio_Teknikoa_Laburra.pdf",
+    },
+}
 
 HEADER_TEMPLATE = """
 <div style="width:100%; padding:0 17mm; font-family:'Segoe UI',Arial,sans-serif;
@@ -146,7 +161,7 @@ def build_html(meta: dict[str, str], body: str, toc_html: str) -> str:
 <html lang="eu">
 <head>
   <meta charset="utf-8">
-  <meta name="author" content="Powerbank Inc.">
+  <meta name="author" content="{author}">
   <meta name="description" content="Powerbank Alokairu Sistemaren dokumentazio teknikoa eta lizentzien erregistroa.">
   <title>{title} — Dokumentazio teknikoa</title>
   <style>{css}</style>
@@ -226,18 +241,21 @@ def render_pdf(
         browser.close()
 
 
-def add_metadata(pdf_path: Path, metadata: dict[str, str] | None = None) -> None:
+def add_metadata(pdf_path: Path, meta: dict[str, str]) -> None:
     """Add document metadata that Chrome's print-to-PDF does not expose."""
+    title = meta.get("pdf_title") or (
+        f"{meta.get('title', 'Powerbank Alokairu Sistema')} - Dokumentazio teknikoa"
+    )
     reader = PdfReader(str(pdf_path))
     writer = PdfWriter()
     writer.append(reader)
     writer.add_metadata(
-        metadata
-        or {
-            "/Title": "Powerbank Alokairu Sistema - Dokumentazio teknikoa",
+        {
+            "/Title": title,
             "/Author": "Xabier Lazcoz, Aitor Mindeguia",
             "/Subject": (
-                "Dokumentazio teknikoa eta hirugarrenen baliabideen lizentzien erregistroa"
+                meta.get("subtitle")
+                or "Dokumentazio teknikoa eta hirugarrenen baliabideen lizentzien erregistroa"
             ),
             "/Keywords": (
                 "Powerbank, FastAPI, Angular, PostgreSQL, dokumentazioa, lizentziak"
@@ -250,7 +268,9 @@ def add_metadata(pdf_path: Path, metadata: dict[str, str] | None = None) -> None
         writer.write(handle)
 
 
-def locate_pages(pdf_path: Path, entries: list[dict]) -> dict[str, int]:
+def locate_pages(
+    pdf_path: Path, entries: list[dict], content_start: str
+) -> dict[str, int]:
     """Best-effort search of heading text in the generated PDF."""
     try:
         reader = PdfReader(str(pdf_path))
@@ -262,13 +282,11 @@ def locate_pages(pdf_path: Path, entries: list[dict]) -> dict[str, int]:
     if not page_texts:
         return {}
 
-    # The summary sentence appears only in the body, not in the TOC.
-    summary_needle = normalize(
-        "Powerbank Alokairu Sistema powerbank eramangarrien alokairua kudeatzeko web aplikazioa da."
-    )
+    # This sentence appears only in the body, not in the TOC.
+    summary_needle = normalize(content_start)
     start_page = 0
     for index, text in enumerate(page_texts):
-        if summary_needle in text:
+        if summary_needle and summary_needle in text:
             start_page = index
             break
 
@@ -304,15 +322,12 @@ def locate_pages(pdf_path: Path, entries: list[dict]) -> dict[str, int]:
     return page_numbers
 
 
-def main() -> int:
-    if not SOURCE.is_file():
-        print(f"Ez da iturria aurkitu: {SOURCE}", file=sys.stderr)
-        return 1
-    if not CSS_FILE.is_file():
-        print(f"Ez da CSS fitxategia aurkitu: {CSS_FILE}", file=sys.stderr)
-        return 1
+def build_one(source: Path, output: Path, chrome: str) -> None:
+    if not source.is_file():
+        print(f"Ez da iturria aurkitu: {source}", file=sys.stderr)
+        return
 
-    raw = SOURCE.read_text(encoding="utf-8")
+    raw = source.read_text(encoding="utf-8")
     meta, markdown_text = parse_front_matter(raw)
 
     md = markdown.Markdown(
@@ -323,32 +338,57 @@ def main() -> int:
     entries = flatten_tokens(md.toc_tokens)
 
     if not entries:
-        print("Abisua: ez da aurkibiderik sortu.", file=sys.stderr)
+        print(f"Abisua: ez da aurkibiderik sortu ({source.name}).", file=sys.stderr)
 
-    chrome = find_chrome()
-    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    content_start = meta.get(
+        "content_start",
+        "Powerbank Alokairu Sistema powerbank eramangarrien alokairua kudeatzeko web aplikazioa da.",
+    )
 
     # First pass: TOC without page numbers.
     toc_html = render_toc(entries)
     html_text = build_html(meta, body, toc_html)
-    render_pdf(html_text, OUTPUT, chrome)
+    render_pdf(html_text, output, chrome)
 
     # Second pass: fill page numbers and regenerate if we found any.
-    page_numbers = locate_pages(OUTPUT, entries)
+    page_numbers = locate_pages(output, entries, content_start)
     if page_numbers:
         toc_html = render_toc(entries, page_numbers)
         html_text = build_html(meta, body, toc_html)
-        render_pdf(html_text, OUTPUT, chrome)
+        render_pdf(html_text, output, chrome)
 
         # A third pass corrects small pagination shifts, if any.
-        page_numbers_2 = locate_pages(OUTPUT, entries)
+        page_numbers_2 = locate_pages(output, entries, content_start)
         if page_numbers_2 and page_numbers_2 != page_numbers:
             toc_html = render_toc(entries, page_numbers_2)
             html_text = build_html(meta, body, toc_html)
-            render_pdf(html_text, OUTPUT, chrome)
+            render_pdf(html_text, output, chrome)
 
-    add_metadata(OUTPUT)
-    print(f"PDF sortuta: {OUTPUT}")
+    add_metadata(output, meta)
+    print(f"PDF sortuta: {output}")
+
+
+def main() -> int:
+    if not CSS_FILE.is_file():
+        print(f"Ez da CSS fitxategia aurkitu: {CSS_FILE}", file=sys.stderr)
+        return 1
+
+    parser = argparse.ArgumentParser(description="Build the Powerbank documentation PDFs.")
+    parser.add_argument(
+        "--only",
+        choices=["full", "medium", "short"],
+        help="Build only one version (default: all).",
+    )
+    args = parser.parse_args()
+
+    chrome = find_chrome()
+    selected = [args.only] if args.only else list(VERSIONS)
+    for name in selected:
+        config = VERSIONS[name]
+        print(f"--- {name} ---")
+        build_one(config["source"], config["output"], chrome)
+
     return 0
 
 
