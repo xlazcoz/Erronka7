@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { Erabiltzaileak } from './erabiltzaileak/erabiltzaileak';
 import { Kargaguneak } from './kargaguneak/kargaguneak';
 import { Powerbanks } from './powerbanks/powerbanks';
 import { Erreserbak } from './erreserbak/erreserbak';
@@ -16,7 +15,8 @@ export const routes: Routes = [
     },
     {
         path: 'erabiltzaileak',
-        component: Erabiltzaileak,
+        loadComponent: () =>
+            import('./erabiltzaileak/erabiltzaileak').then((m) => m.Erabiltzaileak),
         canActivate: [superadminGuard]
     },
     {

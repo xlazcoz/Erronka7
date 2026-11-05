@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
 import {
   HubPaginableTableCellDirective,
   HubTableComponent,
@@ -30,7 +31,7 @@ type ErabiltzaileaTaulan = Erabiltzailea & {
 @Component({
   selector: 'app-taula',
   standalone: true,
-  imports: [CommonModule, FormsModule, HubTableComponent, HubPaginableTableCellDirective],
+  imports: [CommonModule, FormsModule, NgSelectModule, HubTableComponent, HubPaginableTableCellDirective],
   providers: [HubTranslationService],
   templateUrl: './taula.html',
 })
@@ -373,14 +374,22 @@ export class Taula implements OnInit {
         property: 'izena',
         title: 'Izena',
         sortable: true,
+        width: 180,
+        wrapping: 'nowrap',
         filter: { type: 'text', mode: 'row', placeholder: 'Izena...' },
       },
-      { property: 'abizena', title: 'Abizena', sortable: true },
+      {
+        property: 'abizena',
+        title: 'Abizena',
+        sortable: true,
+        width: 200,
+        wrapping: 'nowrap',
+      },
       {
         property: 'login_email',
         title: 'Emaila',
         sortable: true,
-        width: 180,
+        width: 220,
         filter: { type: 'text', mode: 'row', placeholder: 'Emaila...' },
       },
       {
@@ -403,7 +412,7 @@ export class Taula implements OnInit {
         filter: {
           type: 'dropdown',
           mode: 'row',
-          options: filterOptions(udalerriak.map((udalerria) => udalerria.izena)),
+          options: filterOptions(udalerriak.map((u) => u.izena)),
           placeholder: 'Udalerria',
         },
       },

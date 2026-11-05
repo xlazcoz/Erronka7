@@ -1,7 +1,8 @@
 <div class="container py-4">
-  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+  <div class="page-head d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
     <div>
-      <h2 class="section-heading mb-1">Erabiltzaileen kudeaketa</h2>
+      <span class="pb-eyebrow">Kudeaketa</span>
+      <h2 class="section-heading mt-2 mb-1">Erabiltzaileen kudeaketa</h2>
       <p class="text-muted mb-0">
         Erabiltzaileak sortu, datuak aldatu, rolak kudeatu eta ezabatu.
       </p>
@@ -33,19 +34,27 @@
       <div class="row g-3 align-items-end">
         <div class="col-md-4">
           <label for="erabiltzaileaHautatu" class="form-label">Erabiltzailea aukeratu</label>
-          <select
-            class="form-select"
+          <ng-select
+            class="admin-ng-select"
             id="erabiltzaileaHautatu"
+            [items]="users()"
+            bindLabel="izena"
+            bindValue="id"
             [ngModel]="erabiltzaileHautatuaId()"
             (ngModelChange)="erabiltzaileaAukeratu($event)"
+            placeholder="-- Aukeratu erabiltzaile bat --"
+            notFoundText="Ez da erabiltzailerik aurkitu"
+            [clearable]="true"
+            [searchable]="true"
           >
-            <option [ngValue]="null">-- Aukeratu erabiltzaile bat --</option>
-            @for (erabiltzailea of users(); track erabiltzailea.id) {
-              <option [ngValue]="erabiltzailea.id">
-                {{ erabiltzailea.izena }} {{ erabiltzailea.abizena }} — {{ erabiltzailea.login_email }}
-              </option>
-            }
-          </select>
+            <ng-template ng-label-tmp let-item="item">
+              {{ item.izena }} {{ item.abizena }} — {{ item.login_email }}
+            </ng-template>
+            <ng-template ng-option-tmp let-item="item">
+              <span class="d-block fw-semibold">{{ item.izena }} {{ item.abizena }}</span>
+              <small class="pb-muted">{{ item.login_email }}</small>
+            </ng-template>
+          </ng-select>
         </div>
 
         @if (erabiltzaileaHautatua(); as hautatua) {

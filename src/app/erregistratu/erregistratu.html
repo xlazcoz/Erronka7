@@ -1,26 +1,53 @@
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-4">
-            <form (ngSubmit)="erregistratuErab()">
-                @if (errorea) {
-                    <div class="alert alert-danger" role="alert">{{ errorea }}</div>
-                }
-                <div class="mb-3">
-                    <label for="izena" class="form-label">Izena</label>
-                    <input type="text" class="form-control" id="izena" name="izena" [(ngModel)]="register.izena" required>
-                </div>
-                <div class="mb-3">
-                    <label for="emaila" class="form-label">Emaila</label>
-                    <input type="email" class="form-control" id="emaila" name="emaila" [(ngModel)]="register.login_email" required>
-                </div>
-                <div class="mb-3">
-                    <label for="pasahitza" class="form-label">Pasahitza</label>
-                    <input type="password" class="form-control" id="pasahitza" name="pasahitza" [(ngModel)]="register.login_pasahitza" required>
-                </div>
-                <button type="submit" class="btn btn-primary" [disabled]="kargatzen">
-                    {{ kargatzen ? 'Erregistratzen...' : 'Erregistratu' }}
-                </button>
-            </form>
-        </div>
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <span class="auth-panel-icon"><i class="fas fa-user-plus"></i></span>
+      <div>
+        <span class="pb-eyebrow">Administrazio atala</span>
+        <h1 class="h4 fw-bold mb-0">Erregistratu</h1>
+      </div>
     </div>
+
+    <p class="pb-muted small mb-4">
+      Sortu administrazio-kontu berri bat panelera sartzeko.
+    </p>
+
+    <form (ngSubmit)="erregistratuErab()">
+      @if (errorea) {
+        <div class="alert alert-danger" role="alert">{{ errorea }}</div>
+      }
+      <div class="mb-3">
+        <label for="izena" class="form-label">Izena</label>
+        <input type="text" class="form-control" id="izena" name="izena" [(ngModel)]="register.izena" required />
+      </div>
+      <div class="mb-3">
+        <label for="emaila" class="form-label">Emaila</label>
+        <input
+          type="email"
+          class="form-control"
+          id="emaila"
+          name="emaila"
+          [(ngModel)]="register.login_email"
+          placeholder="izena@adibidea.eus"
+          required
+        />
+      </div>
+      <div class="mb-4">
+        <label for="pasahitza" class="form-label">Pasahitza</label>
+        <input
+          type="password"
+          class="form-control"
+          id="pasahitza"
+          name="pasahitza"
+          [(ngModel)]="register.login_pasahitza"
+          placeholder="••••••••"
+          required
+        />
+      </div>
+      <button type="submit" class="btn btn-primary w-100" [disabled]="kargatzen">
+        <i class="fas fa-user-plus me-2"></i>
+        {{ kargatzen ? 'Erregistratzen...' : 'Erregistratu' }}
+      </button>
+    </form>
+  </div>
 </div>

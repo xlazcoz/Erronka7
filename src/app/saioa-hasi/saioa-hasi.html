@@ -1,22 +1,49 @@
-<div class="container mt-5">
-  <div class="row justify-content-center">
-    <div class="col-md-6 col-lg-4">
-      <form (ngSubmit)="saioaHasi()">
-        @if (errorea) {
-          <div class="alert alert-danger" role="alert">{{ errorea }}</div>
-        }
-        <div class="mb-3">
-          <label for="emaila" class="form-label">Emaila</label>
-          <input type="email" class="form-control" id="emaila" name="login_email" [(ngModel)]="login.login_email" required>
-        </div>
-        <div class="mb-3">
-          <label for="pasahitza" class="form-label">Pasahitza</label>
-          <input type="password" class="form-control" id="pasahitza" name="login_pasahitza" [(ngModel)]="login.login_pasahitza" required>
-        </div>
-        <button type="submit" class="btn btn-primary w-100" [disabled]="kargatzen">
-          {{ kargatzen ? 'Saioa hasten...' : 'Saioa hasi' }}
-        </button>
-      </form>
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="d-flex align-items-center gap-3 mb-3">
+      <span class="auth-panel-icon"><i class="fas fa-shield-halved"></i></span>
+      <div>
+        <span class="pb-eyebrow">Administrazio atala</span>
+        <h1 class="h4 fw-bold mb-0">Saioa hasi</h1>
+      </div>
     </div>
+
+    <p class="pb-muted small mb-4">
+      Sartu zure administrazio-kontuarekin kargaguneak, powerbank-ak eta erreserbak kudeatzeko.
+    </p>
+
+    <form (ngSubmit)="saioaHasi()">
+      @if (errorea) {
+        <div class="alert alert-danger" role="alert">{{ errorea }}</div>
+      }
+      <div class="mb-3">
+        <label for="emaila" class="form-label">Emaila</label>
+        <input
+          type="email"
+          class="form-control"
+          id="emaila"
+          name="login_email"
+          [(ngModel)]="login.login_email"
+          placeholder="izena@adibidea.eus"
+          required
+        />
+      </div>
+      <div class="mb-4">
+        <label for="pasahitza" class="form-label">Pasahitza</label>
+        <input
+          type="password"
+          class="form-control"
+          id="pasahitza"
+          name="login_pasahitza"
+          [(ngModel)]="login.login_pasahitza"
+          placeholder="••••••••"
+          required
+        />
+      </div>
+      <button type="submit" class="btn btn-primary w-100" [disabled]="kargatzen">
+        <i class="fas fa-right-to-bracket me-2"></i>
+        {{ kargatzen ? 'Saioa hasten...' : 'Saioa hasi' }}
+      </button>
+    </form>
   </div>
 </div>

@@ -1,7 +1,8 @@
 <div class="container-fluid py-4 px-2 kargagune-container">
-  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+  <div class="page-head d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
     <div>
-      <h2 class="section-heading mb-1">Kargaguneen kudeaketa</h2>
+      <span class="pb-eyebrow">Kudeaketa</span>
+      <h2 class="section-heading mt-2 mb-1">Kargaguneen kudeaketa</h2>
       <p class="text-muted mb-0">
         Kargaguneak sortu, aldatu eta ezabatu, irudiak eguneratu eta karga postuak kudeatu.
       </p>
@@ -131,7 +132,9 @@
         required
       >
         @for (udalerria of udalerriak(); track udalerria.id) {
-          <option [ngValue]="udalerria.id">{{ udalerria.izena }}</option>
+          @if (udalerria.aktiboa) {
+            <option [ngValue]="udalerria.id">{{ udalerria.izena }}</option>
+          }
         }
       </select>
     </div>

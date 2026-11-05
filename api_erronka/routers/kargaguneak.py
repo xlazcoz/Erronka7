@@ -5,13 +5,13 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from database import get_session
 from models.models import Erabiltzailea, Erreserba, KargaPostua, Kargagunea, Powerbank, Udalerria
 from schemas.schemas import KargaguneaCreate, KargaguneaResponse, KargaguneaUpdate, KargaguneaIrudiaUpdate
-from services.auth import can_manage_municipality, require_manager
+from services.auth import can_manage_municipality, get_optional_user, require_manager
 from services.erreserbak import normalize_datetime, now_local
 
 router = APIRouter(prefix="/kargaguneak", tags=["Kargaguneak"])
@@ -20,6 +20,10 @@ UPLOAD_DIR = Path(__file__).resolve().parent.parent / "uploads"
 UPLOAD_DIR.mkdir(exist_ok=True)
 
 SessionDep = Annotated[Session, Depends(get_session)]
+
+
+def _municipality_is_active(station: Kargagunea) -> bool:
+    return station.udalerria is None or station.udalerria.aktiboa
 
 
 def free_powerbanks_query(station_id: int, start: datetime, end: datetime):
@@ -67,17 +71,49 @@ def station_response(session: Session, station: Kargagunea) -> dict:
     }
 
 @router.get("", response_model=list[KargaguneaResponse], status_code=200)
-def get_kargaguneak(session: SessionDep, udalerria_id: int | None = None):
+def get_kargaguneak(
+    session: SessionDep,
+    udalerria_id: int | None = None,
+    include_inactive: bool = False,
+    current_user: Erabiltzailea | None = Depends(get_optional_user),
+):
+    if include_inactive and (
+        current_user is None or current_user.rola not in {"admin", "udalerri_admin"}
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Ez duzu udalerri desaktibatuetako kargaguneak ikusteko baimenik",
+        )
+
     stmt = select(Kargagunea).order_by(Kargagunea.id)
+
+    if not include_inactive:
+        stmt = stmt.outerjoin(
+            Udalerria, Kargagunea.udalerria_id == Udalerria.id
+        ).where(
+            or_(Kargagunea.udalerria_id.is_(None), Udalerria.aktiboa.is_(True))
+        )
+
     if udalerria_id is not None:
         stmt = stmt.where(Kargagunea.udalerria_id == udalerria_id)
+
     return [station_response(session, station) for station in session.scalars(stmt).all()]
 
 @router.get("/{id}", response_model=KargaguneaResponse, status_code=200)
-def get_kargaguneak_id(session: SessionDep, id: int):
+def get_kargaguneak_id(
+    session: SessionDep,
+    id: int,
+    current_user: Erabiltzailea | None = Depends(get_optional_user),
+):
     kargagunea = session.get(Kargagunea, id)
     if kargagunea is None:
         raise HTTPException(status_code=404, detail="Kargagunea ez da aurkitzen")
+
+    if not _municipality_is_active(kargagunea) and (
+        current_user is None or current_user.rola not in {"admin", "udalerri_admin"}
+    ):
+        raise HTTPException(status_code=404, detail="Kargagunea ez da aurkitzen")
+
     return station_response(session, kargagunea)
 
 @router.get("/{id}/erreserbagarritasuna", status_code=200)
@@ -98,7 +134,7 @@ def kargagunearen_erreserbagarritasuna(
     if amaiera - hasiera > timedelta(hours=6):
         raise HTTPException(status_code=400, detail="Erreserbak gehienez 6 ordu iraun dezake")
 
-    if kargagunea.egoera.lower() != "erabilgarri":
+    if kargagunea.egoera.lower() != "erabilgarri" or not _municipality_is_active(kargagunea):
         return {"libres": 0, "erabilgarri": False}
 
     libres = session.scalar(free_powerbanks_query(id, hasiera, amaiera)) or 0
@@ -116,8 +152,14 @@ def sortu_kargagunea(
         if udalerria_id is None:
             raise HTTPException(status_code=403, detail="Ez duzu udalerri bat esleituta")
 
-    if udalerria_id is not None and session.get(Udalerria, udalerria_id) is None:
+    udalerria = session.get(Udalerria, udalerria_id) if udalerria_id is not None else None
+    if udalerria_id is not None and udalerria is None:
         raise HTTPException(status_code=404, detail="Udalerria ez da aurkitzen")
+    if udalerria is not None and not udalerria.aktiboa:
+        raise HTTPException(
+            status_code=409,
+            detail="Udalerria desaktibatuta dago; ezin da kargagunerik sortu",
+        )
 
     kargagunea = Kargagunea(
         izena=data.izena, 
@@ -152,6 +194,17 @@ def aldatu_kargagunea(
     changes = data.model_dump(exclude_unset=True)
     if current_user.rola == "udalerri_admin":
         changes["udalerria_id"] = current_user.udalerria_id
+
+    if "udalerria_id" in changes:
+        udalerria_id = changes["udalerria_id"]
+        udalerria = session.get(Udalerria, udalerria_id) if udalerria_id is not None else None
+        if udalerria_id is not None and udalerria is None:
+            raise HTTPException(status_code=404, detail="Udalerria ez da aurkitzen")
+        if udalerria is not None and not udalerria.aktiboa:
+            raise HTTPException(
+                status_code=409,
+                detail="Udalerria desaktibatuta dago; ezin da kargagunea bertara mugitu",
+            )
 
     for field, value in changes.items():
         setattr(kargagunea, field, value)

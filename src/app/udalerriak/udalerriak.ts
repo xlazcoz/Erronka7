@@ -51,6 +51,8 @@ export class Udalerriak implements OnInit {
       property: 'izena',
       title: 'Izena',
       sortable: true,
+      width: 220,
+      wrapping: 'nowrap',
       filter: { type: 'text', mode: 'row', placeholder: 'Udalerria...' },
     },
     {
@@ -83,7 +85,7 @@ export class Udalerriak implements OnInit {
     this.isLoading.set(true);
     forkJoin({
       udalerriak: this.apiService.getUdalerriak(),
-      kargaguneak: this.apiService.getKargaguneak().pipe(catchError(() => of([]))),
+      kargaguneak: this.apiService.getKargaguneak(undefined, true).pipe(catchError(() => of([]))),
     }).subscribe({
       next: ({ udalerriak, kargaguneak }) => {
         this.udalerriak.set(
@@ -172,6 +174,37 @@ export class Udalerriak implements OnInit {
             testua: udalerria.aktiboa
               ? 'Udalerria desaktibatu da.'
               : 'Udalerria aktibatu da.',
+          });
+          this.kargatu();
+        },
+        error: (err) => {
+          this.erakutsiErrorea(err);
+          this.cdr.detectChanges();
+        },
+      });
+  }
+
+  aldatuAktiboaEditatzen(): void {
+    if (this.editatuId === null) {
+      return;
+    }
+
+    const aktiboa = this.udalerriaEditatzen.aktiboa;
+    if (
+      aktiboa &&
+      !window.confirm(`Ziur zaude "${this.udalerriaEditatzen.izena}" udalerria desaktibatu nahi duzula?`)
+    ) {
+      return;
+    }
+
+    this.apiService
+      .aldatuUdalerria(this.editatuId, { aktiboa: !aktiboa })
+      .subscribe({
+        next: () => {
+          this.udalerriaAldatuDialog()?.nativeElement.close();
+          this.feedback.set({
+            mota: 'ok',
+            testua: aktiboa ? 'Udalerria desaktibatu da.' : 'Udalerria aktibatu da.',
           });
           this.kargatu();
         },
