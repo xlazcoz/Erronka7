@@ -6,6 +6,11 @@
 /admin_atala/out-tsc
 /admin_atala/bazel-out
 
+# Root build artifacts (legacy / local)
+/.angular/
+/dist/
+/node_modules/
+
 # Node
 /admin_atala/node_modules
 npm-debug.log
