@@ -11,7 +11,7 @@ Sistemak bi udalerri (Donostia eta Zarautz), hamar kargagune, karga-postuak, pow
 | Osagaia | Karpeta | Teknologia |
 |---|---|---|
 | Erabiltzailearen web aplikazioa | `web/` | HTML, CSS, JavaScript, Bootstrap, Leaflet |
-| Administrazio-panela | `src/` | Angular 22 |
+| Administrazio-panela | `admin_atala/` | Angular 22 |
 | APIa | `api_erronka/` | FastAPI, SQLAlchemy, Pydantic |
 | Datu-basea | — | PostgreSQL |
 | Taquilla / QR irakurgailua | `web/locker.html` | html5-qrcode, qrcodejs |
@@ -47,6 +47,7 @@ Ireki `web/index.html` (Hasiera) VS Code Live Server-ekin (`http://localhost:550
 ### 5. Administrazio-panela
 
 ```bash
+cd admin_atala
 npm install
 npm start
 ```

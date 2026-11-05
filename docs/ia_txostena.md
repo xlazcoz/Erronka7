@@ -32,7 +32,7 @@ Txostenak sei atal nagusi ditu: erabilitako tresnak eta ereduak, prompt esangura
 
 ## 1.1 Proiektuaren testuingurua
 
-Sistema hiru osagai nagusik osatzen dute: `web/` karpetako HTML/CSS/JavaScript aplikazioak (erabiltzailearen interfazea), `src/` karpetako Angular administrazio-panelak eta `api_erronka/` karpetako FastAPI zerbitzuak, PostgreSQL datu-basearen gainean. Lan honetan erabiltzailearen web aplikazioaren kargaguneen orria hobetu da, baina betiere APIaren datu errealak erabiliz eta lehendik zeuden funtzionalitateak hautsiz gabe.
+Sistema hiru osagai nagusik osatzen dute: `web/` karpetako HTML/CSS/JavaScript aplikazioak (erabiltzailearen interfazea), `admin_atala/` karpetako Angular administrazio-panelak eta `api_erronka/` karpetako FastAPI zerbitzuak, PostgreSQL datu-basearen gainean. Lan honetan erabiltzailearen web aplikazioaren kargaguneen orria hobetu da, baina betiere APIaren datu errealak erabiliz eta lehendik zeuden funtzionalitateak hautsiz gabe.
 
 Helburua ez zen soilik "animazio gehiago" jartzea. Helburua zen mugimenduak **sistema ulertzen laguntzea**: estazio bakoitzak zenbat powerbank dituen erakustea, datuak aldatzen direnean nabaritzea, eta mapan zein zerrendan estazio bera seinalatzea. Horregatik, IAren proposamenak beti negozio-arauen eta datu errealen aurka egiaztatu dira.
 

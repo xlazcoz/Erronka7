@@ -1,13 +1,13 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
 # Compiled output
-/dist
-/tmp
-/out-tsc
-/bazel-out
+/admin_atala/dist
+/admin_atala/tmp
+/admin_atala/out-tsc
+/admin_atala/bazel-out
 
 # Node
-/node_modules
+/admin_atala/node_modules
 npm-debug.log
 yarn-error.log
 
@@ -21,22 +21,22 @@ yarn-error.log
 *.sublime-workspace
 
 # Visual Studio Code
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-!.vscode/mcp.json
+admin_atala/.vscode/*
+!admin_atala/.vscode/settings.json
+!admin_atala/.vscode/tasks.json
+!admin_atala/.vscode/launch.json
+!admin_atala/.vscode/extensions.json
+!admin_atala/.vscode/mcp.json
 .history/*
 
 # Miscellaneous
-/.angular/cache
+/admin_atala/.angular/cache
 .sass-cache/
 /connect.lock
-/coverage
+/admin_atala/coverage
 /libpeerconnection.log
 testem.log
-/typings
+/admin_atala/typings
 __screenshots__/
 
 # System files

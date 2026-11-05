@@ -40,7 +40,7 @@ Dokumentu honen helburua da Powerbank Alokairu Sistemaren funtzionamendua ulertz
 Dokumentuak biltegian dagoen kodea hartzen du oinarri. Honako hauek deskribatzen dira:
 
 - Erabiltzailearen web aplikazioa (`web/`).
-- Administrazio-panela (`src/`, Angular).
+- Administrazio-panela (`admin_atala/`, Angular).
 - APIa (`api_erronka/`, FastAPI).
 - PostgreSQL datu-basea eta haren eredua.
 - QR bidezko taquilla-fluxua.
@@ -101,7 +101,7 @@ Rolak datu-basean `erabiltzaileak.rola` eremuan gordetzen dira. `udalerri_admin`
     </div>
     <div class="arch-box">
       <strong>Administrazio-panela</strong>
-      <span>src/ · Angular 22</span>
+      <span>admin_atala/ · Angular 22</span>
       <span>ng-hub-ui-paginable</span>
     </div>
   </div>
@@ -181,21 +181,26 @@ erronka7/
 │   ├── seed.py                  # Demo datuak
 │   ├── main.py                  # FastAPI aplikazioa
 │   └── pyproject.toml           # Python dependentziak
-├── src/                         # Angular administrazio-panela
-│   └── app/
-│       ├── erabiltzaileak/
-│       ├── kargaguneak/
-│       ├── powerbanks/
-│       ├── erreserbak/
-│       ├── erreserben-taula/
-│       ├── saioa-hasi/
-│       ├── erregistratu/
-│       ├── taula/
-│       ├── desplegable/
-│       ├── services/api.ts
-│       ├── app.routes.ts
-│       ├── app.config.ts
-│       └── app.ts
+├── admin_atala/                 # Angular administrazio-panela
+│   ├── src/
+│   │   └── app/
+│   │       ├── erabiltzaileak/
+│   │       ├── kargaguneak/
+│   │       ├── powerbanks/
+│   │       ├── erreserbak/
+│   │       ├── erreserben-taula/
+│   │       ├── saioa-hasi/
+│   │       ├── erregistratu/
+│   │       ├── taula/
+│   │       ├── desplegable/
+│   │       ├── services/api.ts
+│   │       ├── app.routes.ts
+│   │       ├── app.config.ts
+│   │       └── app.ts
+│   ├── public/
+│   ├── angular.json
+│   ├── package.json
+│   └── tsconfig.json
 ├── web/                         # Erabiltzailearen web estatikoa
 │   ├── index.html               # Hasiera (Home)
 │   ├── Kargaguneak.html         # Estazioak
@@ -229,7 +234,7 @@ erronka7/
 | `web/js/api.js` | APIaren URLaren hautaketa eta eskaeren kudeaketa |
 | `web/js/reservas.js` | Erreserbak, QR sorkuntza eta ezeztapena |
 | `web/js/locker.js` | Taquillako kamera eta QR irakurketa |
-| `src/app/services/api.ts` | Angularretik APIrako deiak |
+| `admin_atala/src/app/services/api.ts` | Angularretik APIrako deiak |
 
 ## 3.3 Konbentzioak
 
@@ -269,7 +274,7 @@ JavaScript moduluak:
 | `puesto.js` | Estazioaren datuak, eskuragarritasuna eta erreserba sortu. |
 | `locker.js` | Taquillaren estazioa gorde, kamera aktibatu eta QR tokena bidali. |
 
-## 4.2 `src/` — Angular administrazio-panela
+## 4.2 `admin_atala/` — Angular administrazio-panela
 
 Angular 22ko aplikazio standalone bat da. Bideak `app.routes.ts` fitxategian daude:
 
@@ -282,7 +287,7 @@ Angular 22ko aplikazio standalone bat da. Bideak `app.routes.ts` fitxategian dau
 | `/saioa-hasi` | `SaioaHasi` | Administrazioaren saioa |
 | `/erregistratu` | `Erregistratu` | Erabiltzaile berria sortu |
 
-`Api` zerbitzuak (`src/app/services/api.ts`) HTTP deiak biltzen ditu. Oharra: `app.config.ts` fitxategiak ez du `provideHttpClient()` deitzen; beraz, Angular aplikazioa abiaraztean `HttpClient` hornitzailea falta badaiteke. Hau etorkizuneko hobekuntzen atalean jasota dago.
+`Api` zerbitzuak (`admin_atala/src/app/services/api.ts`) HTTP deiak biltzen ditu. Oharra: `app.config.ts` fitxategiak ez du `provideHttpClient()` deitzen; beraz, Angular aplikazioa abiaraztean `HttpClient` hornitzailea falta badaiteke. Hau etorkizuneko hobekuntzen atalean jasota dago.
 
 ## 4.3 `api_erronka/` — FastAPI zerbitzua
 
@@ -1033,6 +1038,7 @@ APIa martxan egon behar da. `web/js/api.js` fitxategiak automatikoki hautatzen d
 ## 9.6 Angular panela
 
 ```bash
+cd admin_atala
 npm install
 npm start
 ```
