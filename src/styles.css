@@ -69,6 +69,32 @@
   --hub-sys-state-striped-bg: rgba(148, 163, 184, 0.06);
   --hub-ref-surface-2: #1b2331;
   --hub-ref-color-white: #ffffff;
+
+  /* Puente con ng-select (tema oscuro) */
+  --ng-select-highlight: #3b82f6;
+  --ng-select-primary-text: #f1f5f9;
+  --ng-select-border: rgba(148, 163, 184, 0.22);
+  --ng-select-border-radius: 0.75rem;
+  --ng-select-bg: rgba(15, 23, 42, 0.9);
+  --ng-select-selected: rgba(59, 130, 246, 0.16);
+  --ng-select-selected-text: #ffffff;
+  --ng-select-marked: rgba(59, 130, 246, 0.14);
+  --ng-select-marked-text: #ffffff;
+  --ng-select-box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+  --ng-select-placeholder: #64748b;
+  --ng-select-value-text: #ffffff;
+  --ng-select-dropdown-bg: #0f172a;
+  --ng-select-dropdown-border: var(--pb-border);
+  --ng-select-dropdown-option-bg: #0f172a;
+  --ng-select-dropdown-option-text: #f1f5f9;
+  --ng-select-input-text: #ffffff;
+  --ng-select-arrow: #94a3b8;
+  --ng-select-arrow-hover: #ffffff;
+  --ng-select-arrow-active: #ffffff;
+  --ng-select-clear: #94a3b8;
+  --ng-select-clear-hover: #ef4444;
+  --ng-select-height: 46px;
+  --ng-select-dropdown-shadow: var(--pb-shadow);
 }
 
 * {
@@ -519,6 +545,30 @@ app-root {
 .kargagune-dialog .form-check-input:focus {
   border-color: var(--pb-primary);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+}
+
+/* ---------- ng-select ---------- */
+
+.admin-ng-select {
+  display: block;
+  width: 100%;
+  font-family: inherit;
+}
+
+.admin-ng-select .ng-select-container {
+  font-size: 0.95rem;
+}
+
+.admin-ng-select .ng-value-label {
+  color: var(--pb-text);
+}
+
+.admin-ng-select .ng-dropdown-panel .ng-option-label {
+  font-size: 0.92rem;
+}
+
+.admin-ng-select .ng-dropdown-panel .ng-option small {
+  font-size: 0.75rem;
 }
 
 /* ---------- Botones ---------- */

@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
 import {
   HubPaginableTableCellDirective,
   HubTableComponent,
@@ -30,7 +31,7 @@ type ErabiltzaileaTaulan = Erabiltzailea & {
 @Component({
   selector: 'app-taula',
   standalone: true,
-  imports: [CommonModule, FormsModule, HubTableComponent, HubPaginableTableCellDirective],
+  imports: [CommonModule, FormsModule, NgSelectModule, HubTableComponent, HubPaginableTableCellDirective],
   providers: [HubTranslationService],
   templateUrl: './taula.html',
 })
