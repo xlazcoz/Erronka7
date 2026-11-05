@@ -1,54 +1,56 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="eu">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Powerbank · Estaciones</title>
+  <meta name="description" content="Powerbank alokairu sistema: kargaguneak, erreserbak eta QR bidezko jasotzea.">
+  <title>Powerbank · Hasiera</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/lista.css">
+  <link rel="stylesheet" href="css/base.css?v=14">
+  <link rel="stylesheet" href="css/lista.css?v=5">
   <link rel="stylesheet" href="css/dialogos.css">
+  <script src="js/movimiento.js"></script>
 </head>
 
 <body class="pb-page d-flex flex-column min-vh-100">
   <header class="pb-header">
-    <nav class="navbar navbar-expand-lg navbar-dark pb-navbar">
+    <nav class="navbar navbar-expand-md navbar-dark pb-navbar">
       <div class="container">
         <a class="pb-brand" href="index.html">
           <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
           <span class="pb-brand-text">
             <span class="pb-brand-name">POWERBANK</span>
-            <span class="pb-brand-tagline">Energía bajo demanda</span>
+            <span class="pb-brand-tagline">Energia behar duzunean</span>
           </span>
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
-          aria-controls="navbarMain" aria-expanded="false" aria-label="Abrir menú">
+          aria-controls="navbarMain" aria-expanded="false" aria-label="Ireki menua">
           <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarMain">
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-1 pb-nav-pill">
-            <li class="nav-item"><a class="nav-link active" href="index.html"><i class="fas fa-location-dot"></i>Estaciones</a></li>
-            <li class="nav-item"><a class="nav-link" href="Erreserbak.html"><i class="fas fa-calendar-check"></i>Reservas</a></li>
-            <li class="nav-item"><a class="nav-link" href="Erabiltzailea.html"><i class="fas fa-user"></i>Mi cuenta</a></li>
+            <li class="nav-item"><a class="nav-link active" href="index.html"><i class="fas fa-house"></i>Hasiera</a></li>
+            <li class="nav-item"><a class="nav-link" href="Kargaguneak.html"><i class="fas fa-location-dot"></i>Kargaguneak</a></li>
+            <li class="nav-item" data-auth-only hidden><a class="nav-link" href="Erreserbak.html"><i class="fas fa-calendar-check"></i>Erreserbak</a></li>
+            <li class="nav-item" data-auth-only hidden><a class="nav-link" href="Erabiltzailea.html"><i class="fas fa-user"></i>Nire kontua</a></li>
           </ul>
           <div class="pb-nav-actions">
             <a class="btn btn-primary pb-qr-quick d-none" id="qrQuickButton" href="Erreserbak.html">
-              <i class="fas fa-qrcode me-2"></i><span>Usar QR</span>
+              <i class="fas fa-qrcode me-2"></i><span>Erabili QR</span>
             </a>
-            <a class="btn btn-outline-primary px-3" href="Login.html" id="btnCuenta">Iniciar sesión</a>
+            <a class="btn btn-outline-primary px-3" href="Login.html" id="btnCuenta">Hasi saioa</a>
           </div>
         </div>
       </div>
     </nav>
     <script src="js/api.js"></script>
     <script src="js/dialogos.js"></script>
-    <script src="js/auth.js"></script>
+    <script src="js/auth.js?v=6"></script>
   </header>
 
   <main class="container my-4 my-lg-5 flex-grow-1">
@@ -60,192 +62,87 @@
       <div class="row align-items-center g-4 position-relative">
         <div class="col-lg-7">
           <span class="pb-eyebrow hero-eyebrow">
-            <span class="hero-live-dot" aria-hidden="true"></span>Red de carga en vivo
+            <span class="hero-live-dot" aria-hidden="true"></span>Karga-sarea zuzenean
           </span>
           <h1 class="display-4 fw-bold mt-3 mb-3 hero-title">
-            Encuentra tu <span class="hero-highlight">estación</span>
+            Aurkitu zure <span class="hero-highlight">kargagunea</span>
           </h1>
           <p class="pb-muted hero-subtitle mb-4">
-            Consulta la disponibilidad en tiempo real, explora el mapa y reserva tu powerbank en segundos.
+            Egiaztatu erabilgarritasuna denbora errealean, arakatu mapa eta erreserbatu zure powerbank segundo batzuetan.
           </p>
           <div class="hero-actions">
-            <a class="btn btn-primary px-4 py-2" href="#stationsList">
-              <i class="fas fa-bolt me-2"></i>Ver estaciones
-            </a>
-            <a class="btn btn-outline-primary px-4 py-2" href="Erabiltzailea.html">
-              <i class="fas fa-calendar-check me-2"></i>Mis reservas
+            <a class="btn btn-primary px-4 py-2" href="Kargaguneak.html#stationsList">
+              <i class="fas fa-calendar-plus me-2"></i>Erreserbatu orain
             </a>
           </div>
         </div>
 
         <div class="col-lg-5">
-          <div class="hero-metrics" aria-label="Resumen de la red">
+          <div class="hero-metrics" aria-label="Sarearen laburpena">
             <div class="hero-metric">
               <span class="hero-metric-value" data-stat="stations">0</span>
-              <span class="hero-metric-label">Estaciones</span>
+              <span class="hero-metric-label">Kargaguneak</span>
             </div>
             <div class="hero-metric">
               <span class="hero-metric-value" data-stat="powerbanks">0</span>
-              <span class="hero-metric-label">Powerbanks libres</span>
+              <span class="hero-metric-label">Powerbank libreak</span>
             </div>
             <div class="hero-metric">
               <span class="hero-metric-value" data-stat="municipalities">0</span>
-              <span class="hero-metric-label">Municipios</span>
+              <span class="hero-metric-label">Udalerriak</span>
             </div>
             <div class="hero-metric">
               <span class="hero-metric-value" data-stat="online">0%</span>
-              <span class="hero-metric-label">Red operativa</span>
+              <span class="hero-metric-label">Sare operatiboa</span>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="pb-card map-card p-3 p-lg-4 mb-4 reveal" aria-labelledby="mapTitle">
-      <div class="map-card-head">
-        <div>
-          <span class="pb-eyebrow"><i class="fas fa-satellite-dish me-1"></i>Mapa interactivo</span>
-          <h2 class="h4 fw-bold mt-1 mb-1" id="mapTitle">Estaciones en el mapa</h2>
-          <p class="pb-muted small mb-0">Explora la red y abre cada marcador para reservar.</p>
+    <section class="pb-card p-4 p-lg-5" aria-labelledby="nolaTitle">
+      <span class="pb-eyebrow">Nola funtzionatzen duen</span>
+      <h2 class="h4 fw-bold mt-1 mb-4" id="nolaTitle">Hiru urrats besterik ez</h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="station-icon mb-3"><i class="fas fa-location-dot" aria-hidden="true"></i></div>
+          <h3 class="h6 fw-bold">1. Aukeratu kargagunea</h3>
+          <p class="pb-muted small mb-0">Ikusi mapan zein kargagune dagoen erabilgarri eta sartu bertan.</p>
         </div>
-        <select class="form-select municipality-select" id="municipalityFilter"
-          aria-label="Filtrar estaciones por municipio">
-          <option value="">Todos los municipios</option>
-        </select>
-      </div>
-      <div id="map" class="station-map" role="application" aria-label="Mapa de estaciones de carga"></div>
-      <div id="mapEmpty" class="pb-empty mt-3 d-none">
-        <i class="fas fa-map-location-dot"></i>
-        <p class="mb-0">No hay estaciones con ubicación registrada.</p>
-      </div>
-    </section>
-
-    <section class="stations-section" id="stationsList" aria-labelledby="stationsTitle">
-      <div class="stations-heading reveal">
-        <div>
-          <span class="pb-eyebrow">Listado</span>
-          <h2 class="h3 fw-bold mt-1 mb-1" id="stationsTitle">Estaciones de la red</h2>
-          <p class="pb-muted small mb-0" id="stationsCount">Cargando estaciones…</p>
+        <div class="col-md-4">
+          <div class="station-icon mb-3"><i class="fas fa-calendar-check" aria-hidden="true"></i></div>
+          <h3 class="h6 fw-bold">2. Erreserbatu segundo batzuetan</h3>
+          <p class="pb-muted small mb-0">Ordua hautatu eta berretsi; gainerakoa guk egiten dugu.</p>
         </div>
-        <button type="button" class="btn btn-outline-secondary btn-sm btn-refresh" id="btnRefresh">
-          <i class="fas fa-rotate me-2"></i>Actualizar
-        </button>
-      </div>
-
-      <div class="stations-toolbar pb-card reveal">
-        <div class="station-search">
-          <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
-          <input type="search" class="form-control" id="stationSearch"
-            placeholder="Buscar por nombre, dirección o municipio…" aria-label="Buscar estaciones" autocomplete="off">
-        </div>
-
-        <button type="button" class="btn filter-toggle" id="onlyAvailable" aria-pressed="false">
-          <span class="filter-toggle-dot" aria-hidden="true"></span>
-          <span>Solo disponibles</span>
-        </button>
-
-        <select class="form-select station-sort" id="stationSort" aria-label="Ordenar estaciones">
-          <option value="recomendado">Recomendado</option>
-          <option value="disponibilidad">Más disponibilidad</option>
-          <option value="nombre">Nombre (A-Z)</option>
-        </select>
-      </div>
-
-      <div class="stations-grid" id="lista">
-        <div class="station-skeleton pb-card">
-          <div class="pb-skeleton w-50 mb-3"></div>
-          <div class="pb-skeleton w-75 mb-2"></div>
-          <div class="pb-skeleton w-25 mb-4"></div>
-          <div class="pb-skeleton w-100"></div>
-        </div>
-        <div class="station-skeleton pb-card">
-          <div class="pb-skeleton w-50 mb-3"></div>
-          <div class="pb-skeleton w-75 mb-2"></div>
-          <div class="pb-skeleton w-25 mb-4"></div>
-          <div class="pb-skeleton w-100"></div>
-        </div>
-        <div class="station-skeleton pb-card">
-          <div class="pb-skeleton w-50 mb-3"></div>
-          <div class="pb-skeleton w-75 mb-2"></div>
-          <div class="pb-skeleton w-25 mb-4"></div>
-          <div class="pb-skeleton w-100"></div>
-        </div>
-        <div class="station-skeleton pb-card">
-          <div class="pb-skeleton w-50 mb-3"></div>
-          <div class="pb-skeleton w-75 mb-2"></div>
-          <div class="pb-skeleton w-25 mb-4"></div>
-          <div class="pb-skeleton w-100"></div>
+        <div class="col-md-4">
+          <div class="station-icon mb-3"><i class="fas fa-qrcode" aria-hidden="true"></i></div>
+          <h3 class="h6 fw-bold">3. Jaso QRarekin</h3>
+          <p class="pb-muted small mb-0">Erakutsi QR kodea taquillan eta hartu zure powerbanka.</p>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="pb-footer">
-    <div class="pb-shell pb-footer-main">
-      <div class="row g-4">
-        <div class="col-lg-4">
-          <a class="pb-brand pb-footer-brand" href="index.html">
-            <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
-            <span class="pb-brand-text">
-              <span class="pb-brand-name">POWERBANK</span>
-              <span class="pb-brand-tagline">Energía bajo demanda</span>
-            </span>
-          </a>
-          <p class="pb-footer-text">
-            Powerbanks para tus dispositivos, disponibles en Donostia y Zarautz.
-            Reserva en segundos y recoge cuando la necesites.
-          </p>
-          <div class="pb-socials">
-            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-            <a href="#" aria-label="X"><i class="fab fa-x-twitter"></i></a>
-            <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
-          </div>
-        </div>
-
-        <div class="col-6 col-lg-2">
-          <h3 class="pb-footer-title">Explora</h3>
-          <ul class="pb-footer-links">
-            <li><a href="index.html">Estaciones</a></li>
-            <li><a href="Erreserbak.html">Mis reservas</a></li>
-            <li><a href="Erabiltzailea.html">Mi cuenta</a></li>
-          </ul>
-        </div>
-
-        <div class="col-6 col-lg-3">
-          <h3 class="pb-footer-title">Ayuda</h3>
-          <ul class="pb-footer-links">
-            <li><a href="#">Preguntas frecuentes</a></li>
-            <li><a href="#">Contacto</a></li>
-            <li><a href="#">Términos y privacidad</a></li>
-          </ul>
-        </div>
-
-        <div class="col-lg-3">
-          <h3 class="pb-footer-title">Contacto</h3>
-          <ul class="pb-footer-contact">
-            <li><i class="fas fa-envelope"></i> hola@powerbank.eus</li>
-            <li><i class="fas fa-phone"></i> +34 943 00 00 00</li>
-            <li><i class="fas fa-location-dot"></i> Donostia · Zarautz</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="pb-footer-bottom">
-      <div class="pb-shell d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
-        <span>© 2026 Powerbank Inc. Todos los derechos reservados.</span>
-        <div class="d-flex gap-3">
-          <a href="#">Privacidad</a>
-          <a href="#">Cookies</a>
-          <a href="#">Aviso legal</a>
-        </div>
+  <footer class="pb-footer pb-footer-compact">
+    <div class="pb-shell pb-footer-line">
+      <a class="pb-brand pb-footer-brand" href="index.html">
+        <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
+        <span class="pb-brand-name">POWERBANK</span>
+      </a>
+      <nav class="pb-footer-compact-links" aria-label="Laguntza eta kontaktua">
+        <a href="#">Laguntza</a>
+        <a href="mailto:hola@powerbank.eus">Kontaktua</a>
+      </nav>
+      <div class="pb-socials">
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="X"><i class="fab fa-x-twitter"></i></a>
+        <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
       </div>
     </div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="js/index.js"></script>
+  <script src="js/home.js?v=1"></script>
 </body>
 
 </html>

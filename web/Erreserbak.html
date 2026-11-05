@@ -1,141 +1,81 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="eu">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Powerbank · Mis reservas</title>
+  <title>Powerbank · Nire erreserbak</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/reservas.css">
+  <link rel="stylesheet" href="css/base.css?v=14">
+  <link rel="stylesheet" href="css/reservas.css?v=6">
   <link rel="stylesheet" href="css/dialogos.css">
+  <script src="js/movimiento.js"></script>
 </head>
 
 <body class="pb-page d-flex flex-column min-vh-100">
   <header class="pb-header">
-    <nav class="navbar navbar-expand-lg navbar-dark pb-navbar">
+    <nav class="navbar navbar-expand-md navbar-dark pb-navbar">
       <div class="container">
         <a class="pb-brand" href="index.html">
           <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
           <span class="pb-brand-text">
             <span class="pb-brand-name">POWERBANK</span>
-            <span class="pb-brand-tagline">Energía bajo demanda</span>
+            <span class="pb-brand-tagline">Energia behar duzunean</span>
           </span>
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
-          aria-controls="navbarMain" aria-expanded="false" aria-label="Abrir menú">
+          aria-controls="navbarMain" aria-expanded="false" aria-label="Ireki menua">
           <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarMain">
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-1 pb-nav-pill">
-            <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-location-dot"></i>Estaciones</a></li>
-            <li class="nav-item"><a class="nav-link active" href="Erreserbak.html"><i class="fas fa-calendar-check"></i>Reservas</a></li>
-            <li class="nav-item"><a class="nav-link" href="Erabiltzailea.html"><i class="fas fa-user"></i>Mi cuenta</a></li>
+                        <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-house"></i>Hasiera</a></li>
+            <li class="nav-item"><a class="nav-link" href="Kargaguneak.html"><i class="fas fa-location-dot"></i>Kargaguneak</a></li>
+            <li class="nav-item" data-auth-only hidden><a class="nav-link active" href="Erreserbak.html"><i class="fas fa-calendar-check"></i>Erreserbak</a></li>
+            <li class="nav-item" data-auth-only hidden><a class="nav-link" href="Erabiltzailea.html"><i class="fas fa-user"></i>Nire kontua</a></li>
           </ul>
           <div class="pb-nav-actions">
             <a class="btn btn-primary pb-qr-quick d-none" id="qrQuickButton" href="Erreserbak.html">
-              <i class="fas fa-qrcode me-2"></i><span>Usar QR</span>
+              <i class="fas fa-qrcode me-2"></i><span>Erabili QR</span>
             </a>
-            <a class="btn btn-outline-primary px-3" href="Login.html" id="btnCuenta">Iniciar sesión</a>
+            <a class="btn btn-outline-primary px-3" href="Login.html" id="btnCuenta">Hasi saioa</a>
           </div>
         </div>
       </div>
     </nav>
     <script src="js/api.js"></script>
     <script src="js/dialogos.js"></script>
-    <script src="js/auth.js"></script>
+    <script src="js/auth.js?v=6"></script>
   </header>
 
   <main class="flex-grow-1 py-4 py-lg-5">
     <div class="pb-shell">
 
-      <section class="reservations-hero pb-card mb-4" aria-labelledby="reservationsTitle">
-        <div class="hero-orb hero-orb-1" aria-hidden="true"></div>
-        <div class="hero-orb hero-orb-2" aria-hidden="true"></div>
-        <div class="hero-grid" aria-hidden="true"></div>
+      <section class="pb-card reservations-panel p-3 p-lg-4" aria-label="Nire erreserbak">
+        <div id="reservaProxima" class="mb-3"></div>
 
-        <div class="row align-items-center g-4 position-relative">
-          <div class="col-lg-6">
-            <span class="pb-eyebrow hero-eyebrow">
-              <span class="hero-live-dot" aria-hidden="true"></span>Tu actividad
-            </span>
-            <h1 class="display-6 fw-bold mt-3 mb-2 hero-title" id="reservationsTitle">Mis reservas</h1>
-            <p class="pb-muted hero-text mb-4">
-              Consulta tus reservas, abre el QR de recogida, devuelve la powerbank o cancela antes de que empiece.
-            </p>
-            <div class="hero-actions">
-              <a class="btn btn-primary btn-new-reservation px-4 py-2" href="index.html">
-                <i class="fas fa-plus"></i><span>Nueva reserva</span>
-              </a>
-              <a class="btn btn-outline-primary px-4 py-2" href="Erabiltzailea.html">
-                <i class="fas fa-user"></i><span>Mi cuenta</span>
-              </a>
-            </div>
+        <div class="reservation-toolbar">
+          <div class="reservation-filters" role="group" aria-label="Iragazi erreserbak">
+            <button type="button" class="filter-btn is-active" data-reservation-filter="all">
+              Guztiak <span class="filter-count" id="countAll">0</span>
+            </button>
+            <button type="button" class="filter-btn" data-reservation-filter="active">
+              Aktiboak <span class="filter-count" id="countActive">0</span>
+            </button>
+            <button type="button" class="filter-btn" data-reservation-filter="finished">
+              Amaituta <span class="filter-count" id="countFinished">0</span>
+            </button>
+            <button type="button" class="filter-btn" data-reservation-filter="cancelled">
+              Ezeztatuta <span class="filter-count" id="countCancelled">0</span>
+            </button>
           </div>
 
-          <div class="col-lg-6">
-            <div class="reservation-stats" aria-label="Resumen de tus reservas">
-              <article class="stat-card stat-card-total">
-                <span class="stat-icon"><i class="fas fa-layer-group"></i></span>
-                <span class="stat-body">
-                  <span class="stat-value" id="statTotal">0</span>
-                  <span class="stat-label">Totales</span>
-                </span>
-              </article>
-              <article class="stat-card stat-card-active">
-                <span class="stat-icon"><i class="fas fa-bolt"></i></span>
-                <span class="stat-body">
-                  <span class="stat-value" id="statActive">0</span>
-                  <span class="stat-label">Activas</span>
-                </span>
-              </article>
-              <article class="stat-card stat-card-success">
-                <span class="stat-icon"><i class="fas fa-circle-check"></i></span>
-                <span class="stat-body">
-                  <span class="stat-value" id="statFinished">0</span>
-                  <span class="stat-label">Finalizadas</span>
-                </span>
-              </article>
-              <article class="stat-card stat-card-muted">
-                <span class="stat-icon"><i class="fas fa-ban"></i></span>
-                <span class="stat-body">
-                  <span class="stat-value" id="statCancelled">0</span>
-                  <span class="stat-label">Canceladas</span>
-                </span>
-              </article>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="pb-card reservations-panel p-4 p-lg-5" aria-labelledby="reservationsListTitle">
-        <div class="panel-head">
-          <div>
-            <span class="pb-eyebrow">Panel de actividad</span>
-            <h2 class="h4 fw-bold mt-1 mb-1" id="reservationsListTitle">Historial y reservas activas</h2>
-            <p class="pb-muted small mb-0">Solo puedes cancelar reservas que aún no han comenzado.</p>
-          </div>
           <button type="button" class="btn btn-outline-secondary btn-sm btn-refresh" id="btnRefrescarReservas">
-            <i class="fas fa-rotate"></i><span>Actualizar</span>
-          </button>
-        </div>
-
-        <div class="reservation-filters" role="group" aria-label="Filtrar reservas">
-          <button type="button" class="filter-btn is-active" data-reservation-filter="all">
-            Todas <span class="filter-count" id="countAll">0</span>
-          </button>
-          <button type="button" class="filter-btn" data-reservation-filter="active">
-            Activas <span class="filter-count" id="countActive">0</span>
-          </button>
-          <button type="button" class="filter-btn" data-reservation-filter="finished">
-            Finalizadas <span class="filter-count" id="countFinished">0</span>
-          </button>
-          <button type="button" class="filter-btn" data-reservation-filter="cancelled">
-            Canceladas <span class="filter-count" id="countCancelled">0</span>
+            <i class="fas fa-rotate"></i><span>Eguneratu</span>
           </button>
         </div>
 
@@ -159,23 +99,26 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content qr-modal-content">
         <div class="modal-header border-secondary border-opacity-25">
-          <h5 class="modal-title" id="qrModalTitle">QR de la reserva</h5>
+          <h5 class="modal-title" id="qrModalTitle">Erreserbaren QR kodea</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-            aria-label="Cerrar"></button>
+            aria-label="Itxi"></button>
         </div>
         <div class="modal-body text-center">
+          <p class="small text-success mb-2 d-none" id="qrSuccess">
+            <i class="fas fa-circle-check me-1"></i>Erreserba berretsita. Erakutsi QR hau taquillan.
+          </p>
           <div id="qrCode" class="qr-box d-inline-flex align-items-center justify-content-center"></div>
           <p class="pb-muted small mt-3 mb-0" id="qrInfo"></p>
           <p class="pb-muted small mt-2 mb-0" id="qrToken"></p>
           <p class="pb-muted small mt-2 mb-0">
-            Guarda este QR. Lo escanearás en la taquilla para recoger y devolver la powerbank.
+            Gorde QR hau. Taquillan eskaneatuko duzu powerbanka jaso eta itzultzeko.
           </p>
           <div class="qr-actions mt-3 d-flex flex-wrap gap-2 justify-content-center">
-            <button type="button" class="btn btn-primary btn-sm" id="qrDownload">
-              <i class="fas fa-download me-2"></i>Descargar PNG
+            <button type="button" class="btn btn-qr btn-sm" id="qrDownload">
+              <i class="fas fa-download me-2"></i>Deskargatu PNG
             </button>
             <button type="button" class="btn btn-outline-secondary btn-sm" id="qrPrint">
-              <i class="fas fa-print me-2"></i>Imprimir
+              <i class="fas fa-print me-2"></i>Inprimatu
             </button>
           </div>
         </div>
@@ -183,72 +126,69 @@
     </div>
   </div>
 
-  <footer class="pb-footer">
-    <div class="pb-shell pb-footer-main">
-      <div class="row g-4">
-        <div class="col-lg-4">
-          <a class="pb-brand pb-footer-brand" href="index.html">
-            <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
-            <span class="pb-brand-text">
-              <span class="pb-brand-name">POWERBANK</span>
-              <span class="pb-brand-tagline">Energía bajo demanda</span>
-            </span>
-          </a>
-          <p class="pb-footer-text">
-            Powerbanks para tus dispositivos, disponibles en Donostia y Zarautz.
-            Reserva en segundos y recoge cuando la necesites.
-          </p>
-          <div class="pb-socials">
-            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-            <a href="#" aria-label="X"><i class="fab fa-x-twitter"></i></a>
-            <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
-          </div>
+  <div class="modal fade" id="modifyModal" tabindex="-1" aria-labelledby="modifyModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content qr-modal-content">
+        <div class="modal-header border-secondary border-opacity-25">
+          <h5 class="modal-title" id="modifyModalTitle">Aldatu erreserba</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+            aria-label="Itxi"></button>
         </div>
+        <div class="modal-body">
+          <div id="modifyFeedback" class="pb-feedback mb-3" role="alert" aria-live="polite"></div>
+          <form id="modifyForm" novalidate>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="modifyStartDate">Jasotzeko data</label>
+                <input type="date" class="form-control" id="modifyStartDate" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="modifyStartTime">Jasotzeko ordua</label>
+                <input type="time" class="form-control" id="modifyStartTime" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="modifyEndDate">Itzultzeko data</label>
+                <input type="date" class="form-control" id="modifyEndDate" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="modifyEndTime">Itzultzeko ordua</label>
+                <input type="time" class="form-control" id="modifyEndTime" required>
+              </div>
+            </div>
 
-        <div class="col-6 col-lg-2">
-          <h3 class="pb-footer-title">Explora</h3>
-          <ul class="pb-footer-links">
-            <li><a href="index.html">Estaciones</a></li>
-            <li><a href="Erreserbak.html">Mis reservas</a></li>
-            <li><a href="Erabiltzailea.html">Mi cuenta</a></li>
-          </ul>
-        </div>
-
-        <div class="col-6 col-lg-3">
-          <h3 class="pb-footer-title">Ayuda</h3>
-          <ul class="pb-footer-links">
-            <li><a href="#">Preguntas frecuentes</a></li>
-            <li><a href="#">Contacto</a></li>
-            <li><a href="#">Términos y privacidad</a></li>
-          </ul>
-        </div>
-
-        <div class="col-lg-3">
-          <h3 class="pb-footer-title">Contacto</h3>
-          <ul class="pb-footer-contact">
-            <li><i class="fas fa-envelope"></i> hola@powerbank.eus</li>
-            <li><i class="fas fa-phone"></i> +34 943 00 00 00</li>
-            <li><i class="fas fa-location-dot"></i> Donostia · Zarautz</li>
-          </ul>
+            <div class="d-grid mt-4">
+              <button type="submit" class="btn btn-primary py-3" id="modifySubmit">
+                <span class="btn-label">Gorde aldaketak</span>
+                <span class="pb-spinner d-none ms-2" aria-hidden="true"></span>
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="pb-footer-bottom">
-      <div class="pb-shell d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
-        <span>© 2026 Powerbank Inc. Todos los derechos reservados.</span>
-        <div class="d-flex gap-3">
-          <a href="#">Privacidad</a>
-          <a href="#">Cookies</a>
-          <a href="#">Aviso legal</a>
-        </div>
+    <footer class="pb-footer pb-footer-compact">
+    <div class="pb-shell pb-footer-line">
+      <a class="pb-brand pb-footer-brand" href="index.html">
+        <span class="pb-brand-mark"><i class="fas fa-bolt"></i></span>
+        <span class="pb-brand-name">POWERBANK</span>
+      </a>
+      <nav class="pb-footer-compact-links" aria-label="Laguntza eta kontaktua">
+        <a href="#">Laguntza</a>
+        <a href="mailto:hola@powerbank.eus">Kontaktua</a>
+      </nav>
+      <div class="pb-socials">
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" aria-label="X"><i class="fab fa-x-twitter"></i></a>
+        <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
       </div>
     </div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="js/reservas.js"></script>
+  <script src="js/reservas.js?v=6"></script>
 </body>
 
 </html>

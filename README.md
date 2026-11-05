@@ -42,7 +42,7 @@ uv run python seed.py
 
 ### 4. Web aplikazioa
 
-Ireki `web/index.html` VS Code Live Server-ekin (`http://localhost:5500`). APIa martxan egon behar da.
+Ireki `web/index.html` (Hasiera) VS Code Live Server-ekin (`http://localhost:5500`). Estazioak `web/Kargaguneak.html` orrian daude. APIa martxan egon behar da.
 
 ### 5. Administrazio-panela
 
@@ -69,7 +69,7 @@ Angular aplikazioa `http://localhost:4200` helbidean egongo da.
 - Gehienez 6 ordu aurretik egin daiteke erreserba.
 - Iraupena: gutxienez 15 minutu, gehienez 6 ordu.
 - Erabiltzaile bakoitzak erreserba aktibo bakarra izan dezake.
-- Erreserba hasi aurretik soilik ezeztatu daiteke.
+- Erreserbak powerbanka jaso aurretik ezeztatu daitezke, baita hasiera-ordua igaro ondoren ere.
 - Atzerapena: 5 € hasitako ordu bakoitzeko.
 
 ## Dokumentazioa
@@ -78,6 +78,7 @@ Dokumentazio teknikoa PDF formatuan:
 
 - [`docs/Powerbank_Dokumentazio_Teknikoa.pdf`](docs/Powerbank_Dokumentazio_Teknikoa.pdf)
 - Iturria: [`docs/dokumentazioa.md`](docs/dokumentazioa.md)
+- IAren erabileraren txostena: [`docs/IA_Erabileraren_Txostena.pdf`](docs/IA_Erabileraren_Txostena.pdf)
 - Hirugarrenen baliabideak: [`docs/THIRD_PARTY_NOTICES.md`](docs/THIRD_PARTY_NOTICES.md)
 
 ## Lizentzia

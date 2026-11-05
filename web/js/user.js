@@ -18,8 +18,8 @@ async function cargarPerfil() {
       window.location.href = "Login.html?next=Erabiltzailea.html";
       return;
     }
-    await mostrarDialogo(`No se pudo cargar el perfil: ${error.message}`, {
-      title: "Error al cargar el perfil",
+    await mostrarDialogo(`Ezin izan da profila kargatu: ${error.message}`, {
+      title: "Errorea profila kargatzean",
       type: "error",
     });
   }
@@ -27,14 +27,14 @@ async function cargarPerfil() {
 
 function renderizarPerfil() {
   const nombreCompleto = `${usuarioActual.izena || ""} ${usuarioActual.abizena || ""}`.trim();
-  document.getElementById("izena").textContent = nombreCompleto || "Mi cuenta";
+  document.getElementById("izena").textContent = nombreCompleto || "Nire kontua";
   document.getElementById("profileEmail").textContent = usuarioActual.login_email || "";
   document.getElementById("profileRole").textContent =
     usuarioActual.rola === "admin"
-      ? "Administrador general"
+      ? "Administratzaile orokorra"
       : usuarioActual.rola === "udalerri_admin"
-        ? `Administrador municipal${usuarioActual.udalerria_izena ? ` · ${usuarioActual.udalerria_izena}` : ""}`
-        : "Usuario";
+        ? `Udalerri-administratzailea${usuarioActual.udalerria_izena ? ` · ${usuarioActual.udalerria_izena}` : ""}`
+        : "Erabiltzailea";
 
   const initials = `${usuarioActual.izena || ""} ${usuarioActual.abizena || ""}`
     .trim()
@@ -43,7 +43,7 @@ function renderizarPerfil() {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join("");
-  document.getElementById("profileAvatar").textContent = initials || "U";
+  document.getElementById("profileAvatar").textContent = initials || "E";
 
   document.getElementById("nombreform").value = usuarioActual.izena || "";
   document.getElementById("apellidoform").value = usuarioActual.abizena || "";
@@ -76,11 +76,11 @@ async function cambios(event) {
   const email = document.getElementById("emailform").value.trim();
 
   if (nombre.length < 2) {
-    showFeedback("profileFeedback", "El nombre debe tener al menos 2 caracteres.");
+    showFeedback("profileFeedback", "Izenak gutxienez 2 karaktere izan behar ditu.");
     return;
   }
   if (!EMAIL_REGEX.test(email)) {
-    showFeedback("profileFeedback", "El correo no tiene un formato válido.");
+    showFeedback("profileFeedback", "Helbide elektronikoak ez du formatu baliozkoa.");
     return;
   }
 
@@ -97,9 +97,9 @@ async function cambios(event) {
       },
     });
     renderizarPerfil();
-    showFeedback("profileFeedback", "Perfil actualizado correctamente.", "success");
+    showFeedback("profileFeedback", "Profila behar bezala eguneratu da.", "success");
   } catch (error) {
-    showFeedback("profileFeedback", `No se pudieron guardar los cambios: ${error.message}`);
+    showFeedback("profileFeedback", `Ezin izan dira aldaketak gorde: ${error.message}`);
   } finally {
     setLoading(button, false);
   }
@@ -114,15 +114,15 @@ async function cambiarPassword(event) {
   const repeatNewPassword = document.getElementById("repeatNewPassword").value;
 
   if (!currentPassword) {
-    showFeedback("securityFeedback", "Escribe tu contraseña actual.");
+    showFeedback("securityFeedback", "Idatzi oraingo pasahitza.");
     return;
   }
   if (newPassword.length < 8) {
-    showFeedback("securityFeedback", "La nueva contraseña debe tener al menos 8 caracteres.");
+    showFeedback("securityFeedback", "Pasahitz berriak gutxienez 8 karaktere izan behar ditu.");
     return;
   }
   if (newPassword !== repeatNewPassword) {
-    showFeedback("securityFeedback", "Las nuevas contraseñas no coinciden.");
+    showFeedback("securityFeedback", "Pasahitz berriak ez datoz bat.");
     return;
   }
 
@@ -138,9 +138,9 @@ async function cambiarPassword(event) {
       },
     });
     document.getElementById("passwordForm").reset();
-    showFeedback("securityFeedback", "Contraseña cambiada correctamente.", "success");
+    showFeedback("securityFeedback", "Pasahitza behar bezala aldatu da.", "success");
   } catch (error) {
-    showFeedback("securityFeedback", `No se pudo cambiar la contraseña: ${error.message}`);
+    showFeedback("securityFeedback", `Ezin izan da pasahitza aldatu: ${error.message}`);
   } finally {
     setLoading(button, false);
   }

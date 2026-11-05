@@ -55,6 +55,23 @@ class ErreserbakCreate(BaseModel):
         return self
 
 
+class ErreserbakOrdutegiaUpdate(BaseModel):
+    hasiera_data_ordua: datetime
+    amaiera_data_ordua: datetime
+
+    @model_validator(mode="after")
+    def balidatu_iraupena(self):
+        if self.amaiera_data_ordua <= self.hasiera_data_ordua:
+            raise ValueError("Amaiera-data hasiera-data baino geroagokoa izan behar da")
+
+        iraupena = self.amaiera_data_ordua - self.hasiera_data_ordua
+        if iraupena < timedelta(minutes=15):
+            raise ValueError("Erreserbak gutxienez 15 minutu iraun behar du")
+        if iraupena > timedelta(hours=6):
+            raise ValueError("Erreserbak gehienez 6 ordu iraun dezake")
+        return self
+
+
 class QrScanRequest(BaseModel):
     token: str = Field(min_length=8, max_length=64)
     kargagunea_id: int = Field(gt=0)

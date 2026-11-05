@@ -8,28 +8,28 @@ let processingToken = false;
 let pendingToken = null;
 
 const STATUS_META = {
-  idle: { icon: "fa-qrcode", title: "Esperando un QR…", kind: "idle" },
-  loading: { icon: "fa-spinner fa-spin", title: "Validando QR…", kind: "idle" },
-  in_use: { icon: "fa-lock-open", title: "Reserva en uso", kind: "success" },
-  closed: { icon: "fa-lock", title: "Taquilla cerrada", kind: "success" },
-  returned: { icon: "fa-circle-check", title: "Powerbank entregada", kind: "success" },
+  idle: { icon: "fa-qrcode", title: "QR baten zain…", kind: "idle" },
+  loading: { icon: "fa-spinner fa-spin", title: "QR kodea balidatzen…", kind: "idle" },
+  in_use: { icon: "fa-lock-open", title: "Erreserba erabiltzen", kind: "success" },
+  closed: { icon: "fa-lock", title: "Taquilla itxita", kind: "success" },
+  returned: { icon: "fa-circle-check", title: "Powerbank emanda", kind: "success" },
   returned_late: {
     icon: "fa-triangle-exclamation",
-    title: "Entregada con retraso",
+    title: "Berandu emanda",
     kind: "warning",
   },
-  too_early: { icon: "fa-clock", title: "Todavía no es la hora", kind: "warning" },
-  expired: { icon: "fa-hourglass-end", title: "QR expirado", kind: "danger" },
+  too_early: { icon: "fa-clock", title: "Oraindik ez da ordua", kind: "warning" },
+  expired: { icon: "fa-hourglass-end", title: "QR iraungita", kind: "danger" },
   wrong_station: {
     icon: "fa-location-crosshairs",
-    title: "Estación incorrecta",
+    title: "Kargagune okerra",
     kind: "danger",
   },
-  no_free_locker: { icon: "fa-box-open", title: "Sin taquillas libres", kind: "danger" },
-  already_returned: { icon: "fa-circle-info", title: "Ya devuelta", kind: "info" },
-  cancelled: { icon: "fa-ban", title: "Reserva cancelada", kind: "danger" },
-  invalid: { icon: "fa-qrcode", title: "QR no válido", kind: "danger" },
-  invalid_station: { icon: "fa-location-xmark", title: "Estación no válida", kind: "danger" },
+  no_free_locker: { icon: "fa-box-open", title: "Taquilla librerik ez", kind: "danger" },
+  already_returned: { icon: "fa-circle-info", title: "Dagoeneko itzulita", kind: "info" },
+  cancelled: { icon: "fa-ban", title: "Erreserba ezeztatuta", kind: "danger" },
+  invalid: { icon: "fa-qrcode", title: "QR baliogabea", kind: "danger" },
+  invalid_station: { icon: "fa-location-xmark", title: "Kargagune baliogabea", kind: "danger" },
   error: { icon: "fa-triangle-exclamation", title: "Error", kind: "danger" },
 };
 
@@ -71,7 +71,7 @@ async function iniciarTaquilla() {
   } catch (error) {
     mostrarResultado({
       status: "error",
-      message: `No se pudieron cargar las estaciones: ${error.message}`,
+      message: `Ezin izan dira kargaguneak kargatu: ${error.message}`,
     });
     mostrarSeccion("lockerPanel");
     return;
@@ -103,7 +103,7 @@ async function cargarEstaciones() {
 
   const placeholder = document.createElement("option");
   placeholder.value = "";
-  placeholder.textContent = "Selecciona una estación";
+  placeholder.textContent = "Aukeratu kargagunea";
   select.appendChild(placeholder);
 
   lockerStations.forEach((station) => {
@@ -163,7 +163,7 @@ function validarTokenManual() {
   if (!token) {
     mostrarResultado({
       status: "invalid",
-      message: "Pega un token o una URL de QR válida.",
+      message: "Itsatsi token baliozkoa edo QRren URLa.",
     });
     return;
   }
@@ -192,7 +192,7 @@ async function procesarToken(token) {
   }
 
   processingToken = true;
-  mostrarResultado({ status: "loading", message: "Comprobando la reserva…" });
+  mostrarResultado({ status: "loading", message: "Erreserba egiaztatzen…" });
 
   try {
     const data = await apiRequest("/qr/eskaneatu", {
@@ -209,7 +209,7 @@ async function procesarToken(token) {
           }
         : error.data || {
             status: "error",
-            message: error.message || "No se pudo validar el QR.",
+            message: error.message || "Ezin izan da QR kodea balidatu.",
           };
     mostrarResultado(payload);
   } finally {
@@ -240,7 +240,7 @@ function mostrarResultado(data) {
   result.append(icon, title, message);
 
   if (data?.station?.izena) {
-    result.appendChild(crearDetalle("Estación", data.station.izena));
+    result.appendChild(crearDetalle("Kargagunea", data.station.izena));
   }
 
   if (data?.locker_id) {
@@ -255,32 +255,32 @@ function mostrarResultado(data) {
     const reserva = data.reservation;
 
     if (reserva.kargagunea_izena) {
-      result.appendChild(crearDetalle("Reserva en", reserva.kargagunea_izena));
+      result.appendChild(crearDetalle("Erreserba hemen", reserva.kargagunea_izena));
     }
     if (reserva.hasiera_data_ordua) {
-      result.appendChild(crearDetalle("Horario", formatearRango(reserva)));
+      result.appendChild(crearDetalle("Ordutegia", formatearRango(reserva)));
     }
     if (reserva.berandu && data?.status !== "returned_late") {
       const importe = Number(reserva.karga_extra || 0)
         .toFixed(2)
         .replace(".", ",");
-      result.appendChild(crearDetalle("Cargo extra", `${importe} €`));
+      result.appendChild(crearDetalle("Gastu gehigarria", `${importe} €`));
     }
   }
 
   if (data?.status === "returned_late" && data.extra_fee != null) {
     const importe = Number(data.extra_fee).toFixed(2).replace(".", ",");
     result.appendChild(
-      crearDetalle("Cargo extra", `${importe} € (${data.late_hours} h empezada(s))`),
+      crearDetalle("Gastu gehigarria", `${importe} € (${data.late_hours} hasitako ordu)`),
     );
   }
 
   if (data?.status === "in_use") {
     result.appendChild(
-      crearBoton("Cerrar taquilla", "btn btn-primary w-100 mt-2", () => {
+      crearBoton("Itxi taquilla", "btn btn-primary w-100 mt-2", () => {
         mostrarResultado({
           status: "closed",
-          message: "Taquilla cerrada. La reserva queda en uso hasta la devolución.",
+          message: "Taquilla itxita. Erreserba erabiltzen geratzen da itzuli arte.",
         });
       }),
     );
@@ -291,11 +291,11 @@ function mostrarResultado(data) {
       .toFixed(2)
       .replace(".", ",");
     const mensaje = data.late
-      ? `Taquilla cerrada. Powerbank entregada con retraso. Cargo extra: ${importe} €.`
-      : "Taquilla cerrada. Powerbank entregada correctamente.";
+      ? `Taquilla itxita. Powerbank berandu emanda. Gastu gehigarria: ${importe} €.`
+      : "Taquilla itxita. Powerbank behar bezala emanda.";
 
     result.appendChild(
-      crearBoton("Cerrar taquilla", "btn btn-primary w-100 mt-2", () => {
+      crearBoton("Itxi taquilla", "btn btn-primary w-100 mt-2", () => {
         mostrarResultado({ status: "closed", message: mensaje });
       }),
     );
@@ -303,7 +303,7 @@ function mostrarResultado(data) {
 
   if (data?.status && !["loading", "idle"].includes(data.status)) {
     result.appendChild(
-      crearBoton("Escanear otro QR", "btn btn-outline-primary w-100 mt-2", () => {
+      crearBoton("Eskaneatu beste QR bat", "btn btn-outline-primary w-100 mt-2", () => {
         mostrarResultado({ status: "idle" });
         document.getElementById("lockerScanButton").focus();
       }),
@@ -341,16 +341,16 @@ function formatearRango(reserva) {
   const end = new Date(reserva.amaiera_data_ordua);
   if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return "—";
 
-  const date = start.toLocaleDateString("es-ES", {
+  const date = start.toLocaleDateString("eu", {
     day: "2-digit",
     month: "short",
     year: "numeric",
   });
-  const startTime = start.toLocaleTimeString("es-ES", {
+  const startTime = start.toLocaleTimeString("eu", {
     hour: "2-digit",
     minute: "2-digit",
   });
-  const endTime = end.toLocaleTimeString("es-ES", {
+  const endTime = end.toLocaleTimeString("eu", {
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -364,7 +364,7 @@ async function iniciarEscaner() {
     mostrarResultado({
       status: "error",
       message:
-        "No se pudo cargar el lector. Usa la cámara nativa del móvil o pega el código del QR.",
+        "Ezin izan da irakurgailua kargatu. Erabili mugikorraren kamera edo itsatsi QR kodea.",
     });
     return;
   }
@@ -373,7 +373,7 @@ async function iniciarEscaner() {
     mostrarResultado({
       status: "error",
       message:
-        "La cámara integrada necesita HTTPS. En local usa la cámara nativa del móvil o pega el código del QR.",
+        "Kamera integratuak HTTPS behar du. Lokalean erabili mugikorraren kamera edo itsatsi QR kodea.",
     });
     return;
   }
@@ -387,7 +387,7 @@ async function iniciarEscaner() {
   const badge = document.getElementById("lockerStatusBadge");
 
   scanButton.disabled = true;
-  badge.textContent = "Iniciando…";
+  badge.textContent = "Hasten…";
 
   try {
     await qrScanner.start(
@@ -402,11 +402,11 @@ async function iniciarEscaner() {
     scannerRunning = true;
     scanButton.classList.add("d-none");
     stopButton.classList.remove("d-none");
-    badge.textContent = "Cámara activa";
+    badge.textContent = "Kamera aktibo";
     badge.className = "pb-badge pb-badge-success";
   } catch (error) {
     scanButton.disabled = false;
-    badge.textContent = "Listo";
+    badge.textContent = "Prest";
     badge.className = "pb-badge pb-badge-primary";
     try {
       qrScanner?.clear();
@@ -417,7 +417,7 @@ async function iniciarEscaner() {
     mostrarResultado({
       status: "error",
       message:
-        "No se pudo abrir la cámara. Usa la cámara nativa del móvil o pega el código del QR.",
+        "Ezin izan da kamera ireki. Erabili mugikorraren kamera edo itsatsi QR kodea.",
     });
   }
 }
@@ -441,7 +441,7 @@ async function detenerEscaner() {
   scanButton.disabled = false;
   scanButton.classList.remove("d-none");
   stopButton.classList.add("d-none");
-  badge.textContent = "Listo";
+  badge.textContent = "Prest";
   badge.className = "pb-badge pb-badge-primary";
 }
 
