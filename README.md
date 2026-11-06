@@ -1,5 +1,7 @@
 # Powerbank · Alokairu Sistema
 
+**Bertsioa:** v1.0 · 2026-11-06
+
 Powerbank-en alokairua kudeatzeko sistema osoa: erabiltzaileentzako web aplikazioa, administrazio-panel angularra, FastAPI bidezko API bat eta PostgreSQL datu-basea.
 
 **Egileak:** Xabier Lazcoz eta Aitor Mindeguia.

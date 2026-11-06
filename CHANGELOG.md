@@ -2,7 +2,7 @@
 
 Formatu hau [Keep a Changelog](https://keepachangelog.com/eu/1.1.0/) estandarrean oinarritzen da.
 
-## [Unreleased]
+## [1.0.0] - 2026-11-06
 
 ### Gehitua
 

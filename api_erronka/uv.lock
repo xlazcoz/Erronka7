@@ -58,7 +58,7 @@ wheels = [
 
 [[package]]
 name = "api-erronka"
-version = "0.1.0"
+version = "1.0.0"
 source = { virtual = "." }
 dependencies = [
     { name = "alembic" },
